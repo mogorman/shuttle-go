@@ -17,20 +17,41 @@ var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 
 var startedYdotoold bool
 
+// ydotooldRunning reports whether a ydotoold process is currently alive.
+func ydotooldRunning() bool {
+	return exec.Command("pgrep", "-x", "ydotoold").Run() == nil
+}
+
+// ensureYdotoold starts ydotoold if it is not running. It is a no-op when a
+// live ydotoold is already present.
 func ensureYdotoold() error {
-	if err := exec.Command("pgrep", "-x", "ydotoold").Run(); err == nil {
+	if ydotooldRunning() {
 		return nil
 	}
 	if *debugMode {
 		fmt.Println("Starting ydotoold...")
 	}
 	startedYdotoold = true
-	return exec.Command("ydotoold").Start()
+	if err := exec.Command("ydotoold").Start(); err != nil {
+		return err
+	}
+	// Wait until it is actually up so callers can rely on it immediately.
+	for i := 0; i < 50 && !ydotooldRunning(); i++ {
+		time.Sleep(100 * time.Millisecond)
+	}
+	return nil
 }
 
+// stopYdotoold kills ydotoold (only if we started it) and waits for it to
+// actually exit, so a subsequent ensureYdotoold does not mistake a dying
+// process for a live one.
 func stopYdotoold() {
-	if startedYdotoold {
-		exec.Command("pkill", "-x", "ydotoold").Run()
+	if !startedYdotoold {
+		return
+	}
+	exec.Command("pkill", "-x", "ydotoold").Run()
+	for i := 0; i < 50 && ydotooldRunning(); i++ {
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
