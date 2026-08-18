@@ -23,6 +23,7 @@ type Mapper struct {
 type buttonsState struct {
 	jog           int
 	shuttle       int
+	shuttleCode   int
 	buttonsHeld   map[int]bool
 	activeBinding map[int]int
 	lastJog       time.Time
@@ -36,6 +37,18 @@ func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
 	m.state.activeBinding = make(map[int]int)
 	m.state.jog = -1
 	return m
+}
+
+func (m *Mapper) ReleaseAll() {
+	if m.state.shuttleCode != 0 {
+		fmt.Printf("ydotool key %d:0\n", m.state.shuttleCode)
+		exec.Command("ydotool", "key", fmt.Sprintf("%d:0", m.state.shuttleCode)).Run()
+		m.state.shuttleCode = 0
+	}
+	for code := range m.state.activeBinding {
+		fmt.Printf("ydotool key %d:0\n", code)
+		exec.Command("ydotool", "key", fmt.Sprintf("%d:0", code)).Run()
+	}
 }
 
 func (m *Mapper) Process() error {
@@ -86,12 +99,30 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 
 	newShuttleVal := shuttleVal(evs)
 	if m.state.shuttle != newShuttleVal {
+		// Release the previously held shuttle key
+		if m.state.shuttleCode != 0 {
+			fmt.Printf("ydotool key %d:0\n", m.state.shuttleCode)
+			exec.Command("ydotool", "key", fmt.Sprintf("%d:0", m.state.shuttleCode)).Run()
+			m.state.shuttleCode = 0
+		}
+
 		keyName := fmt.Sprintf("S%d", newShuttleVal)
 		if *debugMode {
 			fmt.Println("SHUTTLE", keyName)
 		}
-		if err := m.EmitOther(keyName); err != nil {
-			fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
+
+		if newShuttleVal == 0 {
+			// S0 is a tap
+			if err := m.EmitOther(keyName); err != nil {
+				fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
+			}
+		} else {
+			// S-7..S7 hold the key down until shuttle moves again
+			code, err := m.EmitOtherHold(keyName)
+			if err != nil {
+				fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
+			}
+			m.state.shuttleCode = code
 		}
 		m.state.shuttle = newShuttleVal
 	}
@@ -168,6 +199,27 @@ func (m *Mapper) EmitOther(key string) error {
 	}
 
 	return fmt.Errorf("No bindings for those movements")
+}
+
+func (m *Mapper) EmitOtherHold(key string) (int, error) {
+	conf := currentConfiguration
+	if conf == nil {
+		return 0, fmt.Errorf("No configuration for this Window")
+	}
+
+	upperKey := strings.ToUpper(key)
+
+	if *debugMode {
+		fmt.Println("EmitOtherHold:", key)
+	}
+
+	for _, binding := range conf.bindings {
+		if binding.otherKey == upperKey {
+			return m.executeBinding(binding)
+		}
+	}
+
+	return 0, fmt.Errorf("No bindings for those movements")
 }
 
 func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) (int, error) {

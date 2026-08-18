@@ -93,6 +93,7 @@ func main() {
 	for {
 		if err := mapper.Process(); err != nil {
 			fmt.Println("Error processing input events (continuing):", err)
+			mapper.ReleaseAll()
 			stopYdotoold()
 			os.Exit(123)
 		}
