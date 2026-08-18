@@ -1,6 +1,34 @@
 Linux driver for Contour Design Shuttle Pro V2
 ==============================================
 
+## About this fork
+
+This is a fork of [abourget/shuttle-go](https://github.com/abourget/shuttle-go)
+focused on **better support for GNOME on Wayland**. The upstream project was
+built around X11, where it could read the active window title directly and
+inject keystrokes with `xdotool`. Neither of those works on Wayland, so this
+fork:
+
+* **Reads the active window over D-Bus** via the
+  [window-calls](https://github.com/ickyicky/window-calls) GNOME extension,
+  instead of the X11 `_NET_ACTIVE_WINDOW` property.
+* **Matches on `wm_class`** as well as the window title (see
+  [Window matching](#window-matching)), so bindings can target a specific
+  application window even when titles are generic.
+* **Injects keys with `ydotool`** (the default driver) instead of `xdotool`,
+  which works on both X11 and Wayland. It manages the `ydotoold` daemon for
+  you and supports [macro sequences](#macro-sequences) (`/type`, `/sleep`,
+  `/exec`, `/mousemove`, `/click`) for richer bindings.
+* **Disables the Shuttle's pointer via `libinput`** on Wayland (and `xinput`
+  on X11), so the device doesn't move the cursor.
+* **Keeps running** across plug/unplug: it waits for the device, and restarts
+  `ydotoold` when the Shuttle is reconnected.
+
+The rest of this document describes the (shared) configuration format and
+behavior.
+
+## Overview
+
 The goal of this project is to use the Shuttle Pro V2 with the
 Lightworks Non-Linear Video Editor, but `shuttle-go` allows you
 to control anything.  It has support for:
