@@ -35,17 +35,9 @@ buildGoModule rec {
   doCheck = false;
 
   # Stamp the git commit into the binary so `shuttle-go --version` reports it.
-  # We generate a small Go file whose init() overwrites the default `version`
-  # (declared in main.go) with the current HEAD.
-  postPatch = ''
-    local commit
-    commit="$(git -C "$modRoot" rev-parse HEAD 2>/dev/null || echo unknown)"
-    cat > "$modRoot/zz_version.go" <<EOF
-    package main
-
-    func init() { version = "$commit" }
-    EOF
-  '';
+  # The Nix source has no .git, so we read the committed VERSION file (kept in
+  # sync by build.sh) instead of running git.
+  ldflags = [ "-X main.version=${lib.removeSuffix "\n" (builtins.readFile ./VERSION)}" ];
 
   postInstall = ''
     wrapProgram $out/bin/shuttle-go \
