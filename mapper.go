@@ -21,10 +21,11 @@ type Mapper struct {
 }
 
 type buttonsState struct {
-	jog         int
-	shuttle     int
-	buttonsHeld map[int]bool
-	lastJog     time.Time
+	jog           int
+	shuttle       int
+	buttonsHeld   map[int]bool
+	activeBinding map[int]int
+	lastJog       time.Time
 }
 
 func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
@@ -32,6 +33,7 @@ func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
 		inputDevice: inputDevice,
 	}
 	m.state.buttonsHeld = make(map[int]bool)
+	m.state.activeBinding = make(map[int]int)
 	m.state.jog = -1
 	return m
 }
@@ -100,12 +102,24 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 		}
 
 		heldButtons, lastDown := buttonVals(m.state.buttonsHeld, ev)
+
 		if lastDown != 0 {
 			modifiers := buttonsToModifiers(heldButtons, lastDown)
-			if err := m.EmitKeys(modifiers, lastDown); err != nil {
+			code, err := m.EmitKeys(modifiers, lastDown)
+			if err != nil {
 				fmt.Println("Button press:", err)
 			}
-			// fmt.Printf("OUTPUT: Modifiers: %v,  Just pressed: %d\n", modifiers, lastDown)
+			if code != 0 {
+				m.state.activeBinding[lastDown] = code
+			}
+		} else if ev.Value == 0 {
+			if code, ok := m.state.activeBinding[int(ev.Code)]; ok {
+				fmt.Printf("ydotool key %d:0\n", code)
+				if err := exec.Command("ydotool", "key", fmt.Sprintf("%d:0", code)).Run(); err != nil {
+					fmt.Println("Button release:", err)
+				}
+				delete(m.state.activeBinding, int(ev.Code))
+			}
 		}
 		m.state.buttonsHeld = heldButtons
 	}
@@ -149,17 +163,18 @@ func (m *Mapper) EmitOther(key string) error {
 
 	for _, binding := range conf.bindings {
 		if binding.otherKey == upperKey {
-			return m.executeBinding(binding)
+			_, err := m.executeBinding(binding)
+			return err
 		}
 	}
 
 	return fmt.Errorf("No bindings for those movements")
 }
 
-func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) error {
+func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) (int, error) {
 	conf := currentConfiguration
 	if conf == nil {
-		return fmt.Errorf("No configuration for this Window")
+		return 0, fmt.Errorf("No configuration for this Window")
 	}
 
 	if *debugMode {
@@ -172,23 +187,27 @@ func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) error {
 		}
 	}
 
-	return fmt.Errorf("No binding for these keys")
+	return 0, fmt.Errorf("No binding for these keys")
 }
 
-func (m *Mapper) executeBinding(binding *deviceBinding) error {
+func (m *Mapper) executeBinding(binding *deviceBinding) (int, error) {
 	time.Sleep(25 * time.Millisecond)
 	switch binding.driver {
 	case "exec":
 		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
-		return exec.Command("env", "bash", "-c", binding.original).Run()
+		return 0, exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
-		fmt.Println("ydotool key", binding.original)
-		return exec.Command("ydotool", "key", binding.original).Run()
+		code, err := ydotoolKeyCode(binding.original)
+		if err != nil {
+			return 0, err
+		}
+		fmt.Printf("ydotool key %d:1\n", code)
+		return code, exec.Command("ydotool", "key", fmt.Sprintf("%d:1", code)).Run()
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {
 			fmt.Printf("Failed parsing OSC binding for keys %q. Remember %q should start with an /\n", binding.rawKey, binding.rawValue)
-			return nil
+			return 0, nil
 		}
 		for _, msg := range msgs {
 			if msg.Address == "/sleep" {
@@ -199,10 +218,10 @@ func (m *Mapper) executeBinding(binding *deviceBinding) error {
 			fmt.Println("Sending OSC message:", msg)
 			err := binding.oscClient.Send(msg)
 			if err != nil {
-				return err
+				return 0, err
 			}
 		}
-		return nil
+		return 0, nil
 	default:
 		panic("unreachable")
 	}

@@ -5,9 +5,10 @@
   ydotool,
   dbus,
   libinput,
-  xorg,
+  xinput,
   procps,
   bash,
+  makeWrapper,
 }:
 
 let
@@ -15,7 +16,7 @@ let
     ydotool
     dbus
     libinput
-    xorg.xinput
+    xinput
     procps
     bash
   ];
@@ -28,7 +29,7 @@ buildGoModule rec {
 
   subPackages = [];
 
-  nativeBuildInputs = runtimeDeps;
+  nativeBuildInputs = [ makeWrapper ] ++ runtimeDeps;
 
   vendorHash = "sha256-vwW+do+suS7gT0CkTEGdnIWlzWGJPZHhxEGgNGjIwS0=";
   doCheck = false;

@@ -1,6 +1,10 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 var shuttleKeys = map[string]int{
 	"F1": 256,
@@ -299,4 +303,21 @@ func init() {
 	for k, v := range otherShuttleKeys {
 		otherShuttleKeysUpper[strings.ToUpper(k)] = v
 	}
+}
+
+// ydotoolKeyCode translates a key name (as written in the config) to a Linux
+// input keycode suitable for `ydotool key <code>:<value>`.
+// Accepts either a hex keycode ("0xff51") or a name from keyboardKeys ("S", "Enter", ...).
+func ydotoolKeyCode(key string) (int, error) {
+	if strings.HasPrefix(key, "0x") {
+		code, err := strconv.ParseInt(key, 0, 32)
+		if err != nil {
+			return 0, fmt.Errorf("invalid hex keycode %q: %s", key, err)
+		}
+		return int(code), nil
+	}
+	if code, ok := keyboardKeysUpper[strings.ToUpper(key)]; ok {
+		return code, nil
+	}
+	return 0, fmt.Errorf("unknown key %q (use a keyboardKeys name or a 0x keycode)", key)
 }
