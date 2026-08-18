@@ -43,6 +43,12 @@ func (m *Mapper) Process() error {
 		return err
 	}
 
+	if *debugMode {
+		for _, ev := range evs {
+			fmt.Printf("INPUT: TYPE: %d\tCODE: %d\tVALUE: %d\n", ev.Type, ev.Code, ev.Value)
+		}
+	}
+
 	m.dispatch(evs)
 
 	return nil
