@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -13,20 +14,22 @@ import (
 )
 
 type watcher struct {
-	conn                 *xgb.Conn
-	root                 xproto.Window
-	activeAtom, nameAtom xproto.Atom
-	prevWindowName       string
-	lastWindowID         xproto.Window
+	conn                      *xgb.Conn
+	root                      xproto.Window
+	activeAtom, nameAtom      xproto.Atom
+	classAtom                 xproto.Atom
+	prevWindowName            string
+	prevWMClass               string
+	lastWindowID              xproto.Window
 }
 
 func NewWindowWatcher() *watcher {
 	return &watcher{}
 }
 
-func getWaylandWindowTitle() string {
+func getWaylandWindow() (title, wmClass string) {
 	if os.Getenv("WAYLAND_DISPLAY") == "" {
-		return ""
+		return "", ""
 	}
 
 	// GNOME Shell "Windows" extension: list all windows as JSON
@@ -36,23 +39,24 @@ func getWaylandWindowTitle() string {
 		"org.gnome.Shell.Extensions.Windows.List")
 	out, err := cmd.Output()
 	if err != nil || len(out) == 0 {
-		return ""
+		return "", ""
 	}
 
 	type window struct {
-		Title string `json:"title"`
-		Focus bool   `json:"focus"`
+		Title   string `json:"title"`
+		WMClass string `json:"wm_class"`
+		Focus   bool   `json:"focus"`
 	}
 	var windows []window
 	if json.Unmarshal(out, &windows) == nil {
 		for _, w := range windows {
 			if w.Focus {
-				return w.Title
+				return w.Title, w.WMClass
 			}
 		}
 	}
 
-	return ""
+	return "", ""
 }
 
 func (w *watcher) Setup() error {
@@ -93,8 +97,17 @@ func (w *watcher) Setup() error {
 		return fmt.Errorf("Couldn't get _NET_WM_NAME atom: %s", err)
 	}
 
+	// Get the atom id of "WM_CLASS".
+	aname = "WM_CLASS"
+	classAtom, err := xproto.InternAtom(X, true, uint16(len(aname)),
+		aname).Reply()
+	if err != nil {
+		return fmt.Errorf("Couldn't get WM_CLASS atom: %s", err)
+	}
+
 	w.activeAtom = activeAtom.Atom
 	w.nameAtom = nameAtom.Atom
+	w.classAtom = classAtom.Atom
 
 	return nil
 }
@@ -107,11 +120,11 @@ func (w *watcher) Run() {
 }
 
 func (w *watcher) watch() {
-	var windowName string
+	var windowName, wmClass string
 
 	if isWayland() {
-		windowName = getWaylandWindowTitle()
-		if windowName == "" {
+		windowName, wmClass = getWaylandWindow()
+		if windowName == "" && wmClass == "" {
 			return
 		}
 	} else {
@@ -133,34 +146,42 @@ func (w *watcher) watch() {
 
 		w.lastWindowID = windowID
 		windowName = string(reply.Value)
+
+		// WM_CLASS is two NUL-terminated strings: instance, class.
+		if reply, err = xproto.GetProperty(w.conn, false, windowID, w.classAtom,
+			xproto.GetPropertyTypeAny, 0, (1<<32)-1).Reply(); err == nil {
+			wmClass = string(reply.Value)
+			if idx := bytes.IndexByte(reply.Value, 0); idx >= 0 {
+				wmClass = string(reply.Value[idx+1:])
+			}
+		}
 	}
 
 	if *debugMode {
-		fmt.Println("Active window title:", windowName)
+		fmt.Println("Active window title:", windowName, "wm_class:", wmClass)
 	}
-	if w.prevWindowName != windowName {
+	if w.prevWindowName != windowName || w.prevWMClass != wmClass {
 		w.prevWindowName = windowName
+		w.prevWMClass = wmClass
 
-		w.loadWindowConfiguration(windowName)
+		w.loadWindowConfiguration(windowName, wmClass)
 	}
 }
 
-func (w *watcher) loadWindowConfiguration(windowName string) {
+func (w *watcher) loadWindowConfiguration(windowName, wmClass string) {
 	if loadedConfiguration == nil {
-		fmt.Println("Window name switched, but no configuration:", windowName)
+		fmt.Println("Window switched, but no configuration:", windowName, wmClass)
 		return
 	}
 
 	for _, conf := range loadedConfiguration.Apps {
-		for _, re := range conf.windowTitleRegexps {
-			if *debugMode {
-				fmt.Println("Testing title:", windowName)
-			}
-			if re.MatchString(windowName) {
-				fmt.Printf("Switching configuration for app %q\n", conf.Name)
-				currentConfiguration = conf
-				return
-			}
+		if *debugMode {
+			fmt.Println("Testing title:", windowName, "wm_class:", wmClass)
+		}
+		if conf.matchesWindow(windowName, wmClass) {
+			fmt.Printf("Switching configuration for app %q\n", conf.Name)
+			currentConfiguration = conf
+			return
 		}
 	}
 

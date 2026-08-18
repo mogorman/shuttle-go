@@ -20,17 +20,19 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name               string   `json:"name"`
-	MatchWindowTitles  []string `json:"match_window_titles"`
-	SlowJog            *int     `json:"slow_jog"` // Time in millisecond to use slow jog
-	Driver             string   `json:"driver"`
+	Name              string   `json:"name"`
+	MatchWindowTitles []string `json:"match_window_titles"`
+	MatchWMClass      []string `json:"match_wm_class"`
+	SlowJog           *int     `json:"slow_jog"` // Time in millisecond to use slow jog
+	Driver            string   `json:"driver"`
 	windowTitleRegexps []*regexp.Regexp
-	Bindings           map[string]string `json:"bindings"`
-	bindings           []*deviceBinding
+	wmClassRegexps     []*regexp.Regexp
+	Bindings          map[string]string `json:"bindings"`
+	bindings          []*deviceBinding
 }
 
 func (ac *AppConfig) parse() error {
-	if len(ac.MatchWindowTitles) == 0 {
+	if len(ac.MatchWindowTitles) == 0 && len(ac.MatchWMClass) == 0 {
 		ac.windowTitleRegexps = []*regexp.Regexp{
 			regexp.MustCompile(`.*`),
 		}
@@ -40,13 +42,48 @@ func (ac *AppConfig) parse() error {
 	for _, window := range ac.MatchWindowTitles {
 		re, err := regexp.Compile(window)
 		if err != nil {
-			return fmt.Errorf("Invalid regexp in window match %q: %s", window, err)
+			return fmt.Errorf("Invalid regexp in window title match %q: %s", window, err)
 		}
-
 		ac.windowTitleRegexps = append(ac.windowTitleRegexps, re)
 	}
 
+	for _, class := range ac.MatchWMClass {
+		re, err := regexp.Compile(class)
+		if err != nil {
+			return fmt.Errorf("Invalid regexp in wm_class match %q: %s", class, err)
+		}
+		ac.wmClassRegexps = append(ac.wmClassRegexps, re)
+	}
+
 	return nil
+}
+
+// matchesWindow reports whether the given window matches this app's configured
+// matchers. Within each dimension, any regexp matching is enough (OR). When
+// both match_window_titles and match_wm_class are present, both dimensions must
+// match (AND), so e.g. you can target one specific Emacs window but not all of
+// them.
+func (ac *AppConfig) matchesWindow(title, wmClass string) bool {
+	if len(ac.windowTitleRegexps) > 0 && len(ac.wmClassRegexps) > 0 {
+		return ac.matchAny(ac.windowTitleRegexps, title) && ac.matchAny(ac.wmClassRegexps, wmClass)
+	}
+	if len(ac.windowTitleRegexps) > 0 {
+		return ac.matchAny(ac.windowTitleRegexps, title)
+	}
+	if len(ac.wmClassRegexps) > 0 {
+		return ac.matchAny(ac.wmClassRegexps, wmClass)
+	}
+	// No matchers configured: match everything.
+	return true
+}
+
+func (ac *AppConfig) matchAny(regexps []*regexp.Regexp, value string) bool {
+	for _, re := range regexps {
+		if re.MatchString(value) {
+			return true
+		}
+	}
+	return false
 }
 
 type deviceBinding struct {

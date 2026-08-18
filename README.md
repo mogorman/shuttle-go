@@ -14,6 +14,34 @@ buttons.  So you can multiple the functionality of your buttons.  For
 example, you can have different bindings for
 <kbd>B1</kbd>+<kbd>F1</kbd> and <kbd>F1</kbd>.
 
+## Window matching
+
+Each app in the configuration is selected by matching the active window.
+You can match on the window **title** (with `match_window_titles`) and/or
+the window's **WM_CLASS** (with `match_wm_class`). Each list holds regular
+expressions; a window matching *any* regexp in a list satisfies that
+dimension.
+
+- If only one list is present, that dimension alone decides the match.
+- If **both** lists are present, **both** must match (AND). This lets you
+  target one specific window but not all of them — e.g. a particular Emacs
+  buffer while ignoring the rest.
+
+```json
+{
+    "name": "Emacs - org mode",
+    "match_wm_class": ["^Emacs$"],
+    "match_window_titles": ["\\*org/.*\\.org\\*"],
+    "bindings": { ... }
+}
+```
+
+Matching on `wm_class` is often more stable than matching on the title,
+since the class is set by the application and doesn't change with the
+working directory or document name. On Wayland/GNOME the class is read from
+the `window-calls` extension (see below); on X11 it is read from the
+`WM_CLASS` window property.
+
 ## Layout
 
 Buttons layout on the Contour Design Shuttle Pro v2:
@@ -105,8 +133,8 @@ default. To allow `shuttle-go` to see the active window title, install the
 
     gnome-extensions install https://github.com/ickyicky/window-calls
 
-This makes the window title available over D-Bus, which is how `shuttle-go`
-reads it.
+This makes the window title and `wm_class` available over D-Bus, which is
+how `shuttle-go` reads them.
 
 ### For ShuttlePRO_v1
     shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO-event-mouse
