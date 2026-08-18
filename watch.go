@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"os/exec"
 	"time"
 
 	"github.com/BurntSushi/xgb"
@@ -21,7 +24,44 @@ func NewWindowWatcher() *watcher {
 	return &watcher{}
 }
 
+func getWaylandWindowTitle() string {
+	if os.Getenv("WAYLAND_DISPLAY") == "" {
+		return ""
+	}
+
+	// GNOME Shell "Windows" extension: list all windows as JSON
+	cmd := exec.Command("dbus-send", "--session", "--print-reply=literal",
+		"--dest=org.gnome.Shell",
+		"/org/gnome/Shell/Extensions/Windows",
+		"org.gnome.Shell.Extensions.Windows.List")
+	out, err := cmd.Output()
+	if err != nil || len(out) == 0 {
+		return ""
+	}
+
+	type window struct {
+		Title string `json:"title"`
+		Focus bool   `json:"focus"`
+	}
+	var windows []window
+	if json.Unmarshal(out, &windows) == nil {
+		for _, w := range windows {
+			if w.Focus {
+				return w.Title
+			}
+		}
+	}
+
+	return ""
+}
+
 func (w *watcher) Setup() error {
+	if isWayland() {
+		// No X server on Wayland; window-title matching is driven by
+		// getWaylandWindowTitle() in watch().
+		return nil
+	}
+
 	X, err := xgb.NewConn()
 	if err != nil {
 		return err
@@ -67,25 +107,37 @@ func (w *watcher) Run() {
 }
 
 func (w *watcher) watch() {
-	// From github.com/BurntSushi/xgb's examples.
-	reply, err := xproto.GetProperty(w.conn, false, w.root, w.activeAtom,
-		xproto.GetPropertyTypeAny, 0, (1<<32)-1).Reply()
-	if err != nil {
-		fmt.Println("watch windows, failed to get window properties:", err)
-		return
+	var windowName string
+
+	if isWayland() {
+		windowName = getWaylandWindowTitle()
+		if windowName == "" {
+			return
+		}
+	} else {
+		// From github.com/BurntSushi/xgb's examples.
+		reply, err := xproto.GetProperty(w.conn, false, w.root, w.activeAtom,
+			xproto.GetPropertyTypeAny, 0, (1<<32)-1).Reply()
+		if err != nil {
+			fmt.Println("watch windows, failed to get window properties:", err)
+			return
+		}
+		windowID := xproto.Window(xgb.Get32(reply.Value))
+
+		reply, err = xproto.GetProperty(w.conn, false, windowID, w.nameAtom,
+			xproto.GetPropertyTypeAny, 0, (1<<32)-1).Reply()
+		if err != nil {
+			fmt.Println("watch windows, re-failed to get window properties:", err)
+			return
+		}
+
+		w.lastWindowID = windowID
+		windowName = string(reply.Value)
 	}
-	windowID := xproto.Window(xgb.Get32(reply.Value))
 
-	reply, err = xproto.GetProperty(w.conn, false, windowID, w.nameAtom,
-		xproto.GetPropertyTypeAny, 0, (1<<32)-1).Reply()
-	if err != nil {
-		fmt.Println("watch windows, re-failed to get window properties:", err)
-		return
+	if *debugMode {
+		fmt.Println("Active window title:", windowName)
 	}
-
-	w.lastWindowID = windowID
-
-	windowName := string(reply.Value)
 	if w.prevWindowName != windowName {
 		w.prevWindowName = windowName
 
