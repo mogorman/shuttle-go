@@ -14,12 +14,21 @@ var configFile = flag.String("config", filepath.Join(os.Getenv("HOME"), ".shuttl
 var debugMode = flag.Bool("debug", false, "Show debug messages (like window titles)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 
+var startedYdotoold bool
+
 func ensureYdotoold() error {
 	if err := exec.Command("pgrep", "-x", "ydotoold").Run(); err == nil {
 		return nil
 	}
 	fmt.Println("Starting ydotoold...")
+	startedYdotoold = true
 	return exec.Command("ydotoold").Start()
+}
+
+func stopYdotoold() {
+	if startedYdotoold {
+		exec.Command("pkill", "-x", "ydotoold").Run()
+	}
 }
 
 func main() {
@@ -28,6 +37,7 @@ func main() {
 	if *logFile != "" {
 		log, err := os.Create(*logFile)
 		if err != nil {
+			stopYdotoold()
 			os.Exit(101)
 		}
 		defer log.Close()
@@ -43,11 +53,13 @@ func main() {
 
 	if err := LoadConfig(*configFile); err != nil {
 		fmt.Println("Error reading configuration:", err)
+		stopYdotoold()
 		os.Exit(10)
 	}
 
 	if err := ensureYdotoold(); err != nil {
 		fmt.Println("Error starting ydotoold:", err)
+		stopYdotoold()
 		os.Exit(11)
 	}
 
@@ -57,6 +69,7 @@ func main() {
 	watcher := NewWindowWatcher()
 	if err := watcher.Setup(); err != nil {
 		fmt.Println("Error watching X window:", err)
+		stopYdotoold()
 		os.Exit(3)
 	}
 
@@ -66,6 +79,7 @@ func main() {
 	dev, err := evdev.Open(devicePath)
 	if err != nil {
 		fmt.Println("Couldn't open Shuttle device:", err)
+		stopYdotoold()
 		os.Exit(2)
 	}
 
@@ -79,6 +93,7 @@ func main() {
 	for {
 		if err := mapper.Process(); err != nil {
 			fmt.Println("Error processing input events (continuing):", err)
+			stopYdotoold()
 			os.Exit(123)
 		}
 	}

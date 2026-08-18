@@ -163,8 +163,7 @@ func (m *Mapper) EmitOther(key string) error {
 
 	for _, binding := range conf.bindings {
 		if binding.otherKey == upperKey {
-			_, err := m.executeBinding(binding)
-			return err
+			return m.executeBindingTap(binding)
 		}
 	}
 
@@ -222,6 +221,43 @@ func (m *Mapper) executeBinding(binding *deviceBinding) (int, error) {
 			}
 		}
 		return 0, nil
+	default:
+		panic("unreachable")
+	}
+}
+
+func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
+	time.Sleep(25 * time.Millisecond)
+	switch binding.driver {
+	case "exec":
+		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
+		return exec.Command("env", "bash", "-c", binding.original).Run()
+	case "ydotool", "":
+		code, err := ydotoolKeyCode(binding.original)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("ydotool key %d:1 %d:0\n", code, code)
+		return exec.Command("ydotool", "key", fmt.Sprintf("%d:1", code), fmt.Sprintf("%d:0", code)).Run()
+	case "osc":
+		msgs := parseOSCMessages(binding.original)
+		if msgs == nil {
+			fmt.Printf("Failed parsing OSC binding for keys %q. Remember %q should start with an /\n", binding.rawKey, binding.rawValue)
+			return nil
+		}
+		for _, msg := range msgs {
+			if msg.Address == "/sleep" {
+				fmt.Println("Sleeping for", msg.Arguments[0].(float64), "seconds")
+				time.Sleep(time.Duration(msg.Arguments[0].(float64)*1000) * time.Millisecond)
+				continue
+			}
+			fmt.Println("Sending OSC message:", msg)
+			err := binding.oscClient.Send(msg)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	default:
 		panic("unreachable")
 	}
