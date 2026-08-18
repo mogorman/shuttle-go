@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"reflect"
@@ -21,12 +22,13 @@ type Mapper struct {
 }
 
 type buttonsState struct {
-	jog           int
-	shuttle       int
-	shuttleCodes  []int
-	buttonsHeld   map[int]bool
-	activeBinding map[int][]int
-	lastJog       time.Time
+	jog              int
+	shuttle          int
+	shuttleCodes     []int
+	buttonsHeld      map[int]bool
+	activeBinding    map[int][]int
+	activeMacroCancel map[int]context.CancelFunc
+	lastJog          time.Time
 }
 
 func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
@@ -35,6 +37,7 @@ func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
 	}
 	m.state.buttonsHeld = make(map[int]bool)
 	m.state.activeBinding = make(map[int][]int)
+	m.state.activeMacroCancel = make(map[int]context.CancelFunc)
 	m.state.jog = -1
 	return m
 }
@@ -59,6 +62,10 @@ func (m *Mapper) ReleaseAll() {
 		fmt.Printf("ydotool %v\n", args)
 		exec.Command("ydotool", args...).Run()
 	}
+	for _, cancel := range m.state.activeMacroCancel {
+		cancel()
+	}
+	m.state.activeMacroCancel = make(map[int]context.CancelFunc)
 }
 
 func (m *Mapper) Process() error {
@@ -171,6 +178,10 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 				}
 				delete(m.state.activeBinding, int(ev.Code))
 			}
+			if cancel, ok := m.state.activeMacroCancel[int(ev.Code)]; ok {
+				cancel()
+				delete(m.state.activeMacroCancel, int(ev.Code))
+			}
 		}
 		m.state.buttonsHeld = heldButtons
 	}
@@ -269,8 +280,9 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 		return nil, exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
 		if len(binding.macros) > 0 {
-			// A macro sequence is a one-shot: run it on key-down, hold nothing.
-			return nil, m.executeMacroSequence(binding)
+			// Macro chains: run once (a "/once" chain) or repeat while held.
+			// Either way nothing is held, so no key codes are returned.
+			return nil, m.runMacroBinding(binding)
 		}
 		codes, err := ydotoolKeyCodes(binding.original)
 		if err != nil {
@@ -330,6 +342,42 @@ var mouseButtonCodes = map[string]string{
 	"0x07":     "0x07",
 	"0x40":     "0x40",
 	"0x80":     "0x80",
+}
+
+// runMacroBinding runs a binding's macro chain on a button press. A "/once"
+// chain runs exactly once. Any other chain runs immediately, then repeats every
+// 25ms while the button stays held; a background goroutine drives the repeats
+// and is cancelled on key-up (see dispatch) or on exit (see ReleaseAll).
+func (m *Mapper) runMacroBinding(binding *deviceBinding) error {
+	if binding.once {
+		return m.executeMacroSequence(binding)
+	}
+
+	// Immediate first run.
+	if err := m.executeMacroSequence(binding); err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	m.state.activeMacroCancel[binding.buttonDown] = cancel
+
+	go func() {
+		ticker := time.NewTicker(25 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if err := m.executeMacroSequence(binding); err != nil {
+					fmt.Println("Macro repeat:", err)
+					return
+				}
+			}
+		}
+	}()
+
+	return nil
 }
 
 // executeMacroSequence runs a binding's macro commands in order. Each command

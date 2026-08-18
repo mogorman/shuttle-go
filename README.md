@@ -103,11 +103,18 @@ You need to install the `ydotool` package before using this driver (default).
 ##### Macro sequences
 
 With the `ydotool` driver, a binding value can also be a **JSON array of
-macro commands** instead of a single key. The sequence runs top-to-bottom on
-the initial key press (it is a one-shot; nothing is held or released on key-up).
+macro commands** instead of a single key. Nothing is held or released on
+key-up; the difference is in how often the chain runs while the button is held:
+
+* **Default** — the chain runs immediately on key-down, then repeats every
+  25 ms for as long as the button stays held (like a key auto-repeat).
+* **`"/once"`** — if the *first* command in the chain is `"/once"`, the chain
+  runs exactly once on key-down and does not repeat. `"/once"` is a marker
+  only; it is not itself executed.
 
 Available macros:
 
+* `"/once"` — (first position only) make the chain a one-shot
 * `"/type <text>"` — types `<text>` via `ydotool type`
 * `"/sleep <seconds>"` — pauses for `<seconds>` seconds (e.g. `1.5`)
 * `"/exec <command>"` — runs `<command>` through `bash -c`
@@ -121,7 +128,7 @@ Available macros:
   `mouseup`/`0x80`. The optional `repeats` count adds `-r <n>` (e.g.
   `"/click left 4"` → `ydotool click 0x00 -r 4`).
 
-Example:
+Example (repeats while held):
 
 ```json
 "F5": [
@@ -130,6 +137,16 @@ Example:
     "/type !!!",
     "/exec touch /tmp/shuttle-file",
     "/mousemove 500 300 true",
+    "/click left"
+]
+```
+
+Example (one-shot, via a leading `"/once"`):
+
+```json
+"F6": [
+    "/once",
+    "/type hello world",
     "/click left"
 ]
 ```

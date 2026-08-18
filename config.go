@@ -111,6 +111,7 @@ type deviceBinding struct {
 	original    string
 	description string
 	macros      []string
+	once        bool
 }
 
 func (ac *AppConfig) parseBindings() error {
@@ -151,6 +152,11 @@ func (ac *AppConfig) parseBindings() error {
 
 		binding, description := bindingAndDescription(driverProtocol, bv.plain)
 		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: bv.plain, original: binding, description: description, driver: driverProtocol, oscClient: oscClient, macros: bv.macros}
+
+		// A leading "/once" marker makes the chain a one-shot (ydotool driver only).
+		if driverProtocol == "ydotool" && len(bv.macros) > 0 && strings.TrimSpace(bv.macros[0]) == "/once" {
+			newBinding.once = true
+		}
 
 		// Input
 		input := strings.Split(key, "+")

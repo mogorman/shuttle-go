@@ -215,7 +215,11 @@
                     "/mousemove 500 300 true",
                     "/click left 4"
                 ],
-                "F6": "a // Plain single-key binding still works alongside macros"
+                "F6": [
+                    "/once",
+                    "/type one-shot: this runs a single time on press"
+                ],
+                "F7": "a // Plain single-key binding still works alongside macros"
             }
         }
     ]
