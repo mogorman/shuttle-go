@@ -49,7 +49,9 @@ func (m *Mapper) ReleaseAll() {
 		for _, code := range m.state.shuttleCodes {
 			args = append(args, fmt.Sprintf("%d:0", code))
 		}
-		fmt.Printf("ydotool %v\n", args)
+		if *debugMode {
+			fmt.Printf("ydotool %v\n", args)
+		}
 		exec.Command("ydotool", args...).Run()
 		m.state.shuttleCodes = nil
 	}
@@ -59,7 +61,9 @@ func (m *Mapper) ReleaseAll() {
 		for _, code := range codes {
 			args = append(args, fmt.Sprintf("%d:0", code))
 		}
-		fmt.Printf("ydotool %v\n", args)
+		if *debugMode {
+			fmt.Printf("ydotool %v\n", args)
+		}
 		exec.Command("ydotool", args...).Run()
 	}
 	for _, cancel := range m.state.activeMacroCancel {
@@ -123,7 +127,9 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 			for _, code := range m.state.shuttleCodes {
 				args = append(args, fmt.Sprintf("%d:0", code))
 			}
-			fmt.Printf("ydotool %v\n", args)
+			if *debugMode {
+				fmt.Printf("ydotool %v\n", args)
+			}
 			exec.Command("ydotool", args...).Run()
 			m.state.shuttleCodes = nil
 		}
@@ -172,7 +178,9 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 				for _, code := range codes {
 					args = append(args, fmt.Sprintf("%d:0", code))
 				}
-				fmt.Printf("ydotool %v\n", args)
+				if *debugMode {
+					fmt.Printf("ydotool %v\n", args)
+				}
 				if err := exec.Command("ydotool", args...).Run(); err != nil {
 					fmt.Println("Button release:", err)
 				}
@@ -276,7 +284,9 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 	time.Sleep(25 * time.Millisecond)
 	switch binding.driver {
 	case "exec":
-		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
+		if *debugMode {
+			fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
+		}
 		return nil, exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
 		if len(binding.macros) > 0 {
@@ -293,7 +303,9 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 		for _, code := range codes {
 			args = append(args, fmt.Sprintf("%d:1", code))
 		}
-		fmt.Printf("ydotool %v\n", args)
+		if *debugMode {
+			fmt.Printf("ydotool %v\n", args)
+		}
 		return codes, exec.Command("ydotool", args...).Run()
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
@@ -303,11 +315,15 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 		}
 		for _, msg := range msgs {
 			if msg.Address == "/sleep" {
-				fmt.Println("Sleeping for", msg.Arguments[0].(float64), "seconds")
+				if *debugMode {
+					fmt.Println("Sleeping for", msg.Arguments[0].(float64), "seconds")
+				}
 				time.Sleep(time.Duration(msg.Arguments[0].(float64)*1000) * time.Millisecond)
 				continue
 			}
-			fmt.Println("Sending OSC message:", msg)
+			if *debugMode {
+				fmt.Println("Sending OSC message:", msg)
+			}
 			err := binding.oscClient.Send(msg)
 			if err != nil {
 				return nil, err
@@ -405,7 +421,9 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 			if rest == "" {
 				return fmt.Errorf("/type in binding %q needs text to type", binding.rawKey)
 			}
-			fmt.Printf("ydotool type %q\n", rest)
+			if *debugMode {
+				fmt.Printf("ydotool type %q\n", rest)
+			}
 			if err := exec.Command("ydotool", "type", rest).Run(); err != nil {
 				return fmt.Errorf("ydotool type: %s", err)
 			}
@@ -417,13 +435,17 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 			if err != nil {
 				return fmt.Errorf("invalid /sleep duration %q: %s", rest, err)
 			}
-			fmt.Println("Sleeping for", secs, "seconds")
+			if *debugMode {
+				fmt.Println("Sleeping for", secs, "seconds")
+			}
 			time.Sleep(time.Duration(secs*1000) * time.Millisecond)
 		case "/exec":
 			if rest == "" {
 				return fmt.Errorf("/exec in binding %q needs a command", binding.rawKey)
 			}
-			fmt.Printf("EXEC: /bin/bash -c %q\n", rest)
+			if *debugMode {
+				fmt.Printf("EXEC: /bin/bash -c %q\n", rest)
+			}
 			if err := exec.Command("env", "bash", "-c", rest).Run(); err != nil {
 				return fmt.Errorf("exec: %s", err)
 			}
@@ -442,7 +464,9 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 					ydotoolArgs = append(ydotoolArgs, "-a")
 				}
 			}
-			fmt.Printf("ydotool %v\n", ydotoolArgs)
+			if *debugMode {
+				fmt.Printf("ydotool %v\n", ydotoolArgs)
+			}
 			if err := exec.Command("ydotool", ydotoolArgs...).Run(); err != nil {
 				return fmt.Errorf("ydotool mousemove: %s", err)
 			}
@@ -463,7 +487,9 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 				}
 				ydotoolArgs = append(ydotoolArgs, "-r", args[1])
 			}
-			fmt.Printf("ydotool %v\n", ydotoolArgs)
+			if *debugMode {
+				fmt.Printf("ydotool %v\n", ydotoolArgs)
+			}
 			if err := exec.Command("ydotool", ydotoolArgs...).Run(); err != nil {
 				return fmt.Errorf("ydotool click: %s", err)
 			}
@@ -478,7 +504,9 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 	time.Sleep(25 * time.Millisecond)
 	switch binding.driver {
 	case "exec":
-		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
+		if *debugMode {
+			fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
+		}
 		return exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
 		codes, err := ydotoolKeyCodes(binding.original)
@@ -493,7 +521,9 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 		for i := len(codes) - 1; i >= 0; i-- {
 			args = append(args, fmt.Sprintf("%d:0", codes[i]))
 		}
-		fmt.Printf("ydotool %v\n", args)
+		if *debugMode {
+			fmt.Printf("ydotool %v\n", args)
+		}
 		return exec.Command("ydotool", args...).Run()
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
@@ -503,11 +533,15 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 		}
 		for _, msg := range msgs {
 			if msg.Address == "/sleep" {
-				fmt.Println("Sleeping for", msg.Arguments[0].(float64), "seconds")
+				if *debugMode {
+					fmt.Println("Sleeping for", msg.Arguments[0].(float64), "seconds")
+				}
 				time.Sleep(time.Duration(msg.Arguments[0].(float64)*1000) * time.Millisecond)
 				continue
 			}
-			fmt.Println("Sending OSC message:", msg)
+			if *debugMode {
+				fmt.Println("Sending OSC message:", msg)
+			}
 			err := binding.oscClient.Send(msg)
 			if err != nil {
 				return err

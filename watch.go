@@ -179,7 +179,9 @@ func (w *watcher) loadWindowConfiguration(windowName, wmClass string) {
 			fmt.Println("Testing title:", windowName, "wm_class:", wmClass)
 		}
 		if conf.matchesWindow(windowName, wmClass) {
-			fmt.Printf("Switching configuration for app %q\n", conf.Name)
+			if *debugMode {
+				fmt.Printf("Switching configuration for app %q\n", conf.Name)
+			}
 			currentConfiguration = conf
 			return
 		}

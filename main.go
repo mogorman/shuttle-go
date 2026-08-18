@@ -21,7 +21,9 @@ func ensureYdotoold() error {
 	if err := exec.Command("pgrep", "-x", "ydotoold").Run(); err == nil {
 		return nil
 	}
-	fmt.Println("Starting ydotoold...")
+	if *debugMode {
+		fmt.Println("Starting ydotoold...")
+	}
 	startedYdotoold = true
 	return exec.Command("ydotoold").Start()
 }
@@ -65,7 +67,9 @@ func main() {
 	if len(flag.Args()) == 1 {
 		devicePath = flag.Arg(0)
 	}
-	fmt.Println("Using device", devicePath)
+	if *debugMode {
+		fmt.Println("Using device", devicePath)
+	}
 
 	if err := LoadConfig(*configFile); err != nil {
 		fmt.Println("Error reading configuration:", err)
@@ -102,7 +106,9 @@ func main() {
 		}
 
 		dev := waitForDevice(devicePath)
-		fmt.Println("Ready")
+		if *debugMode {
+			fmt.Println("Ready")
+		}
 
 		mapper := NewMapper(dev)
 		mapper.watcher = watcher

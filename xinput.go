@@ -37,8 +37,10 @@ func disableXInputPointer() {
 					continue
 				}
 
-				devicePath := "/dev/input/" + matches[1]
+			devicePath := "/dev/input/" + matches[1]
+			if *debugMode {
 				fmt.Println("Disabling libinput device:", devicePath)
+			}
 				if err := exec.Command("libinput", "disable", devicePath).Run(); err != nil {
 					log.Println("Couldn't disable libinput device:", err)
 					goto end
@@ -58,8 +60,10 @@ func disableXInputPointer() {
 					continue
 				}
 
-				id := matches[1]
+			id := matches[1]
+			if *debugMode {
 				fmt.Println("Disabling XInput id:", id)
+			}
 				if err := exec.Command("xinput", "disable", id).Run(); err != nil {
 					log.Println("Couldn't disable xinput device:", err)
 					goto end
