@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/gvalkov/golang-evdev"
 )
@@ -28,6 +29,21 @@ func ensureYdotoold() error {
 func stopYdotoold() {
 	if startedYdotoold {
 		exec.Command("pkill", "-x", "ydotoold").Run()
+	}
+}
+
+// waitForDevice blocks until the Shuttle device can be opened, retrying every
+// 5 seconds. It returns a freshly opened device (so a re-plugged device gets a
+// clean file handle).
+func waitForDevice(devicePath string) *evdev.InputDevice {
+	for {
+		dev, err := evdev.Open(devicePath)
+		if err == nil {
+			return dev
+		}
+		fmt.Println("Shuttle device not available:", err)
+		fmt.Println("Waiting for the device to be plugged in (retrying every 5s)...")
+		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -57,12 +73,6 @@ func main() {
 		os.Exit(10)
 	}
 
-	if err := ensureYdotoold(); err != nil {
-		fmt.Println("Error starting ydotoold:", err)
-		stopYdotoold()
-		os.Exit(11)
-	}
-
 	go disableXInputPointer()
 
 	// X-window title change watcher
@@ -75,27 +85,35 @@ func main() {
 
 	go watcher.Run()
 
-	// Shuttle device event receiver
-	dev, err := evdev.Open(devicePath)
-	if err != nil {
-		fmt.Println("Couldn't open Shuttle device:", err)
-		stopYdotoold()
-		os.Exit(2)
-	}
-
-	fmt.Println("Ready")
-	mapper := NewMapper(dev)
-	mapper.watcher = watcher
-
-	// IF there's an `osc` driver specified, launch an OSC listener too:
+	// IF there's an `osc` driver specified, launch an OSC listener too. It
+	// binds a fixed port and must run exactly once for the process lifetime.
 	go listenOSCFeedback()
 
+	// Wait for the device, then process its events. If the device is unplugged
+	// (Process errors), release any held keys, stop ydotoold if we started it,
+	// and go back to waiting for the device to be plugged in again.
 	for {
-		if err := mapper.Process(); err != nil {
-			fmt.Println("Error processing input events (continuing):", err)
-			mapper.ReleaseAll()
+		// (Re)acquire ydotoold at the top of every iteration: it's a no-op if
+		// already running, and restarts it after we killed it on an unplug.
+		if err := ensureYdotoold(); err != nil {
+			fmt.Println("Error starting ydotoold:", err)
 			stopYdotoold()
-			os.Exit(123)
+			os.Exit(11)
+		}
+
+		dev := waitForDevice(devicePath)
+		fmt.Println("Ready")
+
+		mapper := NewMapper(dev)
+		mapper.watcher = watcher
+
+		for {
+			if err := mapper.Process(); err != nil {
+				fmt.Println("Lost the Shuttle device (unplugged?):", err)
+				mapper.ReleaseAll()
+				stopYdotoold()
+				break
+			}
 		}
 	}
 
