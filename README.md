@@ -97,6 +97,17 @@ With:
 
     sudo shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO_v2-event-mouse
 
+### Wayland / GNOME
+
+On Wayland (e.g. GNOME), window titles are not exposed to other applications by
+default. To allow `shuttle-go` to see the active window title, install the
+[window-calls](https://github.com/ickyicky/window-calls) extension:
+
+    gnome-extensions install https://github.com/ickyicky/window-calls
+
+This makes the window title available over D-Bus, which is how `shuttle-go`
+reads it.
+
 ### For ShuttlePRO_v1
     shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO-event-mouse
 
