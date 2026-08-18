@@ -174,7 +174,7 @@ func (m *Mapper) executeBinding(binding *deviceBinding) error {
 	switch binding.driver {
 	case "exec":
 		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
-		return exec.Command("/bin/bash", "-c", binding.original).Run()
+		return exec.Command("env", "bash", "-c", binding.original).Run()
 	case "xdotool", "":
 		fmt.Println("xdotool key --clearmodifiers", binding.original)
 		return exec.Command("xdotool", "key", "--clearmodifiers", binding.original).Run()
