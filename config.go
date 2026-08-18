@@ -12,6 +12,13 @@ import (
 	"github.com/hypebeast/go-osc/osc"
 )
 
+// bindingValue is a binding's raw JSON value: either a plain string
+// (a single key/command) or an array of strings (a macro sequence).
+type bindingValue struct {
+	plain  string
+	macros []string
+}
+
 var loadedConfiguration = &Config{}
 var currentConfiguration *AppConfig
 
@@ -27,7 +34,7 @@ type AppConfig struct {
 	Driver            string   `json:"driver"`
 	windowTitleRegexps []*regexp.Regexp
 	wmClassRegexps     []*regexp.Regexp
-	Bindings          map[string]string `json:"bindings"`
+	Bindings          map[string]json.RawMessage `json:"bindings"`
 	bindings          []*deviceBinding
 }
 
@@ -103,6 +110,7 @@ type deviceBinding struct {
 	pressButton string
 	original    string
 	description string
+	macros      []string
 }
 
 func (ac *AppConfig) parseBindings() error {
@@ -131,13 +139,18 @@ func (ac *AppConfig) parseBindings() error {
 		return fmt.Errorf(`invalid driver %q, use one of: "ydotool" (default), "exec", "osc://address:port"`, ac.Driver)
 	}
 
-	for key, value := range ac.Bindings {
+	for key, raw := range ac.Bindings {
 		if strings.HasPrefix(key, "_") {
 			continue
 		}
 
-		binding, description := bindingAndDescription(driverProtocol, value)
-		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: value, original: binding, description: description, driver: driverProtocol, oscClient: oscClient}
+		bv, err := decodeBindingValue(raw)
+		if err != nil {
+			return fmt.Errorf("binding %q: %s", key, err)
+		}
+
+		binding, description := bindingAndDescription(driverProtocol, bv.plain)
+		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: bv.plain, original: binding, description: description, driver: driverProtocol, oscClient: oscClient, macros: bv.macros}
 
 		// Input
 		input := strings.Split(key, "+")
@@ -201,6 +214,31 @@ func bindingAndDescription(protocol, input string) (string, string) {
 		return input, ""
 	}
 	return strings.TrimSpace(matches[1]), strings.TrimSpace(matches[3])
+}
+
+// decodeBindingValue interprets a binding's raw JSON value. It may be a plain
+// string (a single key/command) or an array of strings (a macro sequence).
+func decodeBindingValue(raw json.RawMessage) (bindingValue, error) {
+	trimmed := strings.TrimSpace(string(raw))
+	if trimmed == "" {
+		return bindingValue{}, fmt.Errorf("empty binding value")
+	}
+
+	// Array of strings -> macro sequence.
+	if strings.HasPrefix(trimmed, "[") {
+		var items []string
+		if err := json.Unmarshal(raw, &items); err != nil {
+			return bindingValue{}, fmt.Errorf("expected a string or an array of strings: %s", err)
+		}
+		return bindingValue{macros: items}, nil
+	}
+
+	// Plain string.
+	var s string
+	if err := json.Unmarshal(raw, &s); err != nil {
+		return bindingValue{}, fmt.Errorf("expected a string or an array of strings: %s", err)
+	}
+	return bindingValue{plain: s}, nil
 }
 
 func LoadConfig(filename string) error {

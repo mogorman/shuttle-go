@@ -100,6 +100,43 @@ prefix).
 
 You need to install the `ydotool` package before using this driver (default).
 
+##### Macro sequences
+
+With the `ydotool` driver, a binding value can also be a **JSON array of
+macro commands** instead of a single key. The sequence runs top-to-bottom on
+the initial key press (it is a one-shot; nothing is held or released on key-up).
+
+Available macros:
+
+* `"/type <text>"` — types `<text>` via `ydotool type`
+* `"/sleep <seconds>"` — pauses for `<seconds>` seconds (e.g. `1.5`)
+* `"/exec <command>"` — runs `<command>` through `bash -c`
+* `"/mousemove <x> <y> [absolute]"` — moves the mouse to `<x> <y>` via
+  `ydotool mousemove`; the optional third argument is `true`/`false`, and
+  when `true` the `-a` (absolute) flag is added
+* `"/click <button> [repeats]"` — clicks a mouse button via
+  `ydotool click <code>`. `<button>` is a name or a hex code: `left`/`0x00`,
+  `right`/`0x01`, `middle`/`0x02`, `side`/`0x03`, `extr`/`0x04`,
+  `forward`/`0x05`, `back`/`0x06`, `task`/`0x07`, `mousedown`/`0x40`,
+  `mouseup`/`0x80`. The optional `repeats` count adds `-r <n>` (e.g.
+  `"/click left 4"` → `ydotool click 0x00 -r 4`).
+
+Example:
+
+```json
+"F5": [
+    "/type hello world",
+    "/sleep 1.5",
+    "/type !!!",
+    "/exec touch /tmp/shuttle-file",
+    "/mousemove 500 300 true",
+    "/click left"
+]
+```
+
+A plain string value (e.g. `"F1": "Escape"`) keeps the usual single-key
+behavior, so the two forms can be mixed freely within one app.
+
 #### `exec`
 
 Any bindings triggered will execute the corresponding command through

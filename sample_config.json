@@ -199,6 +199,24 @@
                 "B2": "0xff55 // Clip End (PageUp)",
                 "B3": "0xff9f // Zoom-to-Fit Clips (Del / . - [NumPad])"
             }
+        },
+        {
+            "name": "Macro sequence example",
+            "match_wm_class": [
+                "^Example$"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F5": [
+                    "/type hello world",
+                    "/sleep 1.5",
+                    "/type !!!",
+                    "/exec touch /tmp/shuttle-go-macro",
+                    "/mousemove 500 300 true",
+                    "/click left 4"
+                ],
+                "F6": "a // Plain single-key binding still works alongside macros"
+            }
         }
     ]
 }

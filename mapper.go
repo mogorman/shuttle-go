@@ -268,6 +268,10 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
 		return nil, exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
+		if len(binding.macros) > 0 {
+			// A macro sequence is a one-shot: run it on key-down, hold nothing.
+			return nil, m.executeMacroSequence(binding)
+		}
 		codes, err := ydotoolKeyCodes(binding.original)
 		if err != nil {
 			return nil, err
@@ -301,6 +305,125 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 	default:
 		panic("unreachable")
 	}
+}
+
+// mouseButtonCodes maps a /click button name (symbolic or hex) to the
+// ydotool mouse button code.
+var mouseButtonCodes = map[string]string{
+	"left":     "0x00",
+	"right":    "0x01",
+	"middle":   "0x02",
+	"side":     "0x03",
+	"extr":     "0x04",
+	"forward":  "0x05",
+	"back":     "0x06",
+	"task":     "0x07",
+	"mousedown": "0x40",
+	"mouseup":   "0x80",
+	"0x00":     "0x00",
+	"0x01":     "0x01",
+	"0x02":     "0x02",
+	"0x03":     "0x03",
+	"0x04":     "0x04",
+	"0x05":     "0x05",
+	"0x06":     "0x06",
+	"0x07":     "0x07",
+	"0x40":     "0x40",
+	"0x80":     "0x80",
+}
+
+// executeMacroSequence runs a binding's macro commands in order. Each command
+// is a string starting with a "/" verb:
+//
+//	/type <text>            types <text> via `ydotool type`
+//	/sleep <secs>           sleeps for <secs> seconds
+//	/exec <cmd>             runs <cmd> through `bash -c`
+//	/mousemove <x> <y> <abs>  moves the mouse; <abs> true adds -a (absolute)
+//	/click <button> [<n>]  clicks <button> (a name like "left" or a hex code);
+//	                          optional <n> adds -r <n> (repeat)
+//
+// It stops at the first command that fails.
+func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
+	for _, macro := range binding.macros {
+		fields := strings.Fields(macro)
+		if len(fields) == 0 {
+			return fmt.Errorf("empty macro in binding %q", binding.rawKey)
+		}
+		verb := fields[0]
+		rest := strings.TrimSpace(macro[len(verb):])
+
+		switch verb {
+		case "/type":
+			if rest == "" {
+				return fmt.Errorf("/type in binding %q needs text to type", binding.rawKey)
+			}
+			fmt.Printf("ydotool type %q\n", rest)
+			if err := exec.Command("ydotool", "type", rest).Run(); err != nil {
+				return fmt.Errorf("ydotool type: %s", err)
+			}
+		case "/sleep":
+			if rest == "" {
+				return fmt.Errorf("/sleep in binding %q needs a duration", binding.rawKey)
+			}
+			secs, err := strconv.ParseFloat(rest, 64)
+			if err != nil {
+				return fmt.Errorf("invalid /sleep duration %q: %s", rest, err)
+			}
+			fmt.Println("Sleeping for", secs, "seconds")
+			time.Sleep(time.Duration(secs*1000) * time.Millisecond)
+		case "/exec":
+			if rest == "" {
+				return fmt.Errorf("/exec in binding %q needs a command", binding.rawKey)
+			}
+			fmt.Printf("EXEC: /bin/bash -c %q\n", rest)
+			if err := exec.Command("env", "bash", "-c", rest).Run(); err != nil {
+				return fmt.Errorf("exec: %s", err)
+			}
+		case "/mousemove":
+			args := strings.Fields(rest)
+			if len(args) < 2 {
+				return fmt.Errorf("/mousemove in binding %q needs x and y", binding.rawKey)
+			}
+			ydotoolArgs := []string{"mousemove", args[0], args[1]}
+			if len(args) >= 3 {
+				abs, err := strconv.ParseBool(args[2])
+				if err != nil {
+					return fmt.Errorf("invalid /mousemove absolute flag %q: %s", args[2], err)
+				}
+				if abs {
+					ydotoolArgs = append(ydotoolArgs, "-a")
+				}
+			}
+			fmt.Printf("ydotool %v\n", ydotoolArgs)
+			if err := exec.Command("ydotool", ydotoolArgs...).Run(); err != nil {
+				return fmt.Errorf("ydotool mousemove: %s", err)
+			}
+		case "/click":
+			args := strings.Fields(rest)
+			if len(args) == 0 {
+				return fmt.Errorf("/click in binding %q needs a button", binding.rawKey)
+			}
+			code, ok := mouseButtonCodes[strings.ToLower(args[0])]
+			if !ok {
+				return fmt.Errorf("unknown /click button %q in binding %q", args[0], binding.rawKey)
+			}
+			ydotoolArgs := []string{"click", code}
+			if len(args) >= 2 {
+				repeats, err := strconv.Atoi(args[1])
+				if err != nil || repeats < 1 {
+					return fmt.Errorf("invalid /click repeat count %q in binding %q", args[1], binding.rawKey)
+				}
+				ydotoolArgs = append(ydotoolArgs, "-r", args[1])
+			}
+			fmt.Printf("ydotool %v\n", ydotoolArgs)
+			if err := exec.Command("ydotool", ydotoolArgs...).Run(); err != nil {
+				return fmt.Errorf("ydotool click: %s", err)
+			}
+		default:
+			return fmt.Errorf("unknown macro %q in binding %q (use /type, /sleep, /exec, /mousemove, /click)", verb, binding.rawKey)
+		}
+	}
+	return nil
 }
 
 func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
