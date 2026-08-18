@@ -34,6 +34,19 @@ buildGoModule rec {
   vendorHash = "sha256-vwW+do+suS7gT0CkTEGdnIWlzWGJPZHhxEGgNGjIwS0=";
   doCheck = false;
 
+  # Stamp the git commit into the binary so `shuttle-go --version` reports it.
+  # We generate a small Go file whose init() overwrites the default `version`
+  # (declared in main.go) with the current HEAD.
+  postPatch = ''
+    local commit
+    commit="$(git -C "$modRoot" rev-parse HEAD 2>/dev/null || echo unknown)"
+    cat > "$modRoot/zz_version.go" <<EOF
+    package main
+
+    func init() { version = "$commit" }
+    EOF
+  '';
+
   postInstall = ''
     wrapProgram $out/bin/shuttle-go \
       --prefix PATH ":" ${lib.makeBinPath runtimeDeps}

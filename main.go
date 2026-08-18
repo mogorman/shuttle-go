@@ -14,6 +14,10 @@ import (
 var configFile = flag.String("config", filepath.Join(os.Getenv("HOME"), ".shuttle-go.json"), "Location to the .shuttle-go.json configuration")
 var debugMode = flag.Bool("debug", false, "Show debug messages (like window titles)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
+var showVersion = flag.Bool("version", false, "Print the version (git commit) and exit")
+
+// version is set at build time via -ldflags "-X main.version=...".
+var version = "unknown"
 
 var startedYdotoold bool
 
@@ -72,6 +76,11 @@ func waitForDevice(devicePath string) *evdev.InputDevice {
 
 func main() {
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(version)
+		return
+	}
 
 	if *logFile != "" {
 		log, err := os.Create(*logFile)
