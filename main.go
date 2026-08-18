@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/gvalkov/golang-evdev"
@@ -12,6 +13,14 @@ import (
 var configFile = flag.String("config", filepath.Join(os.Getenv("HOME"), ".shuttle-go.json"), "Location to the .shuttle-go.json configuration")
 var debugMode = flag.Bool("debug", false, "Show debug messages (like window titles)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
+
+func ensureYdotoold() error {
+	if err := exec.Command("pgrep", "-x", "ydotoold").Run(); err == nil {
+		return nil
+	}
+	fmt.Println("Starting ydotoold...")
+	return exec.Command("ydotoold").Start()
+}
 
 func main() {
 	flag.Parse()
@@ -26,7 +35,7 @@ func main() {
 		os.Stdout = log
 	}
 
-	devicePath := "/dev/input/by-id/usb-Contour_Design_ShuttlePRO_v2-event-if00"
+	devicePath := "/dev/input/by-id/usb-Contour_Design_ShuttlePRO_v2-event-mouse"
 	if len(flag.Args()) == 1 {
 		devicePath = flag.Arg(0)
 	}
@@ -35,6 +44,11 @@ func main() {
 	if err := LoadConfig(*configFile); err != nil {
 		fmt.Println("Error reading configuration:", err)
 		os.Exit(10)
+	}
+
+	if err := ensureYdotoold(); err != nil {
+		fmt.Println("Error starting ydotoold:", err)
+		os.Exit(11)
 	}
 
 	go disableXInputPointer()

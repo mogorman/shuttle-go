@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"reflect"
 	"strconv"
@@ -182,17 +181,9 @@ func (m *Mapper) executeBinding(binding *deviceBinding) error {
 	case "exec":
 		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
 		return exec.Command("env", "bash", "-c", binding.original).Run()
-	case "ydotool":
+	case "ydotool", "":
 		fmt.Println("ydotool key", binding.original)
 		return exec.Command("ydotool", "key", binding.original).Run()
-	case "xdotool", "":
-		if os.Getenv("WAYLAND_DISPLAY") != "" {
-			// Auto-fallback: try ydotool on Wayland
-			fmt.Println("ydotool key", binding.original)
-			return exec.Command("ydotool", "key", binding.original).Run()
-		}
-		fmt.Println("xdotool key --clearmodifiers", binding.original)
-		return exec.Command("xdotool", "key", "--clearmodifiers", binding.original).Run()
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {

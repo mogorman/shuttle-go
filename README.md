@@ -5,7 +5,7 @@ The goal of this project is to use the Shuttle Pro V2 with the
 Lightworks Non-Linear Video Editor, but `shuttle-go` allows you
 to control anything.  It has support for:
 
-* Sending keyboard events (with the default `xdotool` driver)
+* Sending keyboard events (with the default `ydotool` driver)
 * Sending Open Source Control messages (with the `ocs://` driver)
 * Executing any command through `bash -c` (with the `exec` driver)
 
@@ -63,14 +63,14 @@ Lightworks recognizes them.
 
 See `sample_config.json` for example configuration of each driver.
 
-#### `xdotool` (default)
+#### `ydotool` (default)
 
-The key names to use in the X11 bindings are found here:
+The key names to use in the bindings are found here:
 https://www.cl.cam.ac.uk/~mgk25/ucs/keysymdef.h or you can view them
 locally in `/usr/include/X11/keysymdef.h` (stripped of the `XK_`
 prefix).
 
-You need to install the `xdotool` package before using this driver (default).
+You need to install the `ydotool` package before using this driver (default).
 
 #### `exec`
 
@@ -95,10 +95,10 @@ program goes berzerk when messages are too close.
 
 With:
 
-    sudo shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO_v2-event-if00
+    sudo shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO_v2-event-mouse
 
 ### For ShuttlePRO_v1
-    shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO-event-if00
+    shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO-event-mouse
 
 #### N.B. Running shuttle-go as sudo will cause shuttle-go to look for a valid config file in 
 
@@ -134,7 +134,7 @@ MIT
 
 ## TODO
 
-* Don't require `xdotool`
+* Don't require `ydotool`
   * Use xgb's `xtest` package and send the FakeInput directly there..
 
 * Watch the configuration file, and reload on change.

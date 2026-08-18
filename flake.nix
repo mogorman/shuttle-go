@@ -17,7 +17,6 @@
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             go
-            xdotool
             ydotool
             dbus
             libinput

@@ -69,14 +69,14 @@ type deviceBinding struct {
 }
 
 func (ac *AppConfig) parseBindings() error {
-	driverProtocol := "xdotool"
+	driverProtocol := "ydotool"
 	var oscClient *osc.Client
 
 	switch {
 	case ac.Driver == "":
 	case ac.Driver == "exec":
 		driverProtocol = "exec"
-	case ac.Driver == "xdotool":
+	case ac.Driver == "ydotool":
 	case strings.HasPrefix(ac.Driver, "osc://"):
 		addr, err := url.Parse(ac.Driver)
 		if err != nil {
@@ -91,7 +91,7 @@ func (ac *AppConfig) parseBindings() error {
 		driverProtocol = "osc"
 		oscClient = osc.NewClient(hostParts[0], int(port))
 	default:
-		return fmt.Errorf(`invalid driver %q, use one of: "xdotool" (default), "exec", "osc://address:port"`, ac.Driver)
+		return fmt.Errorf(`invalid driver %q, use one of: "ydotool" (default), "exec", "osc://address:port"`, ac.Driver)
 	}
 
 	for key, value := range ac.Bindings {

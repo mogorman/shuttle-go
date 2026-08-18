@@ -2,12 +2,24 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
-  xdotool,
   ydotool,
   dbus,
   libinput,
+  xorg,
+  procps,
+  bash,
 }:
 
+let
+  runtimeDeps = [
+    ydotool
+    dbus
+    libinput
+    xorg.xinput
+    procps
+    bash
+  ];
+in
 buildGoModule rec {
   pname = "shuttle-go";
   version = "0.9";
@@ -16,15 +28,15 @@ buildGoModule rec {
 
   subPackages = [];
 
-  nativeBuildInputs = [
-    xdotool
-    ydotool
-    dbus
-    libinput
-  ];
+  nativeBuildInputs = runtimeDeps;
 
   vendorHash = "sha256-vwW+do+suS7gT0CkTEGdnIWlzWGJPZHhxEGgNGjIwS0=";
   doCheck = false;
+
+  postInstall = ''
+    wrapProgram $out/bin/shuttle-go \
+      --prefix PATH ":" ${lib.makeBinPath runtimeDeps}
+  '';
 
   meta = with lib; {
     description = "Contour Design Shuttle Pro V2 drivers for Linux with modifiers";
