@@ -305,8 +305,7 @@ func init() {
 	}
 }
 
-// ydotoolKeyCode translates a key name (as written in the config) to a Linux
-// input keycode suitable for `ydotool key <code>:<value>`.
+// ydotoolKeyCode translates a single key name to a Linux input keycode.
 // Accepts either a hex keycode ("0xff51") or a name from keyboardKeys ("S", "Enter", ...).
 func ydotoolKeyCode(key string) (int, error) {
 	if strings.HasPrefix(key, "0x") {
@@ -320,4 +319,19 @@ func ydotoolKeyCode(key string) (int, error) {
 		return code, nil
 	}
 	return 0, fmt.Errorf("unknown key %q (use a keyboardKeys name or a 0x keycode)", key)
+}
+
+// ydotoolKeyCodes translates a config value that may contain "+"-separated keys
+// (e.g. "Shift+Tab") into a slice of Linux input keycodes, preserving order.
+func ydotoolKeyCodes(value string) ([]int, error) {
+	parts := strings.Split(value, "+")
+	codes := make([]int, len(parts))
+	for i, part := range parts {
+		code, err := ydotoolKeyCode(strings.TrimSpace(part))
+		if err != nil {
+			return nil, err
+		}
+		codes[i] = code
+	}
+	return codes, nil
 }

@@ -23,9 +23,9 @@ type Mapper struct {
 type buttonsState struct {
 	jog           int
 	shuttle       int
-	shuttleCode   int
+	shuttleCodes  []int
 	buttonsHeld   map[int]bool
-	activeBinding map[int]int
+	activeBinding map[int][]int
 	lastJog       time.Time
 }
 
@@ -34,20 +34,30 @@ func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
 		inputDevice: inputDevice,
 	}
 	m.state.buttonsHeld = make(map[int]bool)
-	m.state.activeBinding = make(map[int]int)
+	m.state.activeBinding = make(map[int][]int)
 	m.state.jog = -1
 	return m
 }
 
 func (m *Mapper) ReleaseAll() {
-	if m.state.shuttleCode != 0 {
-		fmt.Printf("ydotool key %d:0\n", m.state.shuttleCode)
-		exec.Command("ydotool", "key", fmt.Sprintf("%d:0", m.state.shuttleCode)).Run()
-		m.state.shuttleCode = 0
+	if len(m.state.shuttleCodes) > 0 {
+		args := make([]string, 0, len(m.state.shuttleCodes)+1)
+		args = append(args, "key")
+		for _, code := range m.state.shuttleCodes {
+			args = append(args, fmt.Sprintf("%d:0", code))
+		}
+		fmt.Printf("ydotool %v\n", args)
+		exec.Command("ydotool", args...).Run()
+		m.state.shuttleCodes = nil
 	}
-	for code := range m.state.activeBinding {
-		fmt.Printf("ydotool key %d:0\n", code)
-		exec.Command("ydotool", "key", fmt.Sprintf("%d:0", code)).Run()
+	for _, codes := range m.state.activeBinding {
+		args := make([]string, 0, len(codes)+1)
+		args = append(args, "key")
+		for _, code := range codes {
+			args = append(args, fmt.Sprintf("%d:0", code))
+		}
+		fmt.Printf("ydotool %v\n", args)
+		exec.Command("ydotool", args...).Run()
 	}
 }
 
@@ -99,11 +109,16 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 
 	newShuttleVal := shuttleVal(evs)
 	if m.state.shuttle != newShuttleVal {
-		// Release the previously held shuttle key
-		if m.state.shuttleCode != 0 {
-			fmt.Printf("ydotool key %d:0\n", m.state.shuttleCode)
-			exec.Command("ydotool", "key", fmt.Sprintf("%d:0", m.state.shuttleCode)).Run()
-			m.state.shuttleCode = 0
+		// Release the previously held shuttle keys
+		if len(m.state.shuttleCodes) > 0 {
+			args := make([]string, 0, len(m.state.shuttleCodes)+1)
+			args = append(args, "key")
+			for _, code := range m.state.shuttleCodes {
+				args = append(args, fmt.Sprintf("%d:0", code))
+			}
+			fmt.Printf("ydotool %v\n", args)
+			exec.Command("ydotool", args...).Run()
+			m.state.shuttleCodes = nil
 		}
 
 		keyName := fmt.Sprintf("S%d", newShuttleVal)
@@ -117,12 +132,12 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 				fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
 			}
 		} else {
-			// S-7..S7 hold the key down until shuttle moves again
-			code, err := m.EmitOtherHold(keyName)
+			// S-7..S7 hold the keys down until shuttle moves again
+			codes, err := m.EmitOtherHold(keyName)
 			if err != nil {
 				fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
 			}
-			m.state.shuttleCode = code
+			m.state.shuttleCodes = codes
 		}
 		m.state.shuttle = newShuttleVal
 	}
@@ -136,17 +151,22 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 
 		if lastDown != 0 {
 			modifiers := buttonsToModifiers(heldButtons, lastDown)
-			code, err := m.EmitKeys(modifiers, lastDown)
+			codes, err := m.EmitKeys(modifiers, lastDown)
 			if err != nil {
 				fmt.Println("Button press:", err)
 			}
-			if code != 0 {
-				m.state.activeBinding[lastDown] = code
+			if len(codes) > 0 {
+				m.state.activeBinding[lastDown] = codes
 			}
 		} else if ev.Value == 0 {
-			if code, ok := m.state.activeBinding[int(ev.Code)]; ok {
-				fmt.Printf("ydotool key %d:0\n", code)
-				if err := exec.Command("ydotool", "key", fmt.Sprintf("%d:0", code)).Run(); err != nil {
+			if codes, ok := m.state.activeBinding[int(ev.Code)]; ok {
+				args := make([]string, 0, len(codes)+1)
+				args = append(args, "key")
+				for _, code := range codes {
+					args = append(args, fmt.Sprintf("%d:0", code))
+				}
+				fmt.Printf("ydotool %v\n", args)
+				if err := exec.Command("ydotool", args...).Run(); err != nil {
 					fmt.Println("Button release:", err)
 				}
 				delete(m.state.activeBinding, int(ev.Code))
@@ -201,10 +221,10 @@ func (m *Mapper) EmitOther(key string) error {
 	return fmt.Errorf("No bindings for those movements")
 }
 
-func (m *Mapper) EmitOtherHold(key string) (int, error) {
+func (m *Mapper) EmitOtherHold(key string) ([]int, error) {
 	conf := currentConfiguration
 	if conf == nil {
-		return 0, fmt.Errorf("No configuration for this Window")
+		return nil, fmt.Errorf("No configuration for this Window")
 	}
 
 	upperKey := strings.ToUpper(key)
@@ -219,13 +239,13 @@ func (m *Mapper) EmitOtherHold(key string) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("No bindings for those movements")
+	return nil, fmt.Errorf("No bindings for those movements")
 }
 
-func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) (int, error) {
+func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) ([]int, error) {
 	conf := currentConfiguration
 	if conf == nil {
-		return 0, fmt.Errorf("No configuration for this Window")
+		return nil, fmt.Errorf("No configuration for this Window")
 	}
 
 	if *debugMode {
@@ -238,27 +258,32 @@ func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("No binding for these keys")
+	return nil, fmt.Errorf("No binding for these keys")
 }
 
-func (m *Mapper) executeBinding(binding *deviceBinding) (int, error) {
+func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 	time.Sleep(25 * time.Millisecond)
 	switch binding.driver {
 	case "exec":
 		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
-		return 0, exec.Command("env", "bash", "-c", binding.original).Run()
+		return nil, exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
-		code, err := ydotoolKeyCode(binding.original)
+		codes, err := ydotoolKeyCodes(binding.original)
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
-		fmt.Printf("ydotool key %d:1\n", code)
-		return code, exec.Command("ydotool", "key", fmt.Sprintf("%d:1", code)).Run()
+		args := make([]string, 0, len(codes)+1)
+		args = append(args, "key")
+		for _, code := range codes {
+			args = append(args, fmt.Sprintf("%d:1", code))
+		}
+		fmt.Printf("ydotool %v\n", args)
+		return codes, exec.Command("ydotool", args...).Run()
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {
 			fmt.Printf("Failed parsing OSC binding for keys %q. Remember %q should start with an /\n", binding.rawKey, binding.rawValue)
-			return 0, nil
+			return nil, nil
 		}
 		for _, msg := range msgs {
 			if msg.Address == "/sleep" {
@@ -269,10 +294,10 @@ func (m *Mapper) executeBinding(binding *deviceBinding) (int, error) {
 			fmt.Println("Sending OSC message:", msg)
 			err := binding.oscClient.Send(msg)
 			if err != nil {
-				return 0, err
+				return nil, err
 			}
 		}
-		return 0, nil
+		return nil, nil
 	default:
 		panic("unreachable")
 	}
@@ -285,12 +310,20 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 		fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
 		return exec.Command("env", "bash", "-c", binding.original).Run()
 	case "ydotool", "":
-		code, err := ydotoolKeyCode(binding.original)
+		codes, err := ydotoolKeyCodes(binding.original)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("ydotool key %d:1 %d:0\n", code, code)
-		return exec.Command("ydotool", "key", fmt.Sprintf("%d:1", code), fmt.Sprintf("%d:0", code)).Run()
+		args := make([]string, 0, len(codes)*2+1)
+		args = append(args, "key")
+		for _, code := range codes {
+			args = append(args, fmt.Sprintf("%d:1", code))
+		}
+		for i := len(codes) - 1; i >= 0; i-- {
+			args = append(args, fmt.Sprintf("%d:0", codes[i]))
+		}
+		fmt.Printf("ydotool %v\n", args)
+		return exec.Command("ydotool", args...).Run()
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {
