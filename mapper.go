@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -277,7 +278,19 @@ func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) ([]int, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("No binding for these keys")
+	return nil, fmt.Errorf("No binding for these keys: %s", describeKeyCombo(modifiers, keyDown))
+}
+
+// describeKeyCombo renders a button press (held modifiers + the pressed button)
+// as a human-readable "M1+F2"-style string for use in error messages.
+func describeKeyCombo(modifiers map[int]bool, keyDown int) string {
+	parts := make([]string, 0, len(modifiers)+1)
+	for code := range modifiers {
+		parts = append(parts, reverseShuttleKeys[code])
+	}
+	parts = append(parts, reverseShuttleKeys[keyDown])
+	sort.Strings(parts)
+	return strings.Join(parts, "+")
 }
 
 func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
