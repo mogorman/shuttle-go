@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/usr/bin/env bash -xe
 
 #CGO_ENABLED=0
 # Stamp the semantic version (from the committed VERSION file) into the binary
