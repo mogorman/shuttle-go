@@ -42,6 +42,41 @@ const (
 	uiDevDestroy = 0x5502
 )
 
+// EVIOCGBIT(ev, len) — _IOC(_IOC_READ, 'E', 0x20+ev, len). Used to query the
+// set of event types/codes a device advertises.
+func evIOCGBit(ev, len int) uintptr {
+	return _ioc(_iocRead, 'E', 0x20+ev, len)
+}
+
+// _ioc encodes an input-subsystem ioctl number the way linux/_ioctl.h does:
+//   _IOC(dir, type, nr, size) = (dir<<30)|(type<<8)|(size<<16)|nr
+// where `type` is the full type char ('E' = 0x45), `nr` is the 8-bit command
+// number (low byte), and `size` is the 16-bit length. Verified against the
+// kernel's EVIOCGBIT values (0x80204520, 0x80204521, ...).
+func _ioc(dir, typ, nr, size int) uintptr {
+	return uintptr(uint(dir)<<30 | uint(typ)<<8 | uint(size)<<16 | uint(nr)&0xff)
+}
+
+const (
+	_iocRead = 2 // _IOC_READ
+	evMax    = 0x20
+)
+
+func evTypeName(t int) string {
+	switch t {
+	case 0:
+		return "EV_SYN"
+	case 1:
+		return "EV_KEY"
+	case 2:
+		return "EV_REL"
+	case 3:
+		return "EV_ABS"
+	default:
+		return fmt.Sprintf("EV_%d", t)
+	}
+}
+
 // uinput_user_dev layout constants (linux/uinput.h, linux/input.h).
 const (
 	uinputMaxNameSize = 80
@@ -171,6 +206,25 @@ func newUinputDevice() (*uinputDevice, error) {
 	d.node = d.uinputNode()
 	if *debugMode {
 		fmt.Println("uinput device node:", d.node)
+	}
+
+	// Confirm the device actually advertises the event types we programmed,
+	// independent of any node discovery. EVIOCGBIT(0, EV_MAX) returns a bitmap
+	// of supported event types.
+	var evbits [8]byte
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd),
+		uintptr(evIOCGBit(0, evMax)), uintptr(unsafe.Pointer(&evbits[0]))); errno == 0 {
+		types := make([]string, 0, 8)
+		for t := 0; t < evMax; t++ {
+			if evbits[t/8]&(1<<uint(t%8)) != 0 {
+				types = append(types, evTypeName(t))
+			}
+		}
+		if *debugMode {
+			fmt.Println("uinput device advertises event types:", strings.Join(types, ","))
+		}
+	} else if *debugMode {
+		fmt.Println("uinput EVIOCGBIT failed:", errno)
 	}
 
 	return d, nil
