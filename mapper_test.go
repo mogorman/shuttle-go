@@ -84,11 +84,18 @@ func codesOf(codes []int) string {
 // testConfig builds a parsed AppConfig (uinput driver) from a bindings map.
 // The app matches every window so it is always the active configuration.
 func testConfig(t *testing.T, bindings map[string]interface{}) *AppConfig {
+	return testConfigWithSlowJog(t, bindings, nil)
+}
+
+// testConfigWithSlowJog is testConfig with an explicit slow_jog value (nil =
+// unset, i.e. the 200ms default).
+func testConfigWithSlowJog(t *testing.T, bindings map[string]interface{}, slowJog *int) *AppConfig {
 	t.Helper()
 	conf := &Config{Apps: []*AppConfig{{
 		Name:              "test",
 		MatchWindowTitles: []string{".*"},
 		Driver:            "uinput",
+		SlowJog:           slowJog,
 		Bindings:          rawBindings(t, bindings),
 	}}}
 	if err := conf.Apps[0].parse(); err != nil {
@@ -342,6 +349,39 @@ func TestJogDispatchRegression(t *testing.T) {
 	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 0}})
 	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "102" {
 		t.Errorf("slow jog left: tap = %s, want 102 (Home)", got)
+	}
+}
+
+// TestJogDisabledSlowJog guards the slow_jog=0 case: when slow jog is
+// disabled, a jog must NOT be classified as slow (the old code compared
+// time.Since(lastJog) against a 0ms threshold, which is always true, so every
+// jog became "SlowJog*" and never matched a plain JogL/JogR binding).
+func TestJogDisabledSlowJog(t *testing.T) {
+	zero := 0
+	conf := testConfigWithSlowJog(t, map[string]interface{}{
+		"JogL": "left",
+		"JogR": "right",
+	}, &zero)
+	currentConfiguration = conf
+	fake := &fakeUinput{}
+	m := NewMapper(nil, nil)
+	m.uinput = fake
+
+	// A right jog, with the previous jog a long time ago. With slow_jog=0
+	// this must still be a normal "JogR" (right, 106), not "SlowJogR".
+	m.state.jog = 0
+	m.state.lastJog = time.Now().Add(-time.Hour)
+	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 1}})
+	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "106" {
+		t.Errorf("jog right with slow_jog=0: tap = %s, want 106 (Right); got slow-classified instead", got)
+	}
+
+	// A left jog, likewise.
+	m.state.jog = 1
+	m.state.lastJog = time.Now().Add(-time.Hour)
+	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 0}})
+	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "105" {
+		t.Errorf("jog left with slow_jog=0: tap = %s, want 105 (Left); got slow-classified instead", got)
 	}
 }
 

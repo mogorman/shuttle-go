@@ -103,8 +103,11 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 				m.state.lastJog = time.Now()
 			}
 
+			// A jog is "slow" only if slow-jog is enabled (slow_jog > 0) and
+			// the previous jog was more than slowJogTiming() ago. When slow_jog
+			// is 0 (disabled), every jog is a normal jog.
 			slow := ""
-			if time.Since(m.state.lastJog) > slowJogTiming() {
+			if slowJogTiming() > 0 && time.Since(m.state.lastJog) > slowJogTiming() {
 				slow = "Slow"
 			}
 			// Trigger JL or JR if we're advancing or not..
