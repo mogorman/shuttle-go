@@ -34,11 +34,12 @@ const (
 
 // uinput ioctls (linux/uinput.h)
 const (
-	uiDevCreate  = 0x5501
-	uiDevDestroy = 0x5502
-	uiSetEvBit   = 0x40045564 // _IOW('U', 100, int)
-	uiSetKeyBit  = 0x40045565 // _IOW('U', 101, int)
-	uiSetRelBit  = 0x40045566 // _IOW('U', 102, int)
+	uiDevCreate    = 0x5501
+	uiDevDestroy   = 0x5502
+	uiSetEvBit     = 0x40045564 // _IOW('U', 100, int)
+	uiSetKeyBit    = 0x40045565 // _IOW('U', 101, int)
+	uiSetRelBit    = 0x40045566 // _IOW('U', 102, int)
+	uiGetSysName64 = 0x8040552c // _IOR('U', 44, 64)
 )
 
 // evIOCGRAB is _IOW('E', 0x90, int) (linux/input.h).
@@ -94,8 +95,10 @@ func main() {
 	must(ioctl(fd, uiDevCreate, 0), "UI_DEV_CREATE")
 	fmt.Println("   device created")
 
-	// Locate the device's /dev/input/eventN node by matching input_id.
-	node := findNode(dev.bustype, dev.vendor, dev.product, dev.version)
+	// Locate the device's /dev/input/eventN node. We ask the kernel for the
+	// device's sysfs name via UI_GET_SYSNAME (no path guessing), then match
+	// the /sys/devices/virtual/input/inputN/event* entries to a /dev node.
+	node := findNodeBySysname(fd)
 	fmt.Println("   device node:", orDash(node))
 
 	// Tap a key: press (value 1), SYN, release (value 0), SYN.
@@ -223,19 +226,40 @@ func readEvent(fd int) (evType, code uint16, value int32, n int, err error) {
 	return
 }
 
-// findNode matches the device's input_id against /dev/input/event*/device/inputid.
-func findNode(bus, vendor, product, version uint16) string {
-	hex := func(v uint16) string { return fmt.Sprintf("%04x", v) }
-	matches := func(id []byte) bool {
-		f := strings.Fields(string(id))
-		return len(f) == 4 && f[0] == hex(bus) && f[1] == hex(vendor) &&
-			f[2] == hex(product) && f[3] == hex(version)
+// findNodeBySysname asks the kernel for the device's sysfs name (UI_GET_SYSNAME)
+// and then finds the matching /dev/input/eventN node by scanning
+// /sys/devices/virtual/input/input*/ for an event* symlink whose name matches.
+// This avoids the /dev/input/eventN/device/inputid path, which is not a
+// readable directory on some systems.
+func findNodeBySysname(fd int) string {
+	var buf [64]byte
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), uintptr(uiGetSysName64),
+		uintptr(unsafe.Pointer(&buf[0])))
+	if errno != 0 {
+		fmt.Printf("   (UI_GET_SYSNAME failed: %s)\n", errno)
+		return ""
 	}
-	m, _ := filepath.Glob("/dev/input/event*")
-	for _, node := range m {
-		if id, err := os.ReadFile(filepath.Join(node, "device", "inputid")); err == nil && matches(id) {
-			return node
+	sysname := strings.TrimRight(string(buf[:]), "\x00")
+	if sysname == "" {
+		return ""
+	}
+	fmt.Printf("   sysfs name: %s\n", sysname)
+
+	// The sysfs path is /sys/devices/virtual/input/<sysname>/eventN.
+	// Read the eventN symlink target to get the actual /dev/input/eventN.
+	eventDir := filepath.Join("/sys/devices/virtual/input", sysname)
+	entries, err := os.ReadDir(eventDir)
+	if err != nil {
+		fmt.Printf("   (cannot read %s: %v)\n", eventDir, err)
+		return ""
+	}
+	for _, e := range entries {
+		if !strings.HasPrefix(e.Name(), "event") {
+			continue
 		}
+		// The eventN entry is a symlink to the actual input device; its basename
+		// is the /dev/input/eventN name.
+		return filepath.Join("/dev/input", e.Name())
 	}
 	return ""
 }
