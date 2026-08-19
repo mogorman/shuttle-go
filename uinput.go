@@ -78,21 +78,39 @@ type uinputDevice struct {
 }
 
 // uinputNode finds the /dev/input/eventN node for the "shuttle-go-virtual"
-// device by scanning /sys/devices/virtual/input/*/name. It returns "" if not
-// found (e.g. the uinput device was not created).
+// device. It first scans /sys/devices/virtual/input/*/name (the sysfs name is
+// NUL-terminated, so it is compared against the NUL-padded form), then falls
+// back to scanning /dev/input/event*/device/name directly. It returns "" if the
+// device is not found (e.g. the uinput device was not created).
 func uinputNode() string {
+	const want = "shuttle-go-virtual"
+	// sysfs name files are NUL-terminated; compare against the padded form.
+	wantNul := want + "\x00"
+
 	matches, _ := filepath.Glob("/sys/devices/virtual/input/input*")
 	for _, sys := range matches {
 		name, err := os.ReadFile(filepath.Join(sys, "name"))
-		if err != nil || string(name) != "shuttle-go-virtual" {
+		if err != nil || string(name) != wantNul {
 			continue
 		}
-		// The matching inputN directory maps to /dev/input/eventN.
 		base := filepath.Base(sys) // e.g. "input18"
 		node := strings.Replace(base, "input", "event", 1)
 		return "/dev/input/" + node
 	}
+
+	// Fallback: some kernels expose the name under the event node's device dir.
+	for _, node := range globDevInputEvents() {
+		name, err := os.ReadFile(filepath.Join(node, "device", "name"))
+		if err == nil && string(name) == wantNul {
+			return node
+		}
+	}
 	return ""
+}
+
+func globDevInputEvents() []string {
+	m, _ := filepath.Glob("/dev/input/event*")
+	return m
 }
 
 // uinputUserDev mirrors struct uinput_user_dev from linux/uinput.h.
@@ -160,8 +178,12 @@ func newUinputDevice() (*uinputDevice, error) {
 }
 
 // openReadNode opens the device's own /dev/input/eventN node (if it exists)
-// so emitted events can be read back for a self-test.
+// so emitted events can be read back for a self-test. If the node was not
+// resolved at creation time, it re-scans for it.
 func (d *uinputDevice) openReadNode() error {
+	if d.node == "" {
+		d.node = uinputNode()
+	}
 	if d.node == "" {
 		return fmt.Errorf("no /dev/input node for the uinput device")
 	}
