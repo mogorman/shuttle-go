@@ -55,18 +55,20 @@ func main() {
 		}
 		defer uinput.Destroy()
 		fmt.Println("uinput device ready (test mode)")
-		fmt.Println("Now run `evtest` in another terminal, pick the shuttle-go-virtual device, and watch for the key events.")
-		fmt.Println("Waiting 5s before emitting so you have time to select the device in evtest...")
-		time.Sleep(5 * time.Second)
+		fmt.Println("Now run `evtest` in another terminal, select the shuttle-go-virtual device, and press Enter to start reading.")
+		fmt.Println("Waiting 10s before emitting so you have time to select the device and start evtest...")
+		time.Sleep(10 * time.Second)
 		codes := []int{30, 48, 46, 32, 18} // a, b, c, d, e
 		for i, c := range codes {
-			time.Sleep(500 * time.Millisecond)
 			if err := uinput.KeyTap([]int{c}); err != nil {
 				fmt.Println("Error emitting test key:", err)
 				os.Exit(12)
 			}
 			fmt.Printf("emitted test key %d (%c)\n", c, "abcde"[i])
+			time.Sleep(1 * time.Second)
 		}
+		fmt.Println("Keys emitted. Holding the device for 10s more so evtest can keep reading...")
+		time.Sleep(10 * time.Second)
 		fmt.Println("Done. If evtest showed EV_KEY events for codes 30,48,46,32,18, delivery is working.")
 		return
 	}
