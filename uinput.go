@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -186,10 +188,10 @@ func newUinputDevice() (*uinputDevice, error) {
 }
 
 // checkGrab attempts to take an exclusive grab on the device and reports the
-// result, then releases it. If the device is already grabbed by another
-// process (e.g. the input subsystem / seat), the kernel returns EBUSY and our
-// own event writes are silently dropped — which is exactly the symptom we see
-// when emitted keys never reach readers. The returned string is a human-readable
+// result, then releases it. It must be called while the device node is open by
+// at least one reader: the kernel's evdev_grab() returns -EINVAL when the
+// device's open count is 0 (no reader attached), and -EBUSY when another
+// process already holds the grab. The returned string is a human-readable
 // status for debug logging.
 func (d *uinputDevice) checkGrab() string {
 	// The kernel branches on whether the pointer is NULL: a non-NULL pointer
@@ -199,14 +201,99 @@ func (d *uinputDevice) checkGrab() string {
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB),
 		uintptr(unsafe.Pointer(&grabArg)))
 	if errno != 0 {
-		if errno == syscall.EBUSY {
-			return "grab attempt: EBUSY — another process (the input subsystem/seat) already holds the exclusive grab, so it is receiving our events and non-grabbing readers (evtest, the WM) get nothing"
+		switch errno {
+		case syscall.EBUSY:
+			return "EBUSY — another process (the input subsystem/seat) already holds the exclusive grab, so it is receiving our events and non-grabbing readers (evtest, the WM) get nothing"
+		case syscall.EINVAL:
+			return "EINVAL — no reader has the device node open (open count 0), so the grab cannot be evaluated"
+		default:
+			return fmt.Sprintf("errno %s", errno)
 		}
-		return fmt.Sprintf("grab attempt failed: errno %s", errno)
 	}
 	// We hold the grab now; release it immediately so we don't disturb the seat.
 	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB), 0)
-	return "grab attempt succeeded — no other process holds the device (events should reach all readers)"
+	return "succeeded — no other process holds the device (events should reach all readers)"
+}
+
+func globDevInputEvents() []string {
+	m, _ := filepath.Glob("/dev/input/event*")
+	return m
+}
+
+func hex16(v uint16) string { return fmt.Sprintf("%04x", v) }
+
+// openNode opens the device's own /dev/input/eventN node for reading, so we can
+// read emitted events back through our own fd. It locates the node by matching
+// the uinput device's input_id against each /dev/input/event*/device/inputid.
+// Returns the opened file, or nil if the node could not be found/opened.
+func (d *uinputDevice) openNode() *os.File {
+	for _, node := range globDevInputEvents() {
+		id, err := os.ReadFile(filepath.Join(node, "device", "inputid"))
+		if err != nil {
+			continue
+		}
+		f := strings.Fields(string(id))
+		if len(f) == 4 && f[0] == hex16(0x03) && f[1] == hex16(0x0001) &&
+			f[2] == hex16(0x0001) && f[3] == hex16(0x0100) {
+			if rf, err := os.OpenFile(node, os.O_RDONLY, 0); err == nil {
+				return rf
+			}
+		}
+	}
+	return nil
+}
+
+// readEvent reads one 24-byte input_event from the given node fd, returning the
+// (type, code, value) triple.
+func readEvent(fd int) (evType, code uint16, value int32, err error) {
+	var ev [24]byte
+	n, _, errno := syscall.Syscall6(syscall.SYS_READ, uintptr(fd),
+		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
+	if errno != 0 {
+		return 0, 0, 0, errno
+	}
+	if n != uintptr(len(ev)) {
+		return 0, 0, 0, fmt.Errorf("short read: %d bytes", n)
+	}
+	evType = binary.LittleEndian.Uint16(ev[8:10])
+	code = binary.LittleEndian.Uint16(ev[10:12])
+	value = int32(binary.LittleEndian.Uint32(ev[12:16]))
+	return
+}
+
+// selfTest opens the device node, grabs it, emits a known key, and reads the
+// events back through our own fd. This proves end-to-end delivery (write →
+// kernel → our own read) independent of any external reader or WM focus.
+func (d *uinputDevice) selfTest() string {
+	rf := d.openNode()
+	if rf == nil {
+		return "could not open the device node for a self-read (node not found or not readable)"
+	}
+	defer rf.Close()
+
+	// Take the grab so we are guaranteed to receive the events we emit.
+	var grabArg int
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(rf.Fd()), uintptr(evIOCGRAB),
+		uintptr(unsafe.Pointer(&grabArg))); errno != 0 {
+		return fmt.Sprintf("self-test: grab on reader fd failed: %s", errno)
+	}
+	defer syscall.Syscall(syscall.SYS_IOCTL, uintptr(rf.Fd()), uintptr(evIOCGRAB), 0)
+
+	const testKey = 30 // 'a'
+	if err := d.KeyTap([]int{testKey}); err != nil {
+		return fmt.Sprintf("self-test: emit failed: %s", err)
+	}
+
+	// Expect: EV_KEY 30 press, EV_KEY 30 release, EV_SYN (one per event).
+	var got []string
+	for i := 0; i < 6; i++ {
+		t, c, v, err := readEvent(int(rf.Fd()))
+		if err != nil {
+			break
+		}
+		got = append(got, fmt.Sprintf("type=%d code=%d value=%d", t, c, v))
+	}
+	return fmt.Sprintf("self-test read back %d events: %v", len(got), got)
 }
 
 // setEvBit issues UI_SET_EVBIT, declaring that the device supports the given
