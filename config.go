@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -181,21 +182,6 @@ func (ac *AppConfig) parseBindings() error {
 			}
 		}
 
-		// Output
-		// output := strings.Split(value, "+")
-		// for idx, part := range output {
-		// 	cleanPart := strings.TrimSpace(part)
-		// 	buttonName := strings.ToUpper(cleanPart)
-		// 	if keyboardKeysUpper[buttonName] == 0 {
-		// 		return fmt.Errorf("keyboard key unknown: %q", cleanPart)
-		// 	}
-		// 	if idx == len(output)-1 {
-		// 		newBinding.pressButton = buttonName
-		// 	} else {
-		// 		newBinding.holdButtons = append(newBinding.holdButtons, buttonName)
-		// 	}
-		// }
-
 		ac.bindings = append(ac.bindings, newBinding)
 
 		if *debugMode {
@@ -267,10 +253,77 @@ func LoadConfig(filename string) error {
 		if err := app.parseBindings(); err != nil {
 			return fmt.Errorf("Error parsing app %q's bindings: %s", app.Name, err)
 		}
+	}
 
+	if err := checkDuplicateBindings(cnt); err != nil {
+		return err
 	}
 
 	loadedConfiguration = newConfig
 
 	return nil
+}
+
+// checkDuplicateBindings reports any app whose "bindings" object repeats a key.
+// Go's map[string]json.RawMessage keeps only one value per key, so a duplicate
+// would otherwise silently drop the earlier binding (e.g. two "JogL" entries).
+// The raw JSON is decoded with a duplicate-preserving decoder so both copies are
+// visible before the map collapses them.
+func checkDuplicateBindings(cnt []byte) error {
+	var raw struct {
+		Apps []struct {
+			Name     string          `json:"name"`
+			Bindings json.RawMessage `json:"bindings"`
+		} `json:"apps"`
+	}
+	if err := json.Unmarshal(cnt, &raw); err != nil {
+		return nil // LoadConfig already validated the JSON
+	}
+
+	for _, app := range raw.Apps {
+		if len(app.Bindings) == 0 {
+			continue
+		}
+		if dups := duplicateBindingKeys(app.Bindings); len(dups) > 0 {
+			return fmt.Errorf("app %q has duplicate binding keys: %s (a key can only appear once; the earlier value is silently dropped)", app.Name, strings.Join(dups, ", "))
+		}
+	}
+	return nil
+}
+
+// duplicateBindingKeys decodes a bindings object as a stream of key/value
+// pairs (preserving duplicate keys, which a map would collapse) and returns
+// the keys that appear more than once, in first-seen order.
+func duplicateBindingKeys(raw json.RawMessage) []string {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	tok, _ := dec.Token()
+	if tok != json.Delim('{') {
+		return nil
+	}
+
+	var keys []string
+	for dec.More() {
+		// The object key is a JSON string literal, so Token returns its value
+		// directly; do not also Decode it (that would consume the value).
+		tok, _ := dec.Token()
+		k, ok := tok.(string)
+		if !ok {
+			return nil
+		}
+		keys = append(keys, k)
+		var v json.RawMessage
+		if dec.Decode(&v) != nil {
+			return nil
+		}
+	}
+
+	seen := make(map[string]int)
+	var dups []string
+	for _, k := range keys {
+		seen[k]++
+		if seen[k] == 2 {
+			dups = append(dups, k)
+		}
+	}
+	return dups
 }
