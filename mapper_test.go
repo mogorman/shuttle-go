@@ -299,10 +299,11 @@ func TestMacroBindings(t *testing.T) {
 	}
 }
 
-// TestJogDispatchRegression guards the jog-movement name fix: the dispatch
-// must build the unspaced key ("JogR"/"SlowJogR") that matches the
-// otherShuttleKeys names, so a JogL/JogR binding actually resolves. A spaced
-// "Jog R" key (the old bug) would fail the lookup.
+// TestJogDispatchRegression guards the jog-movement name contract: the config
+// keys are the spaced "JogL"/"JogR"/"SlowJogL"/"SlowJogR" (what otherKey is
+// set to at parse time), and the dispatch must emit exactly those names so the
+// lookup resolves. A mismatched name (e.g. the old spaced "Jog R", or the
+// unspaced "JogR" the dispatch briefly emitted) would fail the lookup.
 func TestJogDispatchRegression(t *testing.T) {
 	m, fake := testMapper(t, map[string]interface{}{
 		"JogL":     "left",
@@ -311,7 +312,7 @@ func TestJogDispatchRegression(t *testing.T) {
 		"SlowJogR": "end",
 	})
 
-	// A right jog: delta +1, not slow.
+	// A right jog: delta +1, not slow -> "JogR" -> right (106).
 	m.state.jog = 0
 	m.state.lastJog = time.Now()
 	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 1}})
@@ -319,19 +320,28 @@ func TestJogDispatchRegression(t *testing.T) {
 		t.Errorf("jog right: tap = %s, want 106 (Right)", got)
 	}
 
-	// A left jog: delta -1.
+	// A left jog: delta -1 -> "JogL" -> left (105).
 	m.state.jog = 1
 	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 0}})
 	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "105" {
 		t.Errorf("jog left: tap = %s, want 105 (Left)", got)
 	}
 
-	// A slow jog (lastJog in the distant past): right direction.
+	// A slow jog (lastJog in the distant past), right direction ->
+	// "SlowJogR" -> end (107).
 	m.state.jog = 0
 	m.state.lastJog = time.Now().Add(-time.Second)
 	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 1}})
 	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "107" {
 		t.Errorf("slow jog right: tap = %s, want 107 (End)", got)
+	}
+
+	// A slow jog, left direction -> "SlowJogL" -> home (102).
+	m.state.jog = 1
+	m.state.lastJog = time.Now().Add(-time.Second)
+	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 0}})
+	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "102" {
+		t.Errorf("slow jog left: tap = %s, want 102 (Home)", got)
 	}
 }
 

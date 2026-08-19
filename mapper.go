@@ -109,8 +109,8 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 			}
 			// Trigger JL or JR if we're advancing or not..
 			delta := newJogVal - m.state.jog
-			// The jog movement names are unspaced ("JogR", "SlowJogR") to match
-			// the otherShuttleKeys names used in the config.
+			// The lookup key must match the config binding key (e.g. "JogR",
+			// "SlowJogL"), which is what otherKey is set to at parse time.
 			jogKey := "JogR"
 			if slow != "" {
 				jogKey = "SlowJogR"
