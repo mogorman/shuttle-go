@@ -32,12 +32,32 @@ const (
 	relY = 0x01
 )
 
+// keyMax is KEY_MAX (0x2ff), the highest EV_KEY code. We declare support for
+// the full range so any bound key can be emitted.
+const keyMax = 0x2ff
+
 // /dev/uinput ioctls (linux/uinput.h). UI_DEV_CREATE and UI_DEV_DESTROY are
-// plain _IO ioctls: they take no argument. The device is configured by
-// writing a uinput_user_dev blob to the fd first.
+// plain _IO ioctls: they take no argument. The UI_SET_*BIT ioctls declare the
+// event types and individual event codes the device supports; they must be
+// issued before UI_DEV_CREATE so the kernel builds the device's capability
+// bitmap. Without them the created device advertises no event types and the
+// kernel silently drops every event we write.
 const (
 	uiDevCreate  = 0x5501
 	uiDevDestroy = 0x5502
+)
+
+// UI_SET_*BIT ioctl request codes. These are _IOW('U', nr, int) encodings:
+//   _IOC(_IOC_WRITE, 'U', nr, sizeof(int)) = (1<<30)|('U'<<8)|(nr<<0)|(4<<16)
+// The base _IOW('U', 0, int) is 0x40045500, so each is base + nr.
+const (
+	uiSetEvBit   = 0x40045564 // _IOW('U', 100, int)
+	uiSetKeyBit  = 0x40045565 // _IOW('U', 101, int)
+	uiSetRelBit  = 0x40045566 // _IOW('U', 102, int)
+	uiSetAbsBit  = 0x40045567 // _IOW('U', 103, int)
+	uiSetMsCBit  = 0x40045568 // _IOW('U', 104, int)
+	uiSetLedBit  = 0x40045569 // _IOW('U', 105, int)
+	uiSetPropBit = 0x4004556e // _IOW('U', 110, int)
 )
 
 // uinput_user_dev layout constants (linux/uinput.h, linux/input.h).
@@ -114,6 +134,32 @@ func newUinputDevice() (*uinputDevice, error) {
 	}
 	d := &uinputDevice{file: f, fd: int(f.Fd())}
 
+	// Declare the event types and individual codes the device supports, before
+	// creating it. The kernel builds the device's capability bitmap from these
+	// UI_SET_*BIT ioctls; without them the created device advertises no event
+	// types and the kernel silently drops every event we write. We support a
+	// full keyboard (EV_KEY 0..KEY_MAX) plus relative X/Y (EV_REL).
+	if err := d.setEvBit(evKey); err != nil {
+		f.Close()
+		return nil, err
+	}
+	for code := 0; code <= keyMax; code++ {
+		if err := d.setKeyBit(uint16(code)); err != nil {
+			f.Close()
+			return nil, err
+		}
+	}
+	if err := d.setEvBit(evRel); err != nil {
+		f.Close()
+		return nil, err
+	}
+	for _, axis := range []uint16{relX, relY} {
+		if err := d.setRelBit(axis); err != nil {
+			f.Close()
+			return nil, err
+		}
+	}
+
 	var dev uinputUserDev
 	copy(dev.name[:], "shuttle-go-virtual")
 	dev.bustype = 0x03 // BUS_USB
@@ -132,6 +178,33 @@ func newUinputDevice() (*uinputDevice, error) {
 	}
 
 	return d, nil
+}
+
+// setEvBit issues UI_SET_EVBIT, declaring that the device supports the given
+// event type (EV_KEY, EV_REL, ...).
+func (d *uinputDevice) setEvBit(evType uint16) error {
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiSetEvBit), uintptr(evType)); errno != 0 {
+		return fmt.Errorf("UI_SET_EVBIT(%d): %s", evType, errno)
+	}
+	return nil
+}
+
+// setKeyBit issues UI_SET_KEYBIT, declaring that the device supports the given
+// EV_KEY code.
+func (d *uinputDevice) setKeyBit(code uint16) error {
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiSetKeyBit), uintptr(code)); errno != 0 {
+		return fmt.Errorf("UI_SET_KEYBIT(%d): %s", code, errno)
+	}
+	return nil
+}
+
+// setRelBit issues UI_SET_RELBIT, declaring that the device supports the given
+// EV_REL axis.
+func (d *uinputDevice) setRelBit(axis uint16) error {
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiSetRelBit), uintptr(axis)); errno != 0 {
+		return fmt.Errorf("UI_SET_RELBIT(%d): %s", axis, errno)
+	}
+	return nil
 }
 
 // writeEvent writes a single 24-byte input_event to the device using the raw
