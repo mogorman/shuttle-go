@@ -121,14 +121,25 @@ type uinputDevice struct {
 // id we programmed into the uinput device. Matching on input_id is robust
 // across kernels, unlike the name string (whose sysfs encoding varies).
 func (d *uinputDevice) uinputNode() string {
-	for _, node := range globDevInputEvents() {
-		id, err := os.ReadFile(filepath.Join(node, "device", "inputid"))
+	nodes := globDevInputEvents()
+	if *debugMode {
+		fmt.Printf("uinput node scan: %d /dev/input/event* nodes\n", len(nodes))
+	}
+	for _, node := range nodes {
+		idPath := filepath.Join(node, "device", "inputid")
+		id, err := os.ReadFile(idPath)
 		if err != nil {
+			if *debugMode {
+				fmt.Printf("uinput node scan: %s: %s\n", idPath, err)
+			}
 			continue
 		}
 		// inputid is "bus vendor product version", each 4 hex digits.
 		f := strings.Fields(string(id))
 		if len(f) != 4 {
+			if *debugMode {
+				fmt.Printf("uinput node scan: %s: unexpected fields %q\n", idPath, string(id))
+			}
 			continue
 		}
 		if f[0] == hex16(d.bustype) && f[1] == hex16(d.vendor) &&
@@ -209,9 +220,9 @@ func newUinputDevice() (*uinputDevice, error) {
 	}
 
 	// Confirm the device actually advertises the event types we programmed,
-	// independent of any node discovery. EVIOCGBIT(0, EV_MAX) returns a bitmap
-	// of supported event types.
-	var evbits [8]byte
+	// independent of any node discovery. EVIOCGBIT(0, size) returns a bitmap of
+	// supported event types; the buffer must be exactly `size` bytes.
+	var evbits [evMax]byte
 	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd),
 		uintptr(evIOCGBit(0, evMax)), uintptr(unsafe.Pointer(&evbits[0]))); errno == 0 {
 		types := make([]string, 0, 8)
