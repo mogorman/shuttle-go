@@ -56,9 +56,11 @@ func main() {
 		defer uinput.Destroy()
 		fmt.Println("uinput device ready (test mode)")
 		fmt.Println("Now run `evtest` in another terminal, pick the shuttle-go-virtual device, and watch for the key events.")
+		fmt.Println("Waiting 5s before emitting so you have time to select the device in evtest...")
+		time.Sleep(5 * time.Second)
 		codes := []int{30, 48, 46, 32, 18} // a, b, c, d, e
 		for i, c := range codes {
-			time.Sleep(300 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 			if err := uinput.KeyTap([]int{c}); err != nil {
 				fmt.Println("Error emitting test key:", err)
 				os.Exit(12)
