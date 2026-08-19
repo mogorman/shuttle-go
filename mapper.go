@@ -18,6 +18,7 @@ import (
 // configuration) to the Virtual Keyboard events.
 type Mapper struct {
 	inputDevice *evdev.InputDevice
+	uinput      *uinputDevice
 	state       buttonsState
 	watcher     *watcher
 }
@@ -32,9 +33,10 @@ type buttonsState struct {
 	lastJog          time.Time
 }
 
-func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
+func NewMapper(inputDevice *evdev.InputDevice, uinput *uinputDevice) *Mapper {
 	m := &Mapper{
 		inputDevice: inputDevice,
+		uinput:      uinput,
 	}
 	m.state.buttonsHeld = make(map[int]bool)
 	m.state.activeBinding = make(map[int][]int)
@@ -45,27 +47,17 @@ func NewMapper(inputDevice *evdev.InputDevice) *Mapper {
 
 func (m *Mapper) ReleaseAll() {
 	if len(m.state.shuttleCodes) > 0 {
-		args := make([]string, 0, len(m.state.shuttleCodes)+1)
-		args = append(args, "key")
-		for _, code := range m.state.shuttleCodes {
-			args = append(args, fmt.Sprintf("%d:0", code))
-		}
 		if *debugMode {
-			fmt.Printf("ydotool %v\n", args)
+			fmt.Printf("uinput release %v\n", m.state.shuttleCodes)
 		}
-		exec.Command("ydotool", args...).Run()
+		m.uinput.KeyRelease(m.state.shuttleCodes)
 		m.state.shuttleCodes = nil
 	}
 	for _, codes := range m.state.activeBinding {
-		args := make([]string, 0, len(codes)+1)
-		args = append(args, "key")
-		for _, code := range codes {
-			args = append(args, fmt.Sprintf("%d:0", code))
-		}
 		if *debugMode {
-			fmt.Printf("ydotool %v\n", args)
+			fmt.Printf("uinput release %v\n", codes)
 		}
-		exec.Command("ydotool", args...).Run()
+		m.uinput.KeyRelease(codes)
 	}
 	for _, cancel := range m.state.activeMacroCancel {
 		cancel()
@@ -123,15 +115,10 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 	if m.state.shuttle != newShuttleVal {
 		// Release the previously held shuttle keys
 		if len(m.state.shuttleCodes) > 0 {
-			args := make([]string, 0, len(m.state.shuttleCodes)+1)
-			args = append(args, "key")
-			for _, code := range m.state.shuttleCodes {
-				args = append(args, fmt.Sprintf("%d:0", code))
-			}
 			if *debugMode {
-				fmt.Printf("ydotool %v\n", args)
+				fmt.Printf("uinput release %v\n", m.state.shuttleCodes)
 			}
-			exec.Command("ydotool", args...).Run()
+			m.uinput.KeyRelease(m.state.shuttleCodes)
 			m.state.shuttleCodes = nil
 		}
 
@@ -174,15 +161,10 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 			}
 		} else if ev.Value == 0 {
 			if codes, ok := m.state.activeBinding[int(ev.Code)]; ok {
-				args := make([]string, 0, len(codes)+1)
-				args = append(args, "key")
-				for _, code := range codes {
-					args = append(args, fmt.Sprintf("%d:0", code))
-				}
 				if *debugMode {
-					fmt.Printf("ydotool %v\n", args)
+					fmt.Printf("uinput release %v\n", codes)
 				}
-				if err := exec.Command("ydotool", args...).Run(); err != nil {
+				if err := m.uinput.KeyRelease(codes); err != nil {
 					fmt.Println("Button release:", err)
 				}
 				delete(m.state.activeBinding, int(ev.Code))
@@ -301,25 +283,20 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 			fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
 		}
 		return nil, exec.Command("env", "bash", "-c", binding.original).Run()
-	case "ydotool", "":
+	case "uinput":
 		if len(binding.macros) > 0 {
 			// Macro chains: run once (a "/once" chain) or repeat while held.
 			// Either way nothing is held, so no key codes are returned.
 			return nil, m.runMacroBinding(binding)
 		}
-		codes, err := ydotoolKeyCodes(binding.original)
+		codes, err := keyCodes(binding.original)
 		if err != nil {
 			return nil, err
 		}
-		args := make([]string, 0, len(codes)+1)
-		args = append(args, "key")
-		for _, code := range codes {
-			args = append(args, fmt.Sprintf("%d:1", code))
-		}
 		if *debugMode {
-			fmt.Printf("ydotool %v\n", args)
+			fmt.Printf("uinput hold %v\n", codes)
 		}
-		return codes, exec.Command("ydotool", args...).Run()
+		return codes, m.uinput.KeyHold(codes)
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {
@@ -346,31 +323,6 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 	default:
 		panic("unreachable")
 	}
-}
-
-// mouseButtonCodes maps a /click button name (symbolic or hex) to the
-// ydotool mouse button code.
-var mouseButtonCodes = map[string]string{
-	"left":     "0x00",
-	"right":    "0x01",
-	"middle":   "0x02",
-	"side":     "0x03",
-	"extr":     "0x04",
-	"forward":  "0x05",
-	"back":     "0x06",
-	"task":     "0x07",
-	"mousedown": "0x40",
-	"mouseup":   "0x80",
-	"0x00":     "0x00",
-	"0x01":     "0x01",
-	"0x02":     "0x02",
-	"0x03":     "0x03",
-	"0x04":     "0x04",
-	"0x05":     "0x05",
-	"0x06":     "0x06",
-	"0x07":     "0x07",
-	"0x40":     "0x40",
-	"0x80":     "0x80",
 }
 
 // runMacroBinding runs a binding's macro chain on a button press. A "/once"
@@ -412,12 +364,12 @@ func (m *Mapper) runMacroBinding(binding *deviceBinding) error {
 // executeMacroSequence runs a binding's macro commands in order. Each command
 // is a string starting with a "/" verb:
 //
-//	/type <text>            types <text> via `ydotool type`
+//	/type <text>            types <text> via the uinput device
 //	/sleep <secs>           sleeps for <secs> seconds
 //	/exec <cmd>             runs <cmd> through `bash -c`
-//	/mousemove <x> <y> <abs>  moves the mouse; <abs> true adds -a (absolute)
+//	/mousemove <x> <y> <abs>  moves the mouse; <abs> true makes the move absolute
 //	/click <button> [<n>]  clicks <button> (a name like "left" or a hex code);
-//	                          optional <n> adds -r <n> (repeat)
+//	                          optional <n> repeats the click
 //
 // It stops at the first command that fails.
 func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
@@ -435,10 +387,10 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 				return fmt.Errorf("/type in binding %q needs text to type", binding.rawKey)
 			}
 			if *debugMode {
-				fmt.Printf("ydotool type %q\n", rest)
+				fmt.Printf("uinput type %q\n", rest)
 			}
-			if err := exec.Command("ydotool", "type", rest).Run(); err != nil {
-				return fmt.Errorf("ydotool type: %s", err)
+			if err := m.uinput.Type(rest); err != nil {
+				return fmt.Errorf("uinput type: %s", err)
 			}
 		case "/sleep":
 			if rest == "" {
@@ -467,21 +419,26 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 			if len(args) < 2 {
 				return fmt.Errorf("/mousemove in binding %q needs x and y", binding.rawKey)
 			}
-			ydotoolArgs := []string{"mousemove", args[0], args[1]}
+			x, err := strconv.Atoi(args[0])
+			if err != nil {
+				return fmt.Errorf("invalid /mousemove x %q in binding %q: %s", args[0], binding.rawKey, err)
+			}
+			y, err := strconv.Atoi(args[1])
+			if err != nil {
+				return fmt.Errorf("invalid /mousemove y %q in binding %q: %s", args[1], binding.rawKey, err)
+			}
+			abs := false
 			if len(args) >= 3 {
-				abs, err := strconv.ParseBool(args[2])
+				abs, err = strconv.ParseBool(args[2])
 				if err != nil {
 					return fmt.Errorf("invalid /mousemove absolute flag %q: %s", args[2], err)
 				}
-				if abs {
-					ydotoolArgs = append(ydotoolArgs, "-a")
-				}
 			}
 			if *debugMode {
-				fmt.Printf("ydotool %v\n", ydotoolArgs)
+				fmt.Printf("uinput mousemove %d %d abs=%v\n", x, y, abs)
 			}
-			if err := exec.Command("ydotool", ydotoolArgs...).Run(); err != nil {
-				return fmt.Errorf("ydotool mousemove: %s", err)
+			if err := m.uinput.MouseMove(x, y, abs); err != nil {
+				return fmt.Errorf("uinput mousemove: %s", err)
 			}
 		case "/click":
 			args := strings.Fields(rest)
@@ -492,19 +449,19 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 			if !ok {
 				return fmt.Errorf("unknown /click button %q in binding %q", args[0], binding.rawKey)
 			}
-			ydotoolArgs := []string{"click", code}
+			repeats := 1
 			if len(args) >= 2 {
-				repeats, err := strconv.Atoi(args[1])
-				if err != nil || repeats < 1 {
+				n, err := strconv.Atoi(args[1])
+				if err != nil || n < 1 {
 					return fmt.Errorf("invalid /click repeat count %q in binding %q", args[1], binding.rawKey)
 				}
-				ydotoolArgs = append(ydotoolArgs, "-r", args[1])
+				repeats = n
 			}
 			if *debugMode {
-				fmt.Printf("ydotool %v\n", ydotoolArgs)
+				fmt.Printf("uinput click %d x%d\n", code, repeats)
 			}
-			if err := exec.Command("ydotool", ydotoolArgs...).Run(); err != nil {
-				return fmt.Errorf("ydotool click: %s", err)
+			if err := m.uinput.Click(code, repeats); err != nil {
+				return fmt.Errorf("uinput click: %s", err)
 			}
 		default:
 			return fmt.Errorf("unknown macro %q in binding %q (use /type, /sleep, /exec, /mousemove, /click)", verb, binding.rawKey)
@@ -521,23 +478,15 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 			fmt.Printf("EXEC: /bin/bash -c %q\n", binding.original)
 		}
 		return exec.Command("env", "bash", "-c", binding.original).Run()
-	case "ydotool", "":
-		codes, err := ydotoolKeyCodes(binding.original)
+	case "uinput":
+		codes, err := keyCodes(binding.original)
 		if err != nil {
 			return err
 		}
-		args := make([]string, 0, len(codes)*2+1)
-		args = append(args, "key")
-		for _, code := range codes {
-			args = append(args, fmt.Sprintf("%d:1", code))
-		}
-		for i := len(codes) - 1; i >= 0; i-- {
-			args = append(args, fmt.Sprintf("%d:0", codes[i]))
-		}
 		if *debugMode {
-			fmt.Printf("ydotool %v\n", args)
+			fmt.Printf("uinput tap %v\n", codes)
 		}
-		return exec.Command("ydotool", args...).Run()
+		return m.uinput.KeyTap(codes)
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {

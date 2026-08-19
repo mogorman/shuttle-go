@@ -2,7 +2,6 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
-  ydotool,
   dbus,
   libinput,
   xinput,
@@ -13,7 +12,6 @@
 
 let
   runtimeDeps = [
-    ydotool
     dbus
     libinput
     xinput

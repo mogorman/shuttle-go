@@ -115,14 +115,14 @@ type deviceBinding struct {
 }
 
 func (ac *AppConfig) parseBindings() error {
-	driverProtocol := "ydotool"
+	driverProtocol := "uinput"
 	var oscClient *osc.Client
 
 	switch {
 	case ac.Driver == "":
 	case ac.Driver == "exec":
 		driverProtocol = "exec"
-	case ac.Driver == "ydotool":
+	case ac.Driver == "uinput":
 	case strings.HasPrefix(ac.Driver, "osc://"):
 		addr, err := url.Parse(ac.Driver)
 		if err != nil {
@@ -137,7 +137,7 @@ func (ac *AppConfig) parseBindings() error {
 		driverProtocol = "osc"
 		oscClient = osc.NewClient(hostParts[0], int(port))
 	default:
-		return fmt.Errorf(`invalid driver %q, use one of: "ydotool" (default), "exec", "osc://address:port"`, ac.Driver)
+		return fmt.Errorf(`invalid driver %q, use one of: "uinput" (default), "exec", "osc://address:port"`, ac.Driver)
 	}
 
 	for key, raw := range ac.Bindings {
@@ -153,8 +153,8 @@ func (ac *AppConfig) parseBindings() error {
 		binding, description := bindingAndDescription(driverProtocol, bv.plain)
 		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: bv.plain, original: binding, description: description, driver: driverProtocol, oscClient: oscClient, macros: bv.macros}
 
-		// A leading "/once" marker makes the chain a one-shot (ydotool driver only).
-		if driverProtocol == "ydotool" && len(bv.macros) > 0 && strings.TrimSpace(bv.macros[0]) == "/once" {
+		// A leading "/once" marker makes the chain a one-shot (uinput driver only).
+		if driverProtocol == "uinput" && len(bv.macros) > 0 && strings.TrimSpace(bv.macros[0]) == "/once" {
 			newBinding.once = true
 		}
 

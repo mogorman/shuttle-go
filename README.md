@@ -15,14 +15,14 @@ fork:
 * **Matches on `wm_class`** as well as the window title (see
   [Window matching](#window-matching)), so bindings can target a specific
   application window even when titles are generic.
-* **Injects keys with `ydotool`** (the default driver) instead of `xdotool`,
-  which works on both X11 and Wayland. It manages the `ydotoold` daemon for
-  you and supports [macro sequences](#macro-sequences) (`/type`, `/sleep`,
-  `/exec`, `/mousemove`, `/click`) for richer bindings.
+* **Injects keys directly through a virtual `uinput` device** (the default
+  driver) instead of `xdotool`, which works on both X11 and Wayland. No
+  external daemon is required. It supports [macro sequences](#macro-sequences)
+  (`/type`, `/sleep`, `/exec`, `/mousemove`, `/click`) for richer bindings.
 * **Disables the Shuttle's pointer via `libinput`** on Wayland (and `xinput`
   on X11), so the device doesn't move the cursor.
-* **Keeps running** across plug/unplug: it waits for the device, and restarts
-  `ydotoold` when the Shuttle is reconnected.
+* **Keeps running** across plug/unplug: it waits for the device, and recreates
+  the virtual `uinput` device when the Shuttle is reconnected.
 
 The rest of this document describes the (shared) configuration format and
 behavior.
@@ -33,7 +33,7 @@ The goal of this project is to use the Shuttle Pro V2 with the
 Lightworks Non-Linear Video Editor, but `shuttle-go` allows you
 to control anything.  It has support for:
 
-* Sending keyboard events (with the default `ydotool` driver)
+* Sending keyboard events (with the default `uinput` driver)
 * Sending Open Source Control messages (with the `ocs://` driver)
 * Executing any command through `bash -c` (with the `exec` driver)
 
@@ -119,18 +119,21 @@ Lightworks recognizes them.
 
 See `sample_config.json` for example configuration of each driver.
 
-#### `ydotool` (default)
+#### `uinput` (default)
 
 The key names to use in the bindings are found here:
 https://www.cl.cam.ac.uk/~mgk25/ucs/keysymdef.h or you can view them
 locally in `/usr/include/X11/keysymdef.h` (stripped of the `XK_`
 prefix).
 
-You need to install the `ydotool` package before using this driver (default).
+This driver emits events through a virtual `uinput` device created by
+`shuttle-go` itself (named `shuttle-go-virtual`), so no external tool or
+daemon is needed. It must run with permission to open `/dev/uinput`
+(typically as root, e.g. via `sudo` or a udev rule).
 
 ##### Macro sequences
 
-With the `ydotool` driver, a binding value can also be a **JSON array of
+With the `uinput` driver, a binding value can also be a **JSON array of
 macro commands** instead of a single key. Nothing is held or released on
 key-up; the difference is in how often the chain runs while the button is held:
 
@@ -143,18 +146,17 @@ key-up; the difference is in how often the chain runs while the button is held:
 Available macros:
 
 * `"/once"` — (first position only) make the chain a one-shot
-* `"/type <text>"` — types `<text>` via `ydotool type`
+* `"/type <text>"` — types `<text>` through the virtual keyboard
 * `"/sleep <seconds>"` — pauses for `<seconds>` seconds (e.g. `1.5`)
 * `"/exec <command>"` — runs `<command>` through `bash -c`
-* `"/mousemove <x> <y> [absolute]"` — moves the mouse to `<x> <y>` via
-  `ydotool mousemove`; the optional third argument is `true`/`false`, and
-  when `true` the `-a` (absolute) flag is added
-* `"/click <button> [repeats]"` — clicks a mouse button via
-  `ydotool click <code>`. `<button>` is a name or a hex code: `left`/`0x00`,
-  `right`/`0x01`, `middle`/`0x02`, `side`/`0x03`, `extr`/`0x04`,
-  `forward`/`0x05`, `back`/`0x06`, `task`/`0x07`, `mousedown`/`0x40`,
-  `mouseup`/`0x80`. The optional `repeats` count adds `-r <n>` (e.g.
-  `"/click left 4"` → `ydotool click 0x00 -r 4`).
+* `"/mousemove <x> <y> [absolute]"` — moves the mouse by `<x> <y>`
+  relative units; the optional third argument is `true`/`false`, and when
+  `true` the move is made absolute (the current pointer position is read
+  from `/dev/input/mice` first)
+* `"/click <button> [repeats]"` — clicks a mouse button. `<button>` is a
+  name: `left`, `right`, `middle`, `side`, `extr`, `forward`, `back` (or the
+  corresponding hex codes `0x00`-`0x06`). The optional `repeats` count
+  repeats the click (e.g. `"/click left 4"` clicks four times).
 
 Example (repeats while held):
 
@@ -254,9 +256,6 @@ From that point on, plug in the device, and run `shuttle-go` in any terminal (pr
 MIT
 
 ## TODO
-
-* Don't require `ydotool`
-  * Use xgb's `xtest` package and send the FakeInput directly there..
 
 * Watch the configuration file, and reload on change.
 

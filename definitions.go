@@ -305,9 +305,9 @@ func init() {
 	}
 }
 
-// ydotoolKeyCode translates a single key name to a Linux input keycode.
+// keyCode translates a single key name to a Linux input keycode.
 // Accepts either a hex keycode ("0xff51") or a name from keyboardKeys ("S", "Enter", ...).
-func ydotoolKeyCode(key string) (int, error) {
+func keyCode(key string) (int, error) {
 	if strings.HasPrefix(key, "0x") {
 		code, err := strconv.ParseInt(key, 0, 32)
 		if err != nil {
@@ -321,17 +321,26 @@ func ydotoolKeyCode(key string) (int, error) {
 	return 0, fmt.Errorf("unknown key %q (use a keyboardKeys name or a 0x keycode)", key)
 }
 
-// ydotoolKeyCodes translates a config value that may contain "+"-separated keys
+// keyCodes translates a config value that may contain "+"-separated keys
 // (e.g. "Shift+Tab") into a slice of Linux input keycodes, preserving order.
-func ydotoolKeyCodes(value string) ([]int, error) {
+func keyCodes(value string) ([]int, error) {
 	parts := strings.Split(value, "+")
 	codes := make([]int, len(parts))
 	for i, part := range parts {
-		code, err := ydotoolKeyCode(strings.TrimSpace(part))
+		code, err := keyCode(strings.TrimSpace(part))
 		if err != nil {
 			return nil, err
 		}
 		codes[i] = code
 	}
 	return codes, nil
+}
+
+// runeKeyCode maps a rune to the EV_KEY code that types it. It is used by
+// the /type macro to emit text.
+func runeKeyCode(r rune) (int, error) {
+	if code, ok := keyboardKeysUpper[strings.ToUpper(string(r))]; ok {
+		return code, nil
+	}
+	return 0, fmt.Errorf("no keycode for rune %q", r)
 }

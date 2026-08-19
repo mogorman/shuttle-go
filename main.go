@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -18,46 +17,6 @@ var showVersion = flag.Bool("version", false, "Print the version (git commit) an
 
 // version is set at build time via -ldflags "-X main.version=...".
 var version = "unknown"
-
-var startedYdotoold bool
-
-// ydotooldRunning reports whether a ydotoold process is currently alive.
-func ydotooldRunning() bool {
-	return exec.Command("pgrep", "-x", "ydotoold").Run() == nil
-}
-
-// ensureYdotoold starts ydotoold if it is not running. It is a no-op when a
-// live ydotoold is already present.
-func ensureYdotoold() error {
-	if ydotooldRunning() {
-		return nil
-	}
-	if *debugMode {
-		fmt.Println("Starting ydotoold...")
-	}
-	startedYdotoold = true
-	if err := exec.Command("ydotoold").Start(); err != nil {
-		return err
-	}
-	// Wait until it is actually up so callers can rely on it immediately.
-	for i := 0; i < 50 && !ydotooldRunning(); i++ {
-		time.Sleep(100 * time.Millisecond)
-	}
-	return nil
-}
-
-// stopYdotoold kills ydotoold (only if we started it) and waits for it to
-// actually exit, so a subsequent ensureYdotoold does not mistake a dying
-// process for a live one.
-func stopYdotoold() {
-	if !startedYdotoold {
-		return
-	}
-	exec.Command("pkill", "-x", "ydotoold").Run()
-	for i := 0; i < 50 && ydotooldRunning(); i++ {
-		time.Sleep(100 * time.Millisecond)
-	}
-}
 
 // waitForDevice blocks until the Shuttle device can be opened, retrying every
 // 5 seconds. It returns a freshly opened device (so a re-plugged device gets a
@@ -85,7 +44,6 @@ func main() {
 	if *logFile != "" {
 		log, err := os.Create(*logFile)
 		if err != nil {
-			stopYdotoold()
 			os.Exit(101)
 		}
 		defer log.Close()
@@ -103,7 +61,6 @@ func main() {
 
 	if err := LoadConfig(*configFile); err != nil {
 		fmt.Println("Error reading configuration:", err)
-		stopYdotoold()
 		os.Exit(10)
 	}
 
@@ -113,7 +70,6 @@ func main() {
 	watcher := NewWindowWatcher()
 	if err := watcher.Setup(); err != nil {
 		fmt.Println("Error watching X window:", err)
-		stopYdotoold()
 		os.Exit(3)
 	}
 
@@ -123,31 +79,40 @@ func main() {
 	// binds a fixed port and must run exactly once for the process lifetime.
 	go listenOSCFeedback()
 
-	// Wait for the device, then process its events. If the device is unplugged
-	// (Process errors), release any held keys, stop ydotoold if we started it,
-	// and go back to waiting for the device to be plugged in again.
-	for {
-		// (Re)acquire ydotoold at the top of every iteration: it's a no-op if
-		// already running, and restarts it after we killed it on an unplug.
-		if err := ensureYdotoold(); err != nil {
-			fmt.Println("Error starting ydotoold:", err)
-			stopYdotoold()
-			os.Exit(11)
-		}
+	// Create the virtual uinput device used to emit keyboard and mouse
+	// events. It must exist before any binding can fire.
+	uinput, err := newUinputDevice()
+	if err != nil {
+		fmt.Println("Error creating uinput device:", err)
+		os.Exit(11)
+	}
+	defer uinput.Destroy()
+	if *debugMode {
+		fmt.Println("uinput device ready")
+	}
 
+	// Wait for the device, then process its events. If the device is unplugged
+	// (Process errors), release any held keys, destroy the uinput device, and
+	// go back to waiting for the device to be plugged in again.
+	for {
 		dev := waitForDevice(devicePath)
 		if *debugMode {
 			fmt.Println("Ready")
 		}
 
-		mapper := NewMapper(dev)
+		mapper := NewMapper(dev, uinput)
 		mapper.watcher = watcher
 
 		for {
 			if err := mapper.Process(); err != nil {
 				fmt.Println("Lost the Shuttle device (unplugged?):", err)
 				mapper.ReleaseAll()
-				stopYdotoold()
+				uinput.Destroy()
+				uinput, err = newUinputDevice()
+				if err != nil {
+					fmt.Println("Error recreating uinput device:", err)
+					os.Exit(11)
+				}
 				break
 			}
 		}
