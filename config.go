@@ -264,6 +264,24 @@ func LoadConfig(filename string) error {
 	return nil
 }
 
+// usesOSCDriver reports whether any loaded binding uses the "osc" driver, i.e.
+// whether the config references an osc:// address. The OSC feedback listener
+// only needs to run when at least one binding sends OSC, so this gates its
+// startup.
+func usesOSCDriver() bool {
+	if loadedConfiguration == nil {
+		return false
+	}
+	for _, app := range loadedConfiguration.Apps {
+		for _, b := range app.bindings {
+			if b.driver == "osc" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // checkDuplicateBindings reports any app whose "bindings" object repeats a key.
 // Go's map[string]json.RawMessage keeps only one value per key, so a duplicate
 // would otherwise silently drop the earlier binding (e.g. two "JogL" entries).

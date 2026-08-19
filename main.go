@@ -123,9 +123,12 @@ func main() {
 
 	go watcher.Run()
 
-	// IF there's an `osc` driver specified, launch an OSC listener too. It
-	// binds a fixed port and must run exactly once for the process lifetime.
-	go listenOSCFeedback()
+	// Only launch the OSC feedback listener if some binding actually uses the
+	// "osc" driver. It binds a fixed port and must run at most once for the
+	// process lifetime.
+	if usesOSCDriver() {
+		go listenOSCFeedback()
+	}
 
 	// Create the virtual uinput device used to emit keyboard and mouse
 	// events. It must exist before any binding can fire.
