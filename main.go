@@ -91,11 +91,6 @@ func main() {
 	if *debugMode {
 		fmt.Println("uinput device ready")
 	}
-	// Open the device's own /dev/input node so we can read emitted events back
-	// (self-test). A non-fatal failure just disables the read-back.
-	if err := uinput.openReadNode(); err != nil && *debugMode {
-		fmt.Println("uinput read-back unavailable:", err)
-	}
 
 	// Wait for the device, then process its events. If the device is unplugged
 	// (Process errors), release any held keys, destroy the uinput device, and

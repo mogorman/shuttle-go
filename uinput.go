@@ -4,8 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -42,41 +40,6 @@ const (
 	uiDevDestroy = 0x5502
 )
 
-// EVIOCGBIT(ev, len) — _IOC(_IOC_READ, 'E', 0x20+ev, len). Used to query the
-// set of event types/codes a device advertises.
-func evIOCGBit(ev, len int) uintptr {
-	return _ioc(_iocRead, 'E', 0x20+ev, len)
-}
-
-// _ioc encodes an input-subsystem ioctl number the way linux/_ioctl.h does:
-//   _IOC(dir, type, nr, size) = (dir<<30)|(type<<8)|(size<<16)|nr
-// where `type` is the full type char ('E' = 0x45), `nr` is the 8-bit command
-// number (low byte), and `size` is the 16-bit length. Verified against the
-// kernel's EVIOCGBIT values (0x80204520, 0x80204521, ...).
-func _ioc(dir, typ, nr, size int) uintptr {
-	return uintptr(uint(dir)<<30 | uint(typ)<<8 | uint(size)<<16 | uint(nr)&0xff)
-}
-
-const (
-	_iocRead = 2 // _IOC_READ
-	evMax    = 0x20
-)
-
-func evTypeName(t int) string {
-	switch t {
-	case 0:
-		return "EV_SYN"
-	case 1:
-		return "EV_KEY"
-	case 2:
-		return "EV_REL"
-	case 3:
-		return "EV_ABS"
-	default:
-		return fmt.Sprintf("EV_%d", t)
-	}
-}
-
 // uinput_user_dev layout constants (linux/uinput.h, linux/input.h).
 const (
 	uinputMaxNameSize = 80
@@ -104,57 +67,12 @@ var mouseButtonCodes = map[string]int{
 
 // uinputDevice is a virtual evdev input device created through /dev/uinput.
 // It emits keyboard, relative-mouse and button events directly from this
-// process, replacing the ydotool/ydotoold pair.
+// process, replacing the ydotool/ydotoold pair. Events are written straight to
+// the /dev/uinput fd (the same pattern used by github.com/bendahl/uinput);
+// no /dev/input node discovery is needed.
 type uinputDevice struct {
-	file    *os.File
-	fd      int
-	node    string // /dev/input/eventN node for the created device ("" if unknown)
-	readF   *os.File
-	bustype uint16
-	vendor  uint16
-	product uint16
-	version uint16
-}
-
-// uinputNode finds the /dev/input/eventN node for the created device by
-// matching each event's sysfs input_id (bus/vendor/product/version) against the
-// id we programmed into the uinput device. Matching on input_id is robust
-// across kernels, unlike the name string (whose sysfs encoding varies).
-func (d *uinputDevice) uinputNode() string {
-	nodes := globDevInputEvents()
-	if *debugMode {
-		fmt.Printf("uinput node scan: %d /dev/input/event* nodes\n", len(nodes))
-	}
-	for _, node := range nodes {
-		idPath := filepath.Join(node, "device", "inputid")
-		id, err := os.ReadFile(idPath)
-		if err != nil {
-			if *debugMode {
-				fmt.Printf("uinput node scan: %s: %s\n", idPath, err)
-			}
-			continue
-		}
-		// inputid is "bus vendor product version", each 4 hex digits.
-		f := strings.Fields(string(id))
-		if len(f) != 4 {
-			if *debugMode {
-				fmt.Printf("uinput node scan: %s: unexpected fields %q\n", idPath, string(id))
-			}
-			continue
-		}
-		if f[0] == hex16(d.bustype) && f[1] == hex16(d.vendor) &&
-			f[2] == hex16(d.product) && f[3] == hex16(d.version) {
-			return node
-		}
-	}
-	return ""
-}
-
-func hex16(v uint16) string { return fmt.Sprintf("%04x", v) }
-
-func globDevInputEvents() []string {
-	m, _ := filepath.Glob("/dev/input/event*")
-	return m
+	file *os.File
+	fd   int
 }
 
 // uinputUserDev mirrors struct uinput_user_dev from linux/uinput.h.
@@ -184,11 +102,11 @@ type uinputUserDev struct {
 }
 
 // newUinputDevice opens /dev/uinput and creates a virtual device named
-// "shuttle-go-virtual" with EV_KEY (0-KEY_MAX) and EV_REL (X, Y).
+// "shuttle-go-virtual" with EV_KEY and EV_REL (X, Y) support.
 //
 // The protocol: write a uinput_user_dev blob to the fd, then issue the
-// no-argument UI_DEV_CREATE ioctl. The kernel derives the supported event
-// bits from the id/version fields and the (zeroed) abs arrays.
+// no-argument UI_DEV_CREATE ioctl. All subsequent events are written to the
+// same fd.
 func newUinputDevice() (*uinputDevice, error) {
 	f, err := os.OpenFile("/dev/uinput", os.O_RDWR, 0)
 	if err != nil {
@@ -202,7 +120,6 @@ func newUinputDevice() (*uinputDevice, error) {
 	dev.vendor = 0x0001
 	dev.product = 0x0001
 	dev.version = 0x0100
-	d.bustype, d.vendor, d.product, d.version = dev.bustype, dev.vendor, dev.product, dev.version
 
 	if _, err := f.Write((*[unsafe.Sizeof(dev)]byte)(unsafe.Pointer(&dev))[:]); err != nil {
 		f.Close()
@@ -214,97 +131,28 @@ func newUinputDevice() (*uinputDevice, error) {
 		return nil, fmt.Errorf("UI_DEV_CREATE: %s", errno)
 	}
 
-	d.node = d.uinputNode()
-	if *debugMode {
-		fmt.Println("uinput device node:", d.node)
-	}
-
-	// Confirm the device actually advertises the event types we programmed,
-	// independent of any node discovery. EVIOCGBIT(0, size) returns a bitmap of
-	// supported event types; the buffer must be exactly `size` bytes.
-	var evbits [evMax]byte
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd),
-		uintptr(evIOCGBit(0, evMax)), uintptr(unsafe.Pointer(&evbits[0]))); errno == 0 {
-		types := make([]string, 0, 8)
-		for t := 0; t < evMax; t++ {
-			if evbits[t/8]&(1<<uint(t%8)) != 0 {
-				types = append(types, evTypeName(t))
-			}
-		}
-		if *debugMode {
-			fmt.Println("uinput device advertises event types:", strings.Join(types, ","))
-		}
-	} else if *debugMode {
-		fmt.Println("uinput EVIOCGBIT failed:", errno)
-	}
-
 	return d, nil
 }
 
-// openReadNode opens the device's own /dev/input/eventN node (if it exists)
-// so emitted events can be read back for a self-test. If the node was not
-// resolved at creation time, it re-scans for it.
-func (d *uinputDevice) openReadNode() error {
-	if d.node == "" {
-		d.node = d.uinputNode()
-	}
-	if d.node == "" {
-		return fmt.Errorf("no /dev/input node for the uinput device")
-	}
-	f, err := os.OpenFile(d.node, os.O_RDONLY, 0)
-	if err != nil {
-		return fmt.Errorf("opening %s: %s", d.node, err)
-	}
-	d.readF = f
-	return nil
-}
-
-// ReadBack reads and returns the next raw input_event from the device's own
-// /dev/input node, for verifying that a written event actually reached the
-// device. It returns the (type, code, value) triple and whether a SYN_REPORT
-// followed.
-func (d *uinputDevice) ReadBack() (evType, code uint16, value int32, ok bool, err error) {
-	if d.readF == nil {
-		return 0, 0, 0, false, fmt.Errorf("read node not open")
-	}
-	var ev [24]byte
-	n, _, errno := syscall.Syscall6(syscall.SYS_READ, uintptr(d.readF.Fd()),
-		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
-	if errno != 0 {
-		return 0, 0, 0, false, fmt.Errorf("reading %s: %s", d.node, errno)
-	}
-	if n != uintptr(len(ev)) {
-		return 0, 0, 0, false, fmt.Errorf("short read: %d bytes", n)
-	}
-	evType = binary.LittleEndian.Uint16(ev[8:10])
-	code = binary.LittleEndian.Uint16(ev[10:12])
-	value = int32(binary.LittleEndian.Uint32(ev[12:16]))
-	return evType, code, value, evType == evSync, nil
-}
-
 // writeEvent writes a single 24-byte input_event to the device using the raw
-// write(2) syscall (bypassing os.File, which would be fine but is slower and
-// obscures the errno). The 24-byte struct input_event layout is:
+// write(2) syscall. The 24-byte struct input_event layout is:
 //
-//	__kernel_time_t t_sec;   // u32
+//	__kernel_time_t t_sec;   // u64 (8 bytes on 64-bit)
 //	__s32             t_usec;
 //	enum  input_event_type  type;   // u16
 //	enum  input_event_code  code;   // u16
 //	__s32             value;
 //
-// which is 4+4+2+2+4 = 16 bytes on a 32-bit time_t, but the on-disk layout
-// pads t_sec to 8 bytes on 64-bit kernels, giving 8+4+2+2+4 = 20 bytes. We
-// emit the 24-byte form the kernel's evdev read() expects (8-byte time_t,
-// 4-byte usec, 2+2 type/code, 4-byte value, 4 bytes padding) so a single
-// write() delivers exactly one event.
+// which is 8+4+2+2+4 = 20 bytes, padded to 24. A single write() delivers
+// exactly one event.
 func (d *uinputDevice) writeEvent(evType, code uint16, value int32) error {
 	var ev [24]byte
-	binary.LittleEndian.PutUint32(ev[0:4], 0)    // t_sec
-	binary.LittleEndian.PutUint32(ev[4:8], 0)    // t_usec
-	binary.LittleEndian.PutUint16(ev[8:10], evType)
-	binary.LittleEndian.PutUint16(ev[10:12], code)
-	binary.LittleEndian.PutUint32(ev[12:16], uint32(value))
-	// ev[16:24] is zero padding.
+	binary.LittleEndian.PutUint64(ev[0:8], 0) // t_sec
+	binary.LittleEndian.PutUint32(ev[8:12], 0) // t_usec
+	binary.LittleEndian.PutUint16(ev[12:14], evType)
+	binary.LittleEndian.PutUint16(ev[14:16], code)
+	binary.LittleEndian.PutUint32(ev[16:20], uint32(value))
+	// ev[20:24] is zero padding.
 
 	n, _, errno := syscall.Syscall6(syscall.SYS_WRITE, uintptr(d.fd),
 		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
