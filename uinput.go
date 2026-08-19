@@ -29,22 +29,27 @@ var mouseButtonCodes = map[string]int{
 	"0x06":    0x118,
 }
 
-// uinputDevice is a virtual input device backed by the github.com/jbdemonte/
-// virtual-device library. It exposes the small eventEmitter surface the mapper
-// uses (KeyTap/KeyHold/KeyRelease/Type/MouseMove/Click) plus Destroy, and is
-// created by newUinputDevice.
+// uinputDevice is a pair of virtual input devices backed by the
+// github.com/jbdemonte/virtual-device library: a keyboard (for key events) and
+// a dedicated mouse (for relative motion and button clicks). It exposes the
+// small eventEmitter surface the mapper uses (KeyTap/KeyHold/KeyRelease/Type/
+// MouseMove/Click) plus Destroy, and is created by newUinputDevice.
 //
 // The previous hand-rolled uinput code created a correctly-configured device
 // (verified with evtest) yet the kernel dropped every emitted event on this
 // machine. The jbdemonte/virtual-device library emits events that do reach the
-// kernel, so we now delegate all emission to it.
+// kernel, so we now delegate all emission to it. Keyboard and mouse events are
+// split across two devices, mirroring the library's own keyboard/mouse
+// examples, because mixing mouse buttons into a keyboard device did not deliver
+// mouse events.
 type uinputDevice struct {
-	device virtual_device.VirtualDevice
+	keyboard virtual_device.VirtualDevice
+	mouse    virtual_device.VirtualDevice
 }
 
-// newUinputDevice creates and registers a virtual keyboard + relative-mouse
-// device. The keyboard covers the full EV_KEY range so any bound key can be
-// emitted; the mouse provides relative X/Y and the standard buttons.
+// newUinputDevice creates and registers a virtual keyboard (full EV_KEY range so
+// any bound key can be emitted) and a dedicated virtual mouse (relative X/Y,
+// wheel, and the standard buttons).
 func newUinputDevice() (*uinputDevice, error) {
 	// Full keyboard range (KEY_RESERVED+1 .. KEY_MAX) so any key can be tapped.
 	keys := make([]linux.Key, 0, 0x2ff)
@@ -52,52 +57,68 @@ func newUinputDevice() (*uinputDevice, error) {
 		keys = append(keys, k)
 	}
 
-	buttons := []linux.Button{
-		linux.BTN_LEFT,
-		linux.BTN_RIGHT,
-		linux.BTN_MIDDLE,
-		linux.BTN_SIDE,
-		linux.BTN_EXTRA,
-		linux.BTN_FORWARD,
-		linux.BTN_BACK,
-	}
-
-	dev := virtual_device.NewVirtualDevice().
+	keyboard := virtual_device.NewVirtualDevice().
 		WithBusType(linux.BUS_USB).
 		WithVendor(0x0001).
 		WithProduct(0x0001).
 		WithVersion(0x0100).
 		WithName("shuttle-go-virtual").
-		WithKeys(keys).
-		WithButtons(buttons).
-		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y})
+		WithKeys(keys)
 
-	if err := dev.Register(); err != nil {
-		return nil, fmt.Errorf("registering virtual device: %w", err)
+	if err := keyboard.Register(); err != nil {
+		return nil, fmt.Errorf("registering virtual keyboard: %w", err)
 	}
 
-	return &uinputDevice{device: dev}, nil
+	mouse := virtual_device.NewVirtualDevice().
+		WithBusType(linux.BUS_USB).
+		WithVendor(0x0001).
+		WithProduct(0x0002).
+		WithVersion(0x0100).
+		WithName("shuttle-go-virtual-mouse").
+		WithButtons([]linux.Button{
+			linux.BTN_LEFT,
+			linux.BTN_RIGHT,
+			linux.BTN_MIDDLE,
+			linux.BTN_SIDE,
+			linux.BTN_EXTRA,
+			linux.BTN_FORWARD,
+			linux.BTN_BACK,
+		}).
+		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y, linux.REL_WHEEL})
+
+	if err := mouse.Register(); err != nil {
+		keyboard.Unregister()
+		return nil, fmt.Errorf("registering virtual mouse: %w", err)
+	}
+
+	return &uinputDevice{keyboard: keyboard, mouse: mouse}, nil
 }
 
-// Destroy unregisters and closes the virtual device.
+// Destroy unregisters and closes both virtual devices.
 func (d *uinputDevice) Destroy() {
-	if d == nil || d.device == nil {
+	if d == nil {
 		return
 	}
-	d.device.Unregister()
-	d.device = nil
+	if d.keyboard != nil {
+		d.keyboard.Unregister()
+		d.keyboard = nil
+	}
+	if d.mouse != nil {
+		d.mouse.Unregister()
+		d.mouse = nil
+	}
 }
 
 // KeyTap presses and releases each keycode in order, with a SYN after each
 // press and after each release.
 func (d *uinputDevice) KeyTap(codes []int) error {
 	for _, code := range codes {
-		d.device.PressKey(linux.Key(code))
-		d.device.SyncReport()
+		d.keyboard.PressKey(linux.Key(code))
+		d.keyboard.SyncReport()
 	}
 	for i := len(codes) - 1; i >= 0; i-- {
-		d.device.ReleaseKey(linux.Key(codes[i]))
-		d.device.SyncReport()
+		d.keyboard.ReleaseKey(linux.Key(codes[i]))
+		d.keyboard.SyncReport()
 	}
 	return nil
 }
@@ -105,18 +126,18 @@ func (d *uinputDevice) KeyTap(codes []int) error {
 // KeyHold presses each keycode (value 1) and SYNs.
 func (d *uinputDevice) KeyHold(codes []int) error {
 	for _, code := range codes {
-		d.device.PressKey(linux.Key(code))
+		d.keyboard.PressKey(linux.Key(code))
 	}
-	d.device.SyncReport()
+	d.keyboard.SyncReport()
 	return nil
 }
 
 // KeyRelease releases each keycode (value 0) and SYNs.
 func (d *uinputDevice) KeyRelease(codes []int) error {
 	for _, code := range codes {
-		d.device.ReleaseKey(linux.Key(code))
+		d.keyboard.ReleaseKey(linux.Key(code))
 	}
-	d.device.SyncReport()
+	d.keyboard.SyncReport()
 	return nil
 }
 
@@ -136,13 +157,13 @@ func (d *uinputDevice) Type(text string) error {
 			continue
 		}
 		// Press Shift, press the key, release the key, release Shift.
-		d.device.PressKey(linux.KEY_LEFTSHIFT)
-		d.device.PressKey(linux.Key(code))
-		d.device.SyncReport()
+		d.keyboard.PressKey(linux.KEY_LEFTSHIFT)
+		d.keyboard.PressKey(linux.Key(code))
+		d.keyboard.SyncReport()
 		time.Sleep(20 * time.Millisecond)
-		d.device.ReleaseKey(linux.Key(code))
-		d.device.ReleaseKey(linux.KEY_LEFTSHIFT)
-		d.device.SyncReport()
+		d.keyboard.ReleaseKey(linux.Key(code))
+		d.keyboard.ReleaseKey(linux.KEY_LEFTSHIFT)
+		d.keyboard.SyncReport()
 		time.Sleep(20 * time.Millisecond)
 	}
 	return nil
@@ -159,9 +180,9 @@ func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 		dx = x + dx
 		dy = y + dy
 	}
-	d.device.SendRelativeEvent(linux.REL_X, int32(dx))
-	d.device.SendRelativeEvent(linux.REL_Y, int32(dy))
-	d.device.SyncReport()
+	d.mouse.SendRelativeEvent(linux.REL_X, int32(dx))
+	d.mouse.SendRelativeEvent(linux.REL_Y, int32(dy))
+	d.mouse.SyncReport()
 	return nil
 }
 
@@ -171,11 +192,11 @@ func (d *uinputDevice) Click(code int, repeats int) error {
 		repeats = 1
 	}
 	for i := 0; i < repeats; i++ {
-		d.device.PressButton(linux.Button(code))
-		d.device.SyncReport()
+		d.mouse.PressButton(linux.Button(code))
+		d.mouse.SyncReport()
 		time.Sleep(20 * time.Millisecond)
-		d.device.ReleaseButton(linux.Button(code))
-		d.device.SyncReport()
+		d.mouse.ReleaseButton(linux.Button(code))
+		d.mouse.SyncReport()
 	}
 	return nil
 }
