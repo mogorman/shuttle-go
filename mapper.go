@@ -14,11 +14,24 @@ import (
 	"github.com/hypebeast/go-osc/osc"
 )
 
+// eventEmitter is the subset of *uinputDevice the mapper uses to emit
+// keyboard, relative-mouse and button events. It is an interface so the
+// mapper can be unit-tested with a fake that records events instead of
+// writing to /dev/uinput.
+type eventEmitter interface {
+	KeyTap(codes []int) error
+	KeyHold(codes []int) error
+	KeyRelease(codes []int) error
+	Type(text string) error
+	MouseMove(dx, dy int, abs bool) error
+	Click(code int, repeats int) error
+}
+
 // Mapper receives events from the Shuttle devices, and maps (through
 // configuration) to the Virtual Keyboard events.
 type Mapper struct {
 	inputDevice *evdev.InputDevice
-	uinput      *uinputDevice
+	uinput      eventEmitter
 	state       buttonsState
 	watcher     *watcher
 }
@@ -33,7 +46,7 @@ type buttonsState struct {
 	lastJog          time.Time
 }
 
-func NewMapper(inputDevice *evdev.InputDevice, uinput *uinputDevice) *Mapper {
+func NewMapper(inputDevice *evdev.InputDevice, uinput eventEmitter) *Mapper {
 	m := &Mapper{
 		inputDevice: inputDevice,
 		uinput:      uinput,
@@ -215,7 +228,9 @@ func (m *Mapper) EmitOther(key string) error {
 	}
 
 	for _, binding := range conf.bindings {
-		if binding.otherKey == upperKey {
+		// A binding matches if its key is this movement (otherKey) or a plain
+		// button (buttonDown) whose name equals this key.
+		if binding.otherKey == upperKey || (binding.buttonDown != 0 && reverseShuttleKeys[binding.buttonDown] == upperKey) {
 			return m.executeBindingTap(binding)
 		}
 	}
@@ -382,6 +397,9 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 		rest := strings.TrimSpace(macro[len(verb):])
 
 		switch verb {
+		case "/once":
+			// A marker only (first position); it is not itself executed.
+			continue
 		case "/type":
 			if rest == "" {
 				return fmt.Errorf("/type in binding %q needs text to type", binding.rawKey)
@@ -479,6 +497,11 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 		}
 		return exec.Command("env", "bash", "-c", binding.original).Run()
 	case "uinput":
+		if len(binding.macros) > 0 {
+			// A macro chain: run it once (a "/once" chain) or repeat while
+			// held. Nothing is held, so no key codes are returned.
+			return m.runMacroBinding(binding)
+		}
 		codes, err := keyCodes(binding.original)
 		if err != nil {
 			return err
