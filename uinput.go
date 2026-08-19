@@ -4,379 +4,100 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
-	"syscall"
-	"unsafe"
-)
+	"time"
 
-// input event types (linux/input.h)
-const (
-	evSync = 0x00
-	evKey  = 0x01
-	evRel  = 0x02
-)
-
-// EV_KEY button codes (linux/input-event-codes.h)
-const (
-	btnLeft    = 0x110
-	btnRight   = 0x111
-	btnMiddle  = 0x112
-	btnForward = 0x117
-	btnBack    = 0x118
-	btnSide    = 0x119
-	btnExtra   = 0x11a
-)
-
-// EV_REL axis codes
-const (
-	relX = 0x00
-	relY = 0x01
-)
-
-// keyMax is KEY_MAX (0x2ff), the highest EV_KEY code. We declare support for
-// the full range so any bound key can be emitted.
-const keyMax = 0x2ff
-
-// /dev/uinput ioctls (linux/uinput.h). UI_DEV_CREATE and UI_DEV_DESTROY are
-// plain _IO ioctls: they take no argument. The UI_SET_*BIT ioctls declare the
-// event types and individual event codes the device supports; they must be
-// issued before UI_DEV_CREATE so the kernel builds the device's capability
-// bitmap. Without them the created device advertises no event types and the
-// kernel silently drops every event we write.
-const (
-	uiDevCreate  = 0x5501
-	uiDevDestroy = 0x5502
-)
-
-// UI_SET_*BIT ioctl request codes. These are _IOW('U', nr, int) encodings:
-//   _IOC(_IOC_WRITE, 'U', nr, sizeof(int)) = (1<<30)|('U'<<8)|(nr<<0)|(4<<16)
-// The base _IOW('U', 0, int) is 0x40045500, so each is base + nr.
-const (
-	uiSetEvBit   = 0x40045564 // _IOW('U', 100, int)
-	uiSetKeyBit  = 0x40045565 // _IOW('U', 101, int)
-	uiSetRelBit  = 0x40045566 // _IOW('U', 102, int)
-	uiSetAbsBit  = 0x40045567 // _IOW('U', 103, int)
-	uiSetMsCBit  = 0x40045568 // _IOW('U', 104, int)
-	uiSetLedBit  = 0x40045569 // _IOW('U', 105, int)
-	uiSetPropBit = 0x4004556e // _IOW('U', 110, int)
-)
-
-// EVIOCGRAB (linux/input.h) is _IOW('E', 0x90, int): it takes an exclusive
-// grab on the device. If another process already holds the grab it returns
-// -EBUSY, which is how we detect a held grab.
-const evIOCGRAB = 0x40044590
-
-// uinput_user_dev layout constants (linux/uinput.h, linux/input.h).
-const (
-	uinputMaxNameSize = 80
-	absCnt            = 0x40 // ABS_CNT
+	virtual_device "github.com/jbdemonte/virtual-device"
+	"github.com/jbdemonte/virtual-device/linux"
 )
 
 // mouseButtonCodes maps a /click button name (symbolic or hex) to an EV_KEY
-// button code.
+// button code, for the mapper's /click handler.
 var mouseButtonCodes = map[string]int{
-	"left":    btnLeft,
-	"right":   btnRight,
-	"middle":  btnMiddle,
-	"forward": btnForward,
-	"back":    btnBack,
-	"side":    btnSide,
-	"extr":    btnExtra,
-	"0x00":    btnLeft,
-	"0x01":    btnRight,
-	"0x02":    btnMiddle,
-	"0x03":    btnSide,
-	"0x04":    btnExtra,
-	"0x05":    btnForward,
-	"0x06":    btnBack,
+	"left":    0x110,
+	"right":   0x111,
+	"middle":  0x112,
+	"forward": 0x117,
+	"back":    0x118,
+	"side":    0x119,
+	"extr":    0x11a,
+	"0x00":    0x110,
+	"0x01":    0x111,
+	"0x02":    0x112,
+	"0x03":    0x119,
+	"0x04":    0x11a,
+	"0x05":    0x117,
+	"0x06":    0x118,
 }
 
-// uinputDevice is a virtual evdev input device created through /dev/uinput.
-// It emits keyboard, relative-mouse and button events directly from this
-// process, replacing the ydotool/ydotoold pair. Events are written straight to
-// the /dev/uinput fd (the same pattern used by github.com/bendahl/uinput);
-// no /dev/input node discovery is needed.
+// uinputDevice is a virtual input device backed by the github.com/jbdemonte/
+// virtual-device library. It exposes the small eventEmitter surface the mapper
+// uses (KeyTap/KeyHold/KeyRelease/Type/MouseMove/Click) plus Destroy, and is
+// created by newUinputDevice.
+//
+// The previous hand-rolled uinput code created a correctly-configured device
+// (verified with evtest) yet the kernel dropped every emitted event on this
+// machine. The jbdemonte/virtual-device library emits events that do reach the
+// kernel, so we now delegate all emission to it.
 type uinputDevice struct {
-	file *os.File
-	fd   int
+	device virtual_device.VirtualDevice
 }
 
-// uinputUserDev mirrors struct uinput_user_dev from linux/uinput.h.
-//
-//	char name[UINPUT_MAX_NAME_SIZE];
-//	struct input_id id;
-//	__u32 ff_effects_max;
-//	__s32 absmax[ABS_CNT];
-//	__s32 absmin[ABS_CNT];
-//	__s32 absfuzz[ABS_CNT];
-//	__s32 absflat[ABS_CNT];
-//
-// The four abs arrays are zeroed (no absolute axes are declared), but they
-// still occupy 4*64*4 = 1024 bytes, so the struct is 92 + 1024 = 1116 bytes.
-// The kernel reads the whole struct, so all of it must be written.
-type uinputUserDev struct {
-	name         [uinputMaxNameSize]byte
-	bustype      uint16
-	vendor       uint16
-	product      uint16
-	version      uint16
-	ffEffectsMax uint32
-	absmax       [absCnt]int32
-	absmin       [absCnt]int32
-	absfuzz      [absCnt]int32
-	absflat      [absCnt]int32
-}
-
-// newUinputDevice opens /dev/uinput and creates a virtual device named
-// "shuttle-go-virtual" with EV_KEY and EV_REL (X, Y) support.
-//
-// The protocol: write a uinput_user_dev blob to the fd, then issue the
-// no-argument UI_DEV_CREATE ioctl. All subsequent events are written to the
-// same fd.
+// newUinputDevice creates and registers a virtual keyboard + relative-mouse
+// device. The keyboard covers the full EV_KEY range so any bound key can be
+// emitted; the mouse provides relative X/Y and the standard buttons.
 func newUinputDevice() (*uinputDevice, error) {
-	f, err := os.OpenFile("/dev/uinput", os.O_RDWR, 0)
-	if err != nil {
-		return nil, fmt.Errorf("opening /dev/uinput: %s", err)
-	}
-	d := &uinputDevice{file: f, fd: int(f.Fd())}
-
-	// Declare the event types and individual codes the device supports, before
-	// creating it. The kernel builds the device's capability bitmap from these
-	// UI_SET_*BIT ioctls; without them the created device advertises no event
-	// types and the kernel silently drops every event we write. We support a
-	// full keyboard (EV_KEY 0..KEY_MAX) plus relative X/Y (EV_REL).
-	if err := d.setEvBit(evKey); err != nil {
-		f.Close()
-		return nil, err
-	}
-	for code := 0; code <= keyMax; code++ {
-		if err := d.setKeyBit(uint16(code)); err != nil {
-			f.Close()
-			return nil, err
-		}
-	}
-	if err := d.setEvBit(evRel); err != nil {
-		f.Close()
-		return nil, err
-	}
-	for _, axis := range []uint16{relX, relY} {
-		if err := d.setRelBit(axis); err != nil {
-			f.Close()
-			return nil, err
-		}
+	// Full keyboard range (KEY_RESERVED+1 .. KEY_MAX) so any key can be tapped.
+	keys := make([]linux.Key, 0, 0x2ff)
+	for k := linux.Key(1); k <= linux.Key(0x2ff); k++ {
+		keys = append(keys, k)
 	}
 
-	var dev uinputUserDev
-	copy(dev.name[:], "shuttle-go-virtual")
-	dev.bustype = 0x03 // BUS_USB
-	dev.vendor = 0x0001
-	dev.product = 0x0001
-	dev.version = 0x0100
-
-	if _, err := f.Write((*[unsafe.Sizeof(dev)]byte)(unsafe.Pointer(&dev))[:]); err != nil {
-		f.Close()
-		return nil, fmt.Errorf("writing uinput_user_dev: %s", err)
+	buttons := []linux.Button{
+		linux.BTN_LEFT,
+		linux.BTN_RIGHT,
+		linux.BTN_MIDDLE,
+		linux.BTN_SIDE,
+		linux.BTN_EXTRA,
+		linux.BTN_FORWARD,
+		linux.BTN_BACK,
 	}
 
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiDevCreate), 0); errno != 0 {
-		f.Close()
-		return nil, fmt.Errorf("UI_DEV_CREATE: %s", errno)
+	dev := virtual_device.NewVirtualDevice().
+		WithBusType(linux.BUS_USB).
+		WithVendor(0x0001).
+		WithProduct(0x0001).
+		WithVersion(0x0100).
+		WithName("shuttle-go-virtual").
+		WithKeys(keys).
+		WithButtons(buttons).
+		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y})
+
+	if err := dev.Register(); err != nil {
+		return nil, fmt.Errorf("registering virtual device: %w", err)
 	}
 
-	return d, nil
+	return &uinputDevice{device: dev}, nil
 }
 
-// checkGrab attempts to take an exclusive grab on the device and reports the
-// result, then releases it. It must be called while the device node is open by
-// at least one reader: the kernel's evdev_grab() returns -EINVAL when the
-// device's open count is 0 (no reader attached), and -EBUSY when another
-// process already holds the grab. The returned string is a human-readable
-// status for debug logging.
-func (d *uinputDevice) checkGrab() string {
-	// The kernel branches on whether the pointer is NULL: a non-NULL pointer
-	// grabs, a NULL pointer releases. So pass the address of a real variable
-	// to attempt the grab, and 0 to release it.
-	var grabArg int
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB),
-		uintptr(unsafe.Pointer(&grabArg)))
-	if errno != 0 {
-		switch errno {
-		case syscall.EBUSY:
-			return "EBUSY — another process (the input subsystem/seat) already holds the exclusive grab, so it is receiving our events and non-grabbing readers (evtest, the WM) get nothing"
-		case syscall.EINVAL:
-			return "EINVAL — no reader has the device node open (open count 0), so the grab cannot be evaluated"
-		default:
-			return fmt.Sprintf("errno %s", errno)
-		}
+// Destroy unregisters and closes the virtual device.
+func (d *uinputDevice) Destroy() {
+	if d == nil || d.device == nil {
+		return
 	}
-	// We hold the grab now; release it immediately so we don't disturb the seat.
-	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB), 0)
-	return "succeeded — no other process holds the device (events should reach all readers)"
-}
-
-func globDevInputEvents() []string {
-	m, _ := filepath.Glob("/dev/input/event*")
-	return m
-}
-
-func hex16(v uint16) string { return fmt.Sprintf("%04x", v) }
-
-// openNode opens the device's own /dev/input/eventN node for reading, so we can
-// read emitted events back through our own fd. It locates the node by matching
-// the uinput device's input_id against each /dev/input/event*/device/inputid.
-// Returns the opened file, or nil if the node could not be found/opened.
-func (d *uinputDevice) openNode() *os.File {
-	for _, node := range globDevInputEvents() {
-		id, err := os.ReadFile(filepath.Join(node, "device", "inputid"))
-		if err != nil {
-			continue
-		}
-		f := strings.Fields(string(id))
-		if len(f) == 4 && f[0] == hex16(0x03) && f[1] == hex16(0x0001) &&
-			f[2] == hex16(0x0001) && f[3] == hex16(0x0100) {
-			if rf, err := os.OpenFile(node, os.O_RDONLY, 0); err == nil {
-				return rf
-			}
-		}
-	}
-	return nil
-}
-
-// readEvent reads one 24-byte input_event from the given node fd, returning the
-// (type, code, value) triple.
-func readEvent(fd int) (evType, code uint16, value int32, err error) {
-	var ev [24]byte
-	n, _, errno := syscall.Syscall6(syscall.SYS_READ, uintptr(fd),
-		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
-	if errno != 0 {
-		return 0, 0, 0, errno
-	}
-	if n != uintptr(len(ev)) {
-		return 0, 0, 0, fmt.Errorf("short read: %d bytes", n)
-	}
-	evType = binary.LittleEndian.Uint16(ev[8:10])
-	code = binary.LittleEndian.Uint16(ev[10:12])
-	value = int32(binary.LittleEndian.Uint32(ev[12:16]))
-	return
-}
-
-// selfTest opens the device node, grabs it, emits a known key, and reads the
-// events back through our own fd. This proves end-to-end delivery (write →
-// kernel → our own read) independent of any external reader or WM focus.
-func (d *uinputDevice) selfTest() string {
-	rf := d.openNode()
-	if rf == nil {
-		return "could not open the device node for a self-read (node not found or not readable)"
-	}
-	defer rf.Close()
-
-	// Take the grab so we are guaranteed to receive the events we emit.
-	var grabArg int
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(rf.Fd()), uintptr(evIOCGRAB),
-		uintptr(unsafe.Pointer(&grabArg))); errno != 0 {
-		return fmt.Sprintf("self-test: grab on reader fd failed: %s", errno)
-	}
-	defer syscall.Syscall(syscall.SYS_IOCTL, uintptr(rf.Fd()), uintptr(evIOCGRAB), 0)
-
-	const testKey = 30 // 'a'
-	if err := d.KeyTap([]int{testKey}); err != nil {
-		return fmt.Sprintf("self-test: emit failed: %s", err)
-	}
-
-	// Expect: EV_KEY 30 press, EV_KEY 30 release, EV_SYN (one per event).
-	var got []string
-	for i := 0; i < 6; i++ {
-		t, c, v, err := readEvent(int(rf.Fd()))
-		if err != nil {
-			break
-		}
-		got = append(got, fmt.Sprintf("type=%d code=%d value=%d", t, c, v))
-	}
-	return fmt.Sprintf("self-test read back %d events: %v", len(got), got)
-}
-
-// setEvBit issues UI_SET_EVBIT, declaring that the device supports the given
-// event type (EV_KEY, EV_REL, ...).
-func (d *uinputDevice) setEvBit(evType uint16) error {
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiSetEvBit), uintptr(evType)); errno != 0 {
-		return fmt.Errorf("UI_SET_EVBIT(%d): %s", evType, errno)
-	}
-	return nil
-}
-
-// setKeyBit issues UI_SET_KEYBIT, declaring that the device supports the given
-// EV_KEY code.
-func (d *uinputDevice) setKeyBit(code uint16) error {
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiSetKeyBit), uintptr(code)); errno != 0 {
-		return fmt.Errorf("UI_SET_KEYBIT(%d): %s", code, errno)
-	}
-	return nil
-}
-
-// setRelBit issues UI_SET_RELBIT, declaring that the device supports the given
-// EV_REL axis.
-func (d *uinputDevice) setRelBit(axis uint16) error {
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiSetRelBit), uintptr(axis)); errno != 0 {
-		return fmt.Errorf("UI_SET_RELBIT(%d): %s", axis, errno)
-	}
-	return nil
-}
-
-// writeEvent writes a single 24-byte input_event to the device using the raw
-// write(2) syscall. The 24-byte struct input_event layout is:
-//
-//	__kernel_time_t t_sec;   // u64 (8 bytes on 64-bit)
-//	__s32             t_usec;
-//	enum  input_event_type  type;   // u16
-//	enum  input_event_code  code;   // u16
-//	__s32             value;
-//
-// which is 8+4+2+2+4 = 20 bytes, padded to 24. A single write() delivers
-// exactly one event.
-func (d *uinputDevice) writeEvent(evType, code uint16, value int32) error {
-	var ev [24]byte
-	binary.LittleEndian.PutUint64(ev[0:8], 0) // t_sec
-	binary.LittleEndian.PutUint32(ev[8:12], 0) // t_usec
-	binary.LittleEndian.PutUint16(ev[12:14], evType)
-	binary.LittleEndian.PutUint16(ev[14:16], code)
-	binary.LittleEndian.PutUint32(ev[16:20], uint32(value))
-	// ev[20:24] is zero padding.
-
-	n, _, errno := syscall.Syscall6(syscall.SYS_WRITE, uintptr(d.fd),
-		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
-	if errno != 0 {
-		return fmt.Errorf("writing input event (type=%d code=%d value=%d): %s (wrote %d bytes)",
-			evType, code, value, errno, n)
-	}
-	if n != uintptr(len(ev)) {
-		return fmt.Errorf("short write: wrote %d of %d bytes", n, len(ev))
-	}
-	return nil
-}
-
-func (d *uinputDevice) syn() error {
-	return d.writeEvent(evSync, 0, 0)
+	d.device.Unregister()
+	d.device = nil
 }
 
 // KeyTap presses and releases each keycode in order, with a SYN after each
 // press and after each release.
 func (d *uinputDevice) KeyTap(codes []int) error {
 	for _, code := range codes {
-		if err := d.writeEvent(evKey, uint16(code), 1); err != nil {
-			return err
-		}
-		if err := d.syn(); err != nil {
-			return err
-		}
+		d.device.PressKey(linux.Key(code))
+		d.device.SyncReport()
 	}
 	for i := len(codes) - 1; i >= 0; i-- {
-		if err := d.writeEvent(evKey, uint16(codes[i]), 0); err != nil {
-			return err
-		}
-		if err := d.syn(); err != nil {
-			return err
-		}
+		d.device.ReleaseKey(linux.Key(codes[i]))
+		d.device.SyncReport()
 	}
 	return nil
 }
@@ -384,21 +105,19 @@ func (d *uinputDevice) KeyTap(codes []int) error {
 // KeyHold presses each keycode (value 1) and SYNs.
 func (d *uinputDevice) KeyHold(codes []int) error {
 	for _, code := range codes {
-		if err := d.writeEvent(evKey, uint16(code), 1); err != nil {
-			return err
-		}
+		d.device.PressKey(linux.Key(code))
 	}
-	return d.syn()
+	d.device.SyncReport()
+	return nil
 }
 
 // KeyRelease releases each keycode (value 0) and SYNs.
 func (d *uinputDevice) KeyRelease(codes []int) error {
 	for _, code := range codes {
-		if err := d.writeEvent(evKey, uint16(code), 0); err != nil {
-			return err
-		}
+		d.device.ReleaseKey(linux.Key(code))
 	}
-	return d.syn()
+	d.device.SyncReport()
+	return nil
 }
 
 // Type emits each rune of text as a tap.
@@ -419,20 +138,17 @@ func (d *uinputDevice) Type(text string) error {
 // absolute position (x, y) when abs is true.
 func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	if abs {
-		x, y, err := d.currentMousePos()
+		x, y, err := currentMousePos()
 		if err != nil {
 			return err
 		}
 		dx = x + dx
 		dy = y + dy
 	}
-	if err := d.writeEvent(evRel, relX, int32(dx)); err != nil {
-		return err
-	}
-	if err := d.writeEvent(evRel, relY, int32(dy)); err != nil {
-		return err
-	}
-	return d.syn()
+	d.device.SendRelativeEvent(linux.REL_X, int32(dx))
+	d.device.SendRelativeEvent(linux.REL_Y, int32(dy))
+	d.device.SyncReport()
+	return nil
 }
 
 // Click presses and releases the given EV_KEY button code repeats times.
@@ -441,16 +157,18 @@ func (d *uinputDevice) Click(code int, repeats int) error {
 		repeats = 1
 	}
 	for i := 0; i < repeats; i++ {
-		if err := d.KeyTap([]int{code}); err != nil {
-			return err
-		}
+		d.device.PressButton(linux.Button(code))
+		d.device.SyncReport()
+		time.Sleep(20 * time.Millisecond)
+		d.device.ReleaseButton(linux.Button(code))
+		d.device.SyncReport()
 	}
 	return nil
 }
 
 // currentMousePos reads the current pointer position from /dev/input/mice
 // (a 7-byte mouseevent: 3 status bytes + x, y, z as int16 little-endian).
-func (d *uinputDevice) currentMousePos() (x, y int, err error) {
+func currentMousePos() (x, y int, err error) {
 	f, err := os.Open("/dev/input/mice")
 	if err != nil {
 		return 0, 0, fmt.Errorf("opening /dev/input/mice: %s", err)
@@ -468,14 +186,4 @@ func (d *uinputDevice) currentMousePos() (x, y int, err error) {
 	x = int(int16(binary.LittleEndian.Uint16(buf[3:5])))
 	y = int(int16(binary.LittleEndian.Uint16(buf[5:7])))
 	return
-}
-
-// Destroy sends UI_DEV_DESTROY and closes the device.
-func (d *uinputDevice) Destroy() {
-	if d.file == nil {
-		return
-	}
-	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiDevDestroy), 0)
-	d.file.Close()
-	d.file = nil
 }

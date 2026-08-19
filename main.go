@@ -56,7 +56,6 @@ func main() {
 		}
 		defer uinput.Destroy()
 		fmt.Println("uinput device ready (test mode)")
-		fmt.Println("grab check:", uinput.checkGrab())
 		fmt.Println("Now run `evtest` in another terminal, select the shuttle-go-virtual device, and press Enter to start reading.")
 		fmt.Println("Waiting 10s before emitting so you have time to select the device and start evtest...")
 		time.Sleep(10 * time.Second)
@@ -85,13 +84,8 @@ func main() {
 			os.Exit(11)
 		}
 		defer uinput.Destroy()
-		fmt.Println("uinput device ready (hold mode)")
-		// The self-test opens the node (so the device has an open reader), grabs
-		// it, emits a known key, and reads the events back through our own fd.
-		// This proves end-to-end delivery without depending on evtest timing or
-		// WM focus.
-		fmt.Println("self-test:", uinput.selfTest())
-		fmt.Println("The device now stays alive until you press Ctrl-C; inspect it with evtest if you like.")
+		fmt.Println("uinput device ready (hold mode); it will stay alive until you press Ctrl-C")
+		fmt.Println("Inspect it now (e.g. `sudo evtest`, select the shuttle-go-virtual node).")
 		select {}
 	}
 

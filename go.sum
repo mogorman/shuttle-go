@@ -6,6 +6,8 @@ github.com/gvalkov/golang-evdev v0.0.0-20160925111049-87c03aa1a370 h1:jsJ5OH/7qr
 github.com/gvalkov/golang-evdev v0.0.0-20160925111049-87c03aa1a370/go.mod h1:SAzVFKCRezozJTGavF3GX8MBUruETCqzivVLYiywouA=
 github.com/hypebeast/go-osc v0.0.0-20200115085105-85fee7fed692 h1:a5rmrg0wd6LLuRQGk9lopHHgzyjM8DjH0Ek0iHki5Lc=
 github.com/hypebeast/go-osc v0.0.0-20200115085105-85fee7fed692/go.mod h1:VCiuhv+/+jPFqHeZAgVC61Cr4drPso5XEEKmEiqCsuU=
+github.com/jbdemonte/virtual-device v1.2.1 h1:sAgbtMcvpq6YjL3cnERBCrOAt3ImLTPTLBPwku/A9ms=
+github.com/jbdemonte/virtual-device v1.2.1/go.mod h1:5kUPv+50TdhUYqO+2lfoGaSrC1SiE4bj2jR5fFXpH7w=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.1.5-0.20161217200445-2402e8e7a02f h1:xvdAWoe6QxPIuElLfcPOsI/M/Shgaq0LGavn/8vcXro=

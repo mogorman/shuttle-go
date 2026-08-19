@@ -21,7 +21,7 @@ let
 in
 buildGoModule rec {
   pname = "shuttle-go";
-  version = "1.0.16";
+  version = "1.0.17";
 
   src = ./.;
 
@@ -29,7 +29,7 @@ buildGoModule rec {
 
   nativeBuildInputs = [ makeWrapper ] ++ runtimeDeps;
 
-  vendorHash = "sha256-vwW+do+suS7gT0CkTEGdnIWlzWGJPZHhxEGgNGjIwS0=";
+  vendorHash = "sha256-Ko32HIshjL3J1nOBE3EgDYP0CuM9s0cRHYUTP1aRQ3k=";
   doCheck = false;
 
   # Stamp the semantic version into the binary so `shuttle-go --version`
