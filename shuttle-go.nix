@@ -21,7 +21,7 @@ let
 in
 buildGoModule rec {
   pname = "shuttle-go";
-  version = "0.9";
+  version = "1.0.0";
 
   src = ./.;
 
@@ -32,9 +32,9 @@ buildGoModule rec {
   vendorHash = "sha256-vwW+do+suS7gT0CkTEGdnIWlzWGJPZHhxEGgNGjIwS0=";
   doCheck = false;
 
-  # Stamp the git commit into the binary so `shuttle-go --version` reports it.
-  # The Nix source has no .git, so we read the committed VERSION file (kept in
-  # sync by build.sh) instead of running git.
+  # Stamp the semantic version into the binary so `shuttle-go --version`
+  # reports it. The Nix source has no .git, so we read the committed VERSION
+  # file (the single source of truth, also used by build.sh).
   ldflags = [ "-X main.version=${lib.removeSuffix "\n" (builtins.readFile ./VERSION)}" ];
 
   postInstall = ''

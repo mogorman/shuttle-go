@@ -13,9 +13,10 @@ import (
 var configFile = flag.String("config", filepath.Join(os.Getenv("HOME"), ".shuttle-go.json"), "Location to the .shuttle-go.json configuration")
 var debugMode = flag.Bool("debug", false, "Show debug messages (like window titles)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
-var showVersion = flag.Bool("version", false, "Print the version (git commit) and exit")
+var showVersion = flag.Bool("version", false, "Print the semantic version and exit")
 
-// version is set at build time via -ldflags "-X main.version=...".
+// version is the semantic version, set at build time via
+// -ldflags "-X main.version=..." from the committed VERSION file.
 var version = "unknown"
 
 // waitForDevice blocks until the Shuttle device can be opened, retrying every
