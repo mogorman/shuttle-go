@@ -70,6 +70,10 @@ func (f *fakeUinput) Click(code int, repeats int) error {
 	return nil
 }
 
+func (f *fakeUinput) ReadBack() (uint16, uint16, int32, bool, error) {
+	return 0, 0, 0, false, nil
+}
+
 func (f *fakeUinput) Destroy() {}
 
 // codesOf joins a recorded key-code slice into a "1,2,3" string for assertions.

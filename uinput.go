@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -69,8 +71,28 @@ var mouseButtonCodes = map[string]int{
 // It emits keyboard, relative-mouse and button events directly from this
 // process, replacing the ydotool/ydotoold pair.
 type uinputDevice struct {
-	file *os.File
-	fd   int
+	file  *os.File
+	fd    int
+	node  string // /dev/input/eventN node for the created device ("" if unknown)
+	readF *os.File
+}
+
+// uinputNode finds the /dev/input/eventN node for the "shuttle-go-virtual"
+// device by scanning /sys/devices/virtual/input/*/name. It returns "" if not
+// found (e.g. the uinput device was not created).
+func uinputNode() string {
+	matches, _ := filepath.Glob("/sys/devices/virtual/input/input*")
+	for _, sys := range matches {
+		name, err := os.ReadFile(filepath.Join(sys, "name"))
+		if err != nil || string(name) != "shuttle-go-virtual" {
+			continue
+		}
+		// The matching inputN directory maps to /dev/input/eventN.
+		base := filepath.Base(sys) // e.g. "input18"
+		node := strings.Replace(base, "input", "event", 1)
+		return "/dev/input/" + node
+	}
+	return ""
 }
 
 // uinputUserDev mirrors struct uinput_user_dev from linux/uinput.h.
@@ -129,7 +151,49 @@ func newUinputDevice() (*uinputDevice, error) {
 		return nil, fmt.Errorf("UI_DEV_CREATE: %s", errno)
 	}
 
+	d.node = uinputNode()
+	if *debugMode {
+		fmt.Println("uinput device node:", d.node)
+	}
+
 	return d, nil
+}
+
+// openReadNode opens the device's own /dev/input/eventN node (if it exists)
+// so emitted events can be read back for a self-test.
+func (d *uinputDevice) openReadNode() error {
+	if d.node == "" {
+		return fmt.Errorf("no /dev/input node for the uinput device")
+	}
+	f, err := os.OpenFile(d.node, os.O_RDONLY, 0)
+	if err != nil {
+		return fmt.Errorf("opening %s: %s", d.node, err)
+	}
+	d.readF = f
+	return nil
+}
+
+// ReadBack reads and returns the next raw input_event from the device's own
+// /dev/input node, for verifying that a written event actually reached the
+// device. It returns the (type, code, value) triple and whether a SYN_REPORT
+// followed.
+func (d *uinputDevice) ReadBack() (evType, code uint16, value int32, ok bool, err error) {
+	if d.readF == nil {
+		return 0, 0, 0, false, fmt.Errorf("read node not open")
+	}
+	var ev [24]byte
+	n, _, errno := syscall.Syscall6(syscall.SYS_READ, uintptr(d.readF.Fd()),
+		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
+	if errno != 0 {
+		return 0, 0, 0, false, fmt.Errorf("reading %s: %s", d.node, errno)
+	}
+	if n != uintptr(len(ev)) {
+		return 0, 0, 0, false, fmt.Errorf("short read: %d bytes", n)
+	}
+	evType = binary.LittleEndian.Uint16(ev[8:10])
+	code = binary.LittleEndian.Uint16(ev[10:12])
+	value = int32(binary.LittleEndian.Uint32(ev[12:16]))
+	return evType, code, value, evType == evSync, nil
 }
 
 // writeEvent writes a single 24-byte input_event to the device using the raw

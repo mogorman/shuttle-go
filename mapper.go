@@ -25,6 +25,7 @@ type eventEmitter interface {
 	Type(text string) error
 	MouseMove(dx, dy int, abs bool) error
 	Click(code int, repeats int) error
+	ReadBack() (evType, code uint16, value int32, syn bool, err error)
 }
 
 // Mapper receives events from the Shuttle devices, and maps (through
@@ -522,7 +523,20 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 		if *debugMode {
 			fmt.Printf("uinput tap %v\n", codes)
 		}
-		return m.uinput.KeyTap(codes)
+		if err := m.uinput.KeyTap(codes); err != nil {
+			return err
+		}
+		// Self-test: read the event back from the device's own /dev/input node
+		// to confirm it actually reached the device (not just that write()
+		// returned). Debug-only and non-fatal.
+		if *debugMode {
+			if t, c, v, syn, rerr := m.uinput.ReadBack(); rerr == nil {
+				fmt.Printf("uinput readback: type=%d code=%d value=%d syn=%v\n", t, c, v, syn)
+			} else {
+				fmt.Println("uinput readback unavailable:", rerr)
+			}
+		}
+		return nil
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {
