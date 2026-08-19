@@ -192,18 +192,21 @@ func newUinputDevice() (*uinputDevice, error) {
 // when emitted keys never reach readers. The returned string is a human-readable
 // status for debug logging.
 func (d *uinputDevice) checkGrab() string {
-	// Attempt the grab.
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB), 1)
+	// The kernel branches on whether the pointer is NULL: a non-NULL pointer
+	// grabs, a NULL pointer releases. So pass the address of a real variable
+	// to attempt the grab, and 0 to release it.
+	var grabArg int
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB),
+		uintptr(unsafe.Pointer(&grabArg)))
 	if errno != 0 {
-		status := fmt.Sprintf("EBUSY (device is grabbed by another process — our events are being dropped)")
-		if errno != syscall.EBUSY {
-			status = fmt.Sprintf("errno %s", errno)
+		if errno == syscall.EBUSY {
+			return "grab attempt: EBUSY — another process (the input subsystem/seat) already holds the exclusive grab, so it is receiving our events and non-grabbing readers (evtest, the WM) get nothing"
 		}
-		return "grab attempt failed: " + status
+		return fmt.Sprintf("grab attempt failed: errno %s", errno)
 	}
-	// We got the grab; release it immediately so we don't disturb the seat.
+	// We hold the grab now; release it immediately so we don't disturb the seat.
 	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB), 0)
-	return "grab attempt succeeded (no other process holds the device)"
+	return "grab attempt succeeded — no other process holds the device (events should reach all readers)"
 }
 
 // setEvBit issues UI_SET_EVBIT, declaring that the device supports the given
