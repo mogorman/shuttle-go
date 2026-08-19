@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -100,24 +101,15 @@ func main() {
 	// the /sys/devices/virtual/input/inputN/event* entries to a /dev node.
 	node := findNodeBySysname(fd)
 	fmt.Println("   device node:", orDash(node))
-
-	// Tap a key: press (value 1), SYN, release (value 0), SYN.
-	const key = 30 // 'a'
-	fmt.Printf("== emitting key %d ('a'): press, SYN, release, SYN ==\n", key)
-	must(writeEvent(fd, evKey, uint16(key), 1), "write press")
-	must(writeEvent(fd, evSyn, 0, 0), "write syn 1")
-	must(writeEvent(fd, evKey, uint16(key), 0), "write release")
-	must(writeEvent(fd, evSyn, 0, 0), "write syn 2")
-	fmt.Println("   all 4 writes returned success")
-
-	// Now read the events back through the device's own node. We open it and
-	// take an exclusive grab so we are guaranteed to receive what we emit.
 	if node == "" {
 		fmt.Println("== could not find the device node; cannot self-read ==")
-		fmt.Println("   (writes succeeded; if evtest also sees nothing, the kernel is dropping events)")
 		return
 	}
-	rf, err := os.OpenFile(node, os.O_RDONLY, 0)
+
+	// Open the reader and take an exclusive grab BEFORE emitting, so the events
+	// we write are delivered to a connected (and grabbing) client. Emitting
+	// first would deliver to no one and the later read would block forever.
+	rf, err := os.OpenFile(node, os.O_RDONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		fatal("opening %s for read-back: %v", node, err)
 	}
@@ -127,24 +119,42 @@ func main() {
 	var grabArg int
 	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(rfd), uintptr(evIOCGRAB),
 		uintptr(unsafe.Pointer(&grabArg))); errno != 0 {
-		fmt.Printf("   (grab on reader fd failed: %s; will still try to read)\n", errno)
+		fmt.Printf("   (grab on reader fd: %s — continuing)\n", errno)
 	} else {
 		defer syscall.Syscall(syscall.SYS_IOCTL, uintptr(rfd), uintptr(evIOCGRAB), 0)
+		fmt.Println("   reader attached and holding the grab")
 	}
 
+	// Now emit: press (value 1), SYN, release (value 0), SYN.
+	const key = 30 // 'a'
+	fmt.Printf("== emitting key %d ('a'): press, SYN, release, SYN ==\n", key)
+	must(writeEvent(fd, evKey, uint16(key), 1), "write press")
+	must(writeEvent(fd, evSyn, 0, 0), "write syn 1")
+	must(writeEvent(fd, evKey, uint16(key), 0), "write release")
+	must(writeEvent(fd, evSyn, 0, 0), "write syn 2")
+	fmt.Println("   all 4 writes returned success")
+
+	// Read back with a bounded wait (non-blocking fd + short sleeps) so we
+	// never hang. We expect 4 events: press, SYN, release, SYN.
 	fmt.Println("== reading back through our own fd (expect 4 events) ==")
 	got := 0
-	for i := 0; i < 8; i++ {
-		t, c, v, n, err := readEvent(rfd)
-		if err != nil {
-			fmt.Printf("   read stopped: %v (got %d events so far)\n", err, got)
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		t, c, v, n, rerr := readEvent(rfd)
+		if n > 0 {
+			got++
+			fmt.Printf("   type=%d code=%d value=%d\n", t, c, v)
+			continue
+		}
+		if rerr == syscall.EAGAIN || rerr == syscall.EWOULDBLOCK {
+			time.Sleep(20 * time.Millisecond)
+			continue
+		}
+		if rerr != nil {
+			fmt.Printf("   read stopped: %v (got %d events so far)\n", rerr, got)
 			break
 		}
-		if n == 0 {
-			break
-		}
-		got++
-		fmt.Printf("   type=%d code=%d value=%d\n", t, c, v)
+		break
 	}
 
 	fmt.Println()
@@ -153,7 +163,8 @@ func main() {
 		fmt.Println("        The kernel receives and re-emits our events. Any failure in")
 		fmt.Println("        shuttle-go is therefore about focus/permissions, not emission.")
 	} else {
-		fmt.Println("RESULT: FAIL — the kernel dropped our events even to a grabbing reader.")
+		fmt.Printf("RESULT: FAIL — read back only %d event(s) to a grabbing reader.\n", got)
+		fmt.Println("        The kernel is dropping our events even to a grabbing reader.")
 		fmt.Println("        This points to a uinput/evdev or seat-grab problem on this box.")
 	}
 }
