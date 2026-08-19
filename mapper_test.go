@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
+
+	evdev "github.com/gvalkov/golang-evdev"
 )
 
 // rawBindings converts a map of binding values (string or []string) into the
@@ -293,6 +296,42 @@ func TestMacroBindings(t *testing.T) {
 	}
 	if got, want := fake.clicks, []string{"272 x1", "273 x3", "274 x1"}; !equalStr(got, want) {
 		t.Errorf("clicks after F2 = %v, want %v", got, want)
+	}
+}
+
+// TestJogDispatchRegression guards the jog-movement name fix: the dispatch
+// must build the unspaced key ("JogR"/"SlowJogR") that matches the
+// otherShuttleKeys names, so a JogL/JogR binding actually resolves. A spaced
+// "Jog R" key (the old bug) would fail the lookup.
+func TestJogDispatchRegression(t *testing.T) {
+	m, fake := testMapper(t, map[string]interface{}{
+		"JogL":     "left",
+		"JogR":     "right",
+		"SlowJogL": "home",
+		"SlowJogR": "end",
+	})
+
+	// A right jog: delta +1, not slow.
+	m.state.jog = 0
+	m.state.lastJog = time.Now()
+	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 1}})
+	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "106" {
+		t.Errorf("jog right: tap = %s, want 106 (Right)", got)
+	}
+
+	// A left jog: delta -1.
+	m.state.jog = 1
+	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 0}})
+	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "105" {
+		t.Errorf("jog left: tap = %s, want 105 (Left)", got)
+	}
+
+	// A slow jog (lastJog in the distant past): right direction.
+	m.state.jog = 0
+	m.state.lastJog = time.Now().Add(-time.Second)
+	m.dispatch([]evdev.InputEvent{{Type: 2, Code: 7, Value: 1}})
+	if got := codesOf(fake.taps[len(fake.taps)-1]); got != "107" {
+		t.Errorf("slow jog right: tap = %s, want 107 (End)", got)
 	}
 }
 

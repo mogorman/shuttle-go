@@ -109,12 +109,22 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 			}
 			// Trigger JL or JR if we're advancing or not..
 			delta := newJogVal - m.state.jog
+			// The jog movement names are unspaced ("JogR", "SlowJogR") to match
+			// the otherShuttleKeys names used in the config.
+			jogKey := "JogR"
+			if slow != "" {
+				jogKey = "SlowJogR"
+			}
 			if (delta > 0 || delta < -200) && (delta < 200) {
-				if err := m.EmitOther(slow + "JogR"); err != nil {
+				if err := m.EmitOther(jogKey); err != nil {
 					fmt.Println("Jog right:", err)
 				}
 			} else {
-				if err := m.EmitOther(slow + "JogL"); err != nil {
+				jogKey = "JogL"
+				if slow != "" {
+					jogKey = "SlowJogL"
+				}
+				if err := m.EmitOther(jogKey); err != nil {
 					fmt.Println("Jog left:", err)
 				}
 			}
