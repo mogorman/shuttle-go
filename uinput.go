@@ -17,13 +17,13 @@ const (
 
 // EV_KEY button codes (linux/input-event-codes.h)
 const (
-	btnLeft   = 0x110
-	btnRight  = 0x111
-	btnMiddle = 0x112
+	btnLeft    = 0x110
+	btnRight   = 0x111
+	btnMiddle  = 0x112
 	btnForward = 0x117
-	btnBack   = 0x118
-	btnSide   = 0x119
-	btnExtra  = 0x11a
+	btnBack    = 0x118
+	btnSide    = 0x119
+	btnExtra   = 0x11a
 )
 
 // EV_REL axis codes
@@ -32,10 +32,18 @@ const (
 	relY = 0x01
 )
 
-// /dev/uinput ioctls (linux/uinput.h)
+// /dev/uinput ioctls (linux/uinput.h). UI_DEV_CREATE and UI_DEV_DESTROY are
+// plain _IO ioctls: they take no argument. The device is configured by
+// writing a uinput_user_dev blob to the fd first.
 const (
-	uinputCreate  = 0xcf00
-	uinputDestroy = 0xcf01
+	uiDevCreate  = 0x5501
+	uiDevDestroy = 0x5502
+)
+
+// uinput_user_dev layout constants (linux/uinput.h, linux/input.h).
+const (
+	uinputMaxNameSize = 80
+	absCnt            = 0x40 // ABS_CNT
 )
 
 // mouseButtonCodes maps a /click button name (symbolic or hex) to an EV_KEY
@@ -65,60 +73,60 @@ type uinputDevice struct {
 	fd   int
 }
 
-// uinputCreateArg mirrors struct uinput_setup from linux/uinput.h. The
-// pointer fields are set to stack-allocated bitmaps that must outlive the
-// ioctl call.
-type uinputCreateArg struct {
-	id      *inputID
-	name    *byte
-	ver     uint32
-	evbits  *uint32
-	keybits *byte
-	relbits *uint32
-	absbits *uint32
-	abs     unsafe.Pointer
-}
-
-type inputID struct {
-	bustype, vendor, product, version uint16
+// uinputUserDev mirrors struct uinput_user_dev from linux/uinput.h.
+//
+//	char name[UINPUT_MAX_NAME_SIZE];
+//	struct input_id id;
+//	__u32 ff_effects_max;
+//	__s32 absmax[ABS_CNT];
+//	__s32 absmin[ABS_CNT];
+//	__s32 absfuzz[ABS_CNT];
+//	__s32 absflat[ABS_CNT];
+//
+// The four abs arrays are zeroed (no absolute axes are declared), but they
+// still occupy 4*64*4 = 1024 bytes, so the struct is 92 + 1024 = 1116 bytes.
+// The kernel reads the whole struct, so all of it must be written.
+type uinputUserDev struct {
+	name         [uinputMaxNameSize]byte
+	bustype      uint16
+	vendor       uint16
+	product      uint16
+	version      uint16
+	ffEffectsMax uint32
+	absmax       [absCnt]int32
+	absmin       [absCnt]int32
+	absfuzz      [absCnt]int32
+	absflat      [absCnt]int32
 }
 
 // newUinputDevice opens /dev/uinput and creates a virtual device named
-// "shuttle-go-virtual" with EV_KEY (0-255), EV_REL (X, Y) and EV_SYN.
+// "shuttle-go-virtual" with EV_KEY (0-KEY_MAX) and EV_REL (X, Y).
+//
+// The protocol: write a uinput_user_dev blob to the fd, then issue the
+// no-argument UI_DEV_CREATE ioctl. The kernel derives the supported event
+// bits from the id/version fields and the (zeroed) abs arrays.
 func newUinputDevice() (*uinputDevice, error) {
-	f, err := os.OpenFile("/dev/uinput", os.O_WRONLY, 0)
+	f, err := os.OpenFile("/dev/uinput", os.O_RDWR, 0)
 	if err != nil {
 		return nil, fmt.Errorf("opening /dev/uinput: %s", err)
 	}
 	d := &uinputDevice{file: f, fd: int(f.Fd())}
 
-	name := [32]byte{}
-	copy(name[:], "shuttle-go-virtual")
-	id := inputID{0x3, 0x0001, 0x0001, 0x0100}
-	var evBits uint32
-	evBits |= 1 << evSync
-	evBits |= 1 << evKey
-	evBits |= 1 << evRel
-	keyBits := new([0x300]byte) // KEY_MAX is 0x2ff
-	for code := 0; code <= 0x2ff; code++ {
-		keyBits[code/8] |= 1 << uint(code%8)
-	}
-	var relBits uint32
-	relBits |= 1 << relX
-	relBits |= 1 << relY
+	var dev uinputUserDev
+	copy(dev.name[:], "shuttle-go-virtual")
+	dev.bustype = 0x03 // BUS_USB
+	dev.vendor = 0x0001
+	dev.product = 0x0001
+	dev.version = 0x0100
 
-	arg := uinputCreateArg{
-		id:      &id,
-		name:    (*byte)(unsafe.Pointer(&name[0])),
-		ver:     0x0100,
-		evbits:  &evBits,
-		keybits: (*byte)(unsafe.Pointer(keyBits)),
-		relbits: &relBits,
-	}
-
-	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uinputCreate), uintptr(unsafe.Pointer(&arg))); errno != 0 {
+	if _, err := f.Write((*[unsafe.Sizeof(dev)]byte)(unsafe.Pointer(&dev))[:]); err != nil {
 		f.Close()
-		return nil, fmt.Errorf("UINPUT_CREATE: %s", errno)
+		return nil, fmt.Errorf("writing uinput_user_dev: %s", err)
+	}
+
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiDevCreate), 0); errno != 0 {
+		f.Close()
+		return nil, fmt.Errorf("UI_DEV_CREATE: %s", errno)
 	}
 
 	return d, nil
@@ -255,12 +263,12 @@ func (d *uinputDevice) currentMousePos() (x, y int, err error) {
 	return
 }
 
-// Destroy sends UINPUT_DESTROY and closes the device.
+// Destroy sends UI_DEV_DESTROY and closes the device.
 func (d *uinputDevice) Destroy() {
 	if d.file == nil {
 		return
 	}
-	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uinputDestroy), 0)
+	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(uiDevDestroy), 0)
 	d.file.Close()
 	d.file = nil
 }
