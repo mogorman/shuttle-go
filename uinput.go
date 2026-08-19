@@ -71,42 +71,40 @@ var mouseButtonCodes = map[string]int{
 // It emits keyboard, relative-mouse and button events directly from this
 // process, replacing the ydotool/ydotoold pair.
 type uinputDevice struct {
-	file  *os.File
-	fd    int
-	node  string // /dev/input/eventN node for the created device ("" if unknown)
-	readF *os.File
+	file    *os.File
+	fd      int
+	node    string // /dev/input/eventN node for the created device ("" if unknown)
+	readF   *os.File
+	bustype uint16
+	vendor  uint16
+	product uint16
+	version uint16
 }
 
-// uinputNode finds the /dev/input/eventN node for the "shuttle-go-virtual"
-// device. It first scans /sys/devices/virtual/input/*/name (the sysfs name is
-// NUL-terminated, so it is compared against the NUL-padded form), then falls
-// back to scanning /dev/input/event*/device/name directly. It returns "" if the
-// device is not found (e.g. the uinput device was not created).
-func uinputNode() string {
-	const want = "shuttle-go-virtual"
-	// sysfs name files are NUL-terminated; compare against the padded form.
-	wantNul := want + "\x00"
-
-	matches, _ := filepath.Glob("/sys/devices/virtual/input/input*")
-	for _, sys := range matches {
-		name, err := os.ReadFile(filepath.Join(sys, "name"))
-		if err != nil || string(name) != wantNul {
+// uinputNode finds the /dev/input/eventN node for the created device by
+// matching each event's sysfs input_id (bus/vendor/product/version) against the
+// id we programmed into the uinput device. Matching on input_id is robust
+// across kernels, unlike the name string (whose sysfs encoding varies).
+func (d *uinputDevice) uinputNode() string {
+	for _, node := range globDevInputEvents() {
+		id, err := os.ReadFile(filepath.Join(node, "device", "inputid"))
+		if err != nil {
 			continue
 		}
-		base := filepath.Base(sys) // e.g. "input18"
-		node := strings.Replace(base, "input", "event", 1)
-		return "/dev/input/" + node
-	}
-
-	// Fallback: some kernels expose the name under the event node's device dir.
-	for _, node := range globDevInputEvents() {
-		name, err := os.ReadFile(filepath.Join(node, "device", "name"))
-		if err == nil && string(name) == wantNul {
+		// inputid is "bus vendor product version", each 4 hex digits.
+		f := strings.Fields(string(id))
+		if len(f) != 4 {
+			continue
+		}
+		if f[0] == hex16(d.bustype) && f[1] == hex16(d.vendor) &&
+			f[2] == hex16(d.product) && f[3] == hex16(d.version) {
 			return node
 		}
 	}
 	return ""
 }
+
+func hex16(v uint16) string { return fmt.Sprintf("%04x", v) }
 
 func globDevInputEvents() []string {
 	m, _ := filepath.Glob("/dev/input/event*")
@@ -158,6 +156,7 @@ func newUinputDevice() (*uinputDevice, error) {
 	dev.vendor = 0x0001
 	dev.product = 0x0001
 	dev.version = 0x0100
+	d.bustype, d.vendor, d.product, d.version = dev.bustype, dev.vendor, dev.product, dev.version
 
 	if _, err := f.Write((*[unsafe.Sizeof(dev)]byte)(unsafe.Pointer(&dev))[:]); err != nil {
 		f.Close()
@@ -169,7 +168,7 @@ func newUinputDevice() (*uinputDevice, error) {
 		return nil, fmt.Errorf("UI_DEV_CREATE: %s", errno)
 	}
 
-	d.node = uinputNode()
+	d.node = d.uinputNode()
 	if *debugMode {
 		fmt.Println("uinput device node:", d.node)
 	}
@@ -182,7 +181,7 @@ func newUinputDevice() (*uinputDevice, error) {
 // resolved at creation time, it re-scans for it.
 func (d *uinputDevice) openReadNode() error {
 	if d.node == "" {
-		d.node = uinputNode()
+		d.node = d.uinputNode()
 	}
 	if d.node == "" {
 		return fmt.Errorf("no /dev/input node for the uinput device")
