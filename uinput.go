@@ -132,18 +132,38 @@ func newUinputDevice() (*uinputDevice, error) {
 	return d, nil
 }
 
-// writeEvent writes a single 24-byte input_event to the device.
+// writeEvent writes a single 24-byte input_event to the device using the raw
+// write(2) syscall (bypassing os.File, which would be fine but is slower and
+// obscures the errno). The 24-byte struct input_event layout is:
+//
+//	__kernel_time_t t_sec;   // u32
+//	__s32             t_usec;
+//	enum  input_event_type  type;   // u16
+//	enum  input_event_code  code;   // u16
+//	__s32             value;
+//
+// which is 4+4+2+2+4 = 16 bytes on a 32-bit time_t, but the on-disk layout
+// pads t_sec to 8 bytes on 64-bit kernels, giving 8+4+2+2+4 = 20 bytes. We
+// emit the 24-byte form the kernel's evdev read() expects (8-byte time_t,
+// 4-byte usec, 2+2 type/code, 4-byte value, 4 bytes padding) so a single
+// write() delivers exactly one event.
 func (d *uinputDevice) writeEvent(evType, code uint16, value int32) error {
-	ev := struct {
-		tvSec  uint32
-		tvUsec uint32
-		typ    uint16
-		code   uint16
-		value  int32
-	}{0, 0, evType, code, value}
-	buf := (*[24]byte)(unsafe.Pointer(&ev))[:]
-	if _, err := d.file.Write(buf); err != nil {
-		return fmt.Errorf("writing input event: %s", err)
+	var ev [24]byte
+	binary.LittleEndian.PutUint32(ev[0:4], 0)    // t_sec
+	binary.LittleEndian.PutUint32(ev[4:8], 0)    // t_usec
+	binary.LittleEndian.PutUint16(ev[8:10], evType)
+	binary.LittleEndian.PutUint16(ev[10:12], code)
+	binary.LittleEndian.PutUint32(ev[12:16], uint32(value))
+	// ev[16:24] is zero padding.
+
+	n, _, errno := syscall.Syscall6(syscall.SYS_WRITE, uintptr(d.fd),
+		uintptr(unsafe.Pointer(&ev[0])), uintptr(len(ev)), 0, 0, 0)
+	if errno != 0 {
+		return fmt.Errorf("writing input event (type=%d code=%d value=%d): %s (wrote %d bytes)",
+			evType, code, value, errno, n)
+	}
+	if n != uintptr(len(ev)) {
+		return fmt.Errorf("short write: wrote %d of %d bytes", n, len(ev))
 	}
 	return nil
 }
