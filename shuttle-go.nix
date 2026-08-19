@@ -21,7 +21,7 @@ let
 in
 buildGoModule rec {
   pname = "shuttle-go";
-  version = "1.0.9";
+  version = "1.0.10";
 
   src = ./.;
 

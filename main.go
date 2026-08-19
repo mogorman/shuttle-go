@@ -14,6 +14,7 @@ var configFile = flag.String("config", filepath.Join(os.Getenv("HOME"), ".shuttl
 var debugMode = flag.Bool("debug", false, "Show debug messages (like window titles)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 var showVersion = flag.Bool("version", false, "Print the semantic version and exit")
+var testEmit = flag.String("test", "", "Emit a known key sequence and exit (e.g. 'test' emits a, b, c, d, e) for verifying uinput delivery")
 
 // version is the semantic version, set at build time via
 // -ldflags "-X main.version=..." from the committed VERSION file.
@@ -39,6 +40,32 @@ func main() {
 
 	if *showVersion {
 		fmt.Println(version)
+		return
+	}
+
+	// --test: create the uinput device and emit a known key sequence, then
+	// exit. This lets you verify event delivery with an independent reader
+	// (e.g. `evtest`) without touching the Shuttle. The default sequence is
+	// a, b, c, d, e (key codes 30, 48, 46, 32, 18).
+	if *testEmit != "" {
+		uinput, err := newUinputDevice()
+		if err != nil {
+			fmt.Println("Error creating uinput device:", err)
+			os.Exit(11)
+		}
+		defer uinput.Destroy()
+		fmt.Println("uinput device ready (test mode)")
+		fmt.Println("Now run `evtest` in another terminal, pick the shuttle-go-virtual device, and watch for the key events.")
+		codes := []int{30, 48, 46, 32, 18} // a, b, c, d, e
+		for i, c := range codes {
+			time.Sleep(300 * time.Millisecond)
+			if err := uinput.KeyTap([]int{c}); err != nil {
+				fmt.Println("Error emitting test key:", err)
+				os.Exit(12)
+			}
+			fmt.Printf("emitted test key %d (%c)\n", c, "abcde"[i])
+		}
+		fmt.Println("Done. If evtest showed EV_KEY events for codes 30,48,46,32,18, delivery is working.")
 		return
 	}
 
