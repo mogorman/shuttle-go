@@ -336,11 +336,56 @@ func keyCodes(value string) ([]int, error) {
 	return codes, nil
 }
 
-// runeKeyCode maps a rune to the EV_KEY code that types it. It is used by
-// the /type macro to emit text.
-func runeKeyCode(r rune) (int, error) {
-	if code, ok := keyboardKeysUpper[strings.ToUpper(string(r))]; ok {
-		return code, nil
+// runeKeyCode maps a rune to the EV_KEY code that types it, and whether Shift
+// must be held to produce that character. It is used by the /type macro to emit
+// text. Letters and unshifted symbols map directly; shifted symbols (e.g. '!',
+// '@', '~') map to their base key with shift required. Space and the common
+// printable ASCII are all covered.
+func runeKeyCode(r rune) (code int, shift bool, err error) {
+	if m, ok := runeKeyMap[r]; ok {
+		return m.code, m.shift, nil
 	}
-	return 0, fmt.Errorf("no keycode for rune %q", r)
+	return 0, false, fmt.Errorf("no keycode for rune %q", r)
+}
+
+type runeKey struct {
+	code  int
+	shift bool
+}
+
+// runeKeyMap covers printable US-QWERTY ASCII. Letters/digits/space map to
+// their own key; symbols that need Shift map to the base key with shift set.
+var runeKeyMap = map[rune]runeKey{
+	'a': {30, false}, 'b': {31, false}, 'c': {46, false}, 'd': {32, false},
+	'e': {18, false}, 'f': {33, false}, 'g': {34, false}, 'h': {35, false},
+	'i': {23, false}, 'j': {36, false}, 'k': {37, false}, 'l': {38, false},
+	'm': {50, false}, 'n': {49, false}, 'o': {24, false}, 'p': {25, false},
+	'q': {16, false}, 'r': {19, false}, 's': {31, false}, 't': {20, false},
+	'u': {22, false}, 'v': {47, false}, 'w': {17, false}, 'x': {45, false},
+	'y': {21, false}, 'z': {44, false},
+	'A': {30, true}, 'B': {31, true}, 'C': {46, true}, 'D': {32, true},
+	'E': {18, true}, 'F': {33, true}, 'G': {34, true}, 'H': {35, true},
+	'I': {23, true}, 'J': {36, true}, 'K': {37, true}, 'L': {38, true},
+	'M': {50, true}, 'N': {49, true}, 'O': {24, true}, 'P': {25, true},
+	'Q': {16, true}, 'R': {19, true}, 'S': {31, true}, 'T': {20, true},
+	'U': {22, true}, 'V': {47, true}, 'W': {17, true}, 'X': {45, true},
+	'Y': {21, true}, 'Z': {44, true},
+	'1': {2, false}, '2': {3, false}, '3': {4, false}, '4': {5, false},
+	'5': {6, false}, '6': {7, false}, '7': {8, false}, '8': {9, false},
+	'9': {10, false}, '0': {11, false},
+	'!': {11, true}, '@': {2, true}, '#': {3, true}, '$': {4, true},
+	'%': {5, true}, '^': {6, true}, '&': {7, true}, '*': {8, true},
+	'(': {9, true}, ')': {10, true},
+	'-': {12, false}, '_': {12, true},
+	'=': {13, false}, '+': {13, true},
+	'[': {26, false}, '{': {26, true},
+	']': {27, false}, '}': {27, true},
+	'\\': {43, false}, '|': {43, true},
+	';': {39, false}, ':': {39, true},
+	'\'': {40, false}, '"': {40, true},
+	',': {51, false}, '<': {51, true},
+	'.': {52, false}, '>': {52, true},
+	'/': {53, false}, '?': {53, true},
+	'`': {41, false}, '~': {41, true},
+	' ': {57, false},
 }

@@ -120,16 +120,30 @@ func (d *uinputDevice) KeyRelease(codes []int) error {
 	return nil
 }
 
-// Type emits each rune of text as a tap.
+// Type emits each rune of text. Letters and unshifted symbols are tapped
+// directly; symbols that require Shift (e.g. '!', '@', '~') are emitted with
+// Shift held for the duration of the key.
 func (d *uinputDevice) Type(text string) error {
 	for _, r := range text {
-		code, err := runeKeyCode(r)
+		code, shift, err := runeKeyCode(r)
 		if err != nil {
 			return err
 		}
-		if err := d.KeyTap([]int{code}); err != nil {
-			return err
+		if !shift {
+			if err := d.KeyTap([]int{code}); err != nil {
+				return err
+			}
+			continue
 		}
+		// Press Shift, press the key, release the key, release Shift.
+		d.device.PressKey(linux.KEY_LEFTSHIFT)
+		d.device.PressKey(linux.Key(code))
+		d.device.SyncReport()
+		time.Sleep(20 * time.Millisecond)
+		d.device.ReleaseKey(linux.Key(code))
+		d.device.ReleaseKey(linux.KEY_LEFTSHIFT)
+		d.device.SyncReport()
+		time.Sleep(20 * time.Millisecond)
 	}
 	return nil
 }
