@@ -15,6 +15,7 @@ var debugMode = flag.Bool("debug", false, "Show debug messages (like window titl
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 var showVersion = flag.Bool("version", false, "Print the semantic version and exit")
 var testEmit = flag.String("test", "", "Emit a known key sequence and exit (e.g. 'test' emits a, b, c, d, e) for verifying uinput delivery")
+var holdDevice = flag.Bool("hold", false, "Create the uinput device, report the grab state, and keep it alive until interrupted")
 
 // version is the semantic version, set at build time via
 // -ldflags "-X main.version=..." from the committed VERSION file.
@@ -55,6 +56,7 @@ func main() {
 		}
 		defer uinput.Destroy()
 		fmt.Println("uinput device ready (test mode)")
+		fmt.Println("grab check:", uinput.checkGrab())
 		fmt.Println("Now run `evtest` in another terminal, select the shuttle-go-virtual device, and press Enter to start reading.")
 		fmt.Println("Waiting 10s before emitting so you have time to select the device and start evtest...")
 		time.Sleep(10 * time.Second)
@@ -71,6 +73,22 @@ func main() {
 		time.Sleep(10 * time.Second)
 		fmt.Println("Done. If evtest showed EV_KEY events for codes 30,48,46,32,18, delivery is working.")
 		return
+	}
+
+	// --hold: create the uinput device, report the grab state, then keep it
+	// alive (emitting nothing) until interrupted. Use this to run a long-lived
+	// device while you inspect it with evtest or check who is grabbing it.
+	if *holdDevice {
+		uinput, err := newUinputDevice()
+		if err != nil {
+			fmt.Println("Error creating uinput device:", err)
+			os.Exit(11)
+		}
+		defer uinput.Destroy()
+		fmt.Println("uinput device ready (hold mode); it will stay alive until you press Ctrl-C")
+		fmt.Println("grab check:", uinput.checkGrab())
+		fmt.Println("Inspect it now (e.g. `sudo evtest`, select the shuttle-go-virtual node).")
+		select {}
 	}
 
 	if *logFile != "" {

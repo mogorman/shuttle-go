@@ -60,6 +60,11 @@ const (
 	uiSetPropBit = 0x4004556e // _IOW('U', 110, int)
 )
 
+// EVIOCGRAB (linux/input.h) is _IOW('E', 0x90, int): it takes an exclusive
+// grab on the device. If another process already holds the grab it returns
+// -EBUSY, which is how we detect a held grab.
+const evIOCGRAB = 0x40044590
+
 // uinput_user_dev layout constants (linux/uinput.h, linux/input.h).
 const (
 	uinputMaxNameSize = 80
@@ -178,6 +183,27 @@ func newUinputDevice() (*uinputDevice, error) {
 	}
 
 	return d, nil
+}
+
+// checkGrab attempts to take an exclusive grab on the device and reports the
+// result, then releases it. If the device is already grabbed by another
+// process (e.g. the input subsystem / seat), the kernel returns EBUSY and our
+// own event writes are silently dropped — which is exactly the symptom we see
+// when emitted keys never reach readers. The returned string is a human-readable
+// status for debug logging.
+func (d *uinputDevice) checkGrab() string {
+	// Attempt the grab.
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB), 1)
+	if errno != 0 {
+		status := fmt.Sprintf("EBUSY (device is grabbed by another process — our events are being dropped)")
+		if errno != syscall.EBUSY {
+			status = fmt.Sprintf("errno %s", errno)
+		}
+		return "grab attempt failed: " + status
+	}
+	// We got the grab; release it immediately so we don't disturb the seat.
+	syscall.Syscall(syscall.SYS_IOCTL, uintptr(d.fd), uintptr(evIOCGRAB), 0)
+	return "grab attempt succeeded (no other process holds the device)"
 }
 
 // setEvBit issues UI_SET_EVBIT, declaring that the device supports the given
