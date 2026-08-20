@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
-	"os"
 	"time"
 
 	virtual_device "github.com/jbdemonte/virtual-device"
@@ -84,7 +82,15 @@ func newUinputDevice() (*uinputDevice, error) {
 			linux.BTN_FORWARD,
 			linux.BTN_BACK,
 		}).
-		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y, linux.REL_WHEEL})
+		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y, linux.REL_WHEEL}).
+		// Absolute axes let the pointer be moved to a screen coordinate (for
+		// the /mousemove <x> <y> true macro). The range is a generous 0..32767
+		// so any reasonable coordinate fits; the kernel clamps to the real
+		// screen size.
+		WithAbsAxes([]virtual_device.AbsAxis{
+			{Axis: linux.ABS_X, Min: 0, Max: 32767},
+			{Axis: linux.ABS_Y, Min: 0, Max: 32767},
+		})
 
 	if err := mouse.Register(); err != nil {
 		keyboard.Unregister()
@@ -169,19 +175,18 @@ func (d *uinputDevice) Type(text string) error {
 	return nil
 }
 
-// MouseMove moves the pointer by (dx, dy) relative units, or to the
-// absolute position (x, y) when abs is true.
+// MouseMove moves the pointer by (dx, dy) relative units, or to the absolute
+// screen position (x, y) when abs is true. The absolute case uses the device's
+// ABS_X/ABS_Y axes, which move the pointer to a coordinate (the kernel clamps
+// it to the real screen size).
 func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	if abs {
-		x, y, err := currentMousePos()
-		if err != nil {
-			return err
-		}
-		dx = x + dx
-		dy = y + dy
+		d.mouse.SendAbsoluteEvent(linux.ABS_X, int32(dx))
+		d.mouse.SendAbsoluteEvent(linux.ABS_Y, int32(dy))
+	} else {
+		d.mouse.SendRelativeEvent(linux.REL_X, int32(dx))
+		d.mouse.SendRelativeEvent(linux.REL_Y, int32(dy))
 	}
-	d.mouse.SendRelativeEvent(linux.REL_X, int32(dx))
-	d.mouse.SendRelativeEvent(linux.REL_Y, int32(dy))
 	d.mouse.SyncReport()
 	return nil
 }
@@ -199,26 +204,4 @@ func (d *uinputDevice) Click(code int, repeats int) error {
 		d.mouse.SyncReport()
 	}
 	return nil
-}
-
-// currentMousePos reads the current pointer position from /dev/input/mice
-// (a 7-byte mouseevent: 3 status bytes + x, y, z as int16 little-endian).
-func currentMousePos() (x, y int, err error) {
-	f, err := os.Open("/dev/input/mice")
-	if err != nil {
-		return 0, 0, fmt.Errorf("opening /dev/input/mice: %s", err)
-	}
-	defer f.Close()
-
-	buf := make([]byte, 7)
-	n, err := f.Read(buf)
-	if err != nil {
-		return 0, 0, fmt.Errorf("reading /dev/input/mice: %s", err)
-	}
-	if n < 7 {
-		return 0, 0, fmt.Errorf("short read from /dev/input/mice: %d bytes", n)
-	}
-	x = int(int16(binary.LittleEndian.Uint16(buf[3:5])))
-	y = int(int16(binary.LittleEndian.Uint16(buf[5:7])))
-	return
 }
