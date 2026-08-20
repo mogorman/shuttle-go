@@ -2,10 +2,11 @@
 
 A tiny GNOME Shell extension that exposes shell state over the session D-Bus.
 It exists so that tools running outside the shell (like `shuttle-go`) can read
-information on Wayland that the shell otherwise keeps to itself:
+information on Wayland that the shell otherwise keeps to itself. A single
+`Info` method returns one JSON object with:
 
-* the **current pointer position** (and which monitor it is on), and
-* the **focused window**'s title, `wm_class`, position, and monitor.
+* the **focused window**'s title, `wm_class`, frame position, and monitor, and
+* the **current pointer position**.
 
 It is modeled on
 [window-calls](https://github.com/ickyicky/window-calls), which exposes window
@@ -41,58 +42,53 @@ make enable    # gnome-extensions enable shuttle-pro@shuttle-go.dev
 
 ## Usage
 
-### Pointer position
-
-Query the pointer position:
+Query the current shell state:
 
 ```sh
 dbus-send --session --print-reply=literal \
     --dest=org.gnome.Shell \
     /org/gnome/Shell/Extensions/ShuttlePro \
-    org.gnome.Shell.Extensions.ShuttlePro.Position
+    org.gnome.Shell.Extensions.ShuttlePro.Info
 ```
 
-Response (a single JSON object). `monitor` is the index of the display the
-pointer is on, so the position can be resolved against the right screen in a
-multi-monitor setup:
+The reply is a single JSON object:
 
 ```
-{"x":100,"y":300,"monitor":0}
+{"title":"Lightworks","wm_class":"lightworks","x":10,"y":50,"monitor":0,"pointer_x":100,"pointer_y":300}
 ```
 
-### Focused window
+* `title` / `wm_class` — the focused window's title and WM_CLASS.
+* `x` / `y` — the focused window's frame origin, in the global (all-monitors)
+  coordinate space.
+* `monitor` — the index of the display the focused window is on.
+* `pointer_x` / `pointer_y` — the current pointer position.
 
-Query the focused window's title, `wm_class`, frame origin, and monitor:
+When no window is focused the window fields (`title`, `wm_class`, `x`, `y`,
+`monitor`) are `null`; the pointer fields are always present.
+
+Pipe straight into `jq` to pretty-print or pick out a field:
 
 ```sh
 dbus-send --session --print-reply=literal \
     --dest=org.gnome.Shell \
     /org/gnome/Shell/Extensions/ShuttlePro \
-    org.gnome.Shell.Extensions.ShuttlePro.FocusedWindow
+    org.gnome.Shell.Extensions.ShuttlePro.Info \
+  | jq .
 ```
-
-Response (a single JSON object). `x`/`y` are the window's frame origin in the
-global (all-monitors) coordinate space, and `monitor` is the index of the
-display it is on. When no window is focused the fields are `null`:
-
-```
-{"title":"Lightworks","wm_class":"lightworks","x":10,"y":50,"monitor":0}
-```
-
-With `jq` (note the literal reply is wrapped in a D-Bus array by `dbus-send`):
 
 ```sh
 dbus-send --session --print-reply=literal \
     --dest=org.gnome.Shell \
     /org/gnome/Shell/Extensions/ShuttlePro \
-    org.gnome.Shell.Extensions.ShuttlePro.FocusedWindow \
-  | sed -n 's/.*\(.*\)/\1/p' | jq .
+    org.gnome.Shell.Extensions.ShuttlePro.Info \
+  | jq '.title'
 ```
 
 ## Use in shuttle-go
 
 * The absolute `/mousemove <x> <y> true` macro needs the current pointer
-  position to compute the relative delta. On Wayland, `shuttle-go` reads it
-  from this extension instead of the unreliable `/dev/input/mice` peek.
+  position to compute the relative delta. On Wayland, `shuttle-go` reads
+  `pointer_x` / `pointer_y` from this extension instead of the unreliable
+  `/dev/input/mice` peek.
 * Window-title / `wm_class` matching reads the focused window from this
   extension over D-Bus.

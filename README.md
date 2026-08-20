@@ -9,9 +9,10 @@ built around X11, where it could read the active window title directly and
 inject keystrokes with `xdotool`. Neither of those works on Wayland, so this
 fork:
 
-* **Reads the active window over D-Bus** via the
-  [window-calls](https://github.com/ickyicky/window-calls) GNOME extension,
-  instead of the X11 `_NET_ACTIVE_WINDOW` property.
+* **Reads the active window and the pointer position over D-Bus** via the
+  bundled [Shuttle Pro](gnome-extension/) GNOME extension (modeled on
+  [window-calls](https://github.com/ickyicky/window-calls)), instead of the X11
+  `_NET_ACTIVE_WINDOW` property.
 * **Matches on `wm_class`** as well as the window title (see
   [Window matching](#window-matching)), so bindings can target a specific
   application window even when titles are generic.
@@ -67,8 +68,8 @@ dimension.
 Matching on `wm_class` is often more stable than matching on the title,
 since the class is set by the application and doesn't change with the
 working directory or document name. On Wayland/GNOME the class is read from
-the `window-calls` extension (see below); on X11 it is read from the
-`WM_CLASS` window property.
+the Shuttle Pro extension (see below); on X11 it is read from the `WM_CLASS`
+window property.
 
 ## Layout
 
@@ -211,14 +212,18 @@ With:
 
 ### Wayland / GNOME
 
-On Wayland (e.g. GNOME), window titles are not exposed to other applications by
-default. To allow `shuttle-go` to see the active window title, install the
-[window-calls](https://github.com/ickyicky/window-calls) extension:
+On Wayland (e.g. GNOME), the active window and the pointer position are not
+exposed to other applications by default. To let `shuttle-go` read them,
+install and enable the bundled [Shuttle Pro](gnome-extension/) GNOME extension,
+which exposes both over D-Bus:
 
-    gnome-extensions install https://github.com/ickyicky/window-calls
+    make -C gnome-extension
+    gnome-extensions install gnome-extension/shuttle-pro@shuttle-go.dev-v1.0.tar.gz
+    gnome-extensions enable shuttle-pro@shuttle-go.dev
 
-This makes the window title and `wm_class` available over D-Bus, which is
-how `shuttle-go` reads them.
+(See [gnome-extension/README.md](gnome-extension/README.md) for details.) This
+makes the window title, `wm_class`, and pointer position available over D-Bus,
+which is how `shuttle-go` reads them.
 
 ### For ShuttlePRO_v1
     shuttle-go /dev/input/by-id/usb-Contour_Design_ShuttlePRO-event-mouse
