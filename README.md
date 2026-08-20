@@ -235,7 +235,82 @@ which is how `shuttle-go` reads them.
 #### Without sudo, shuttle-go will look for a valid config file in the current user's home dir
 
     ~/.shuttle-go.json 
-        
+         
+
+## Install with Nix (flake)
+
+This project ships a [Nix flake](flake.nix), so you can build and install
+`shuttle-go` (and the [Shuttle Pro](gnome-extension/) GNOME extension) without
+a separate build step. The flake exposes:
+
+* `packages.shuttle-go` (also `packages.default`) — the `shuttle-go` binary,
+* `packages.shuttle-pro` — the Shuttle Pro GNOME extension,
+* `devShells.default` — a dev shell with `go`, `dbus`, and `libinput`.
+
+Build the binary:
+
+    nix build .#shuttle-go --print-out-paths
+
+That prints the store path of the built binary, e.g.
+`/nix/store/…-shuttle-go-1.2.3`. Run it directly:
+
+    /nix/store/…-shuttle-go-1.2.3/bin/shuttle-go --version
+
+Install it into your user `PATH` (and keep it up to date with the system) with
+a Nix profile:
+
+    nix profile install --profile ~/.nix-profile .#shuttle-go
+
+After that, `shuttle-go` is on your `PATH` and you can run it as shown in the
+[Run](#run) section. To update it later, re-run the same `nix profile install`
+command (or `nix profile upgrade`).
+
+To install the GNOME extension the same way:
+
+    nix profile install --profile ~/.nix-profile .#shuttle-pro
+    gnome-extensions install --enable ~/.nix-profile/share/gnome-shell/extensions/shuttle-pro@shuttle-go.dev
+
+For development, drop into the dev shell:
+
+    nix develop
+
+> **Note:** the Nix build packages the source from the git tree, so build from a
+> clean tree (committed changes) to avoid "inconsistent vendoring" errors.
+
+## Example configurations
+
+The [`examples/`](examples/) directory holds ready-made config files, one per
+application, in the same JSON format as `~/.shuttle-go.json`. Each file wraps a
+single app in an `apps` array, e.g. `examples/editshare_lightworks.json`:
+
+    {
+        "apps": [
+            {
+                "name": "EditShare Lightworks",
+                "match_window_titles": [ "EditShare Lightworks", "Lightworks" ],
+                "slow_jog": 200,
+                "bindings": {
+                    "F1": "V",
+                    "M1": "Alt+Shift+K",
+                    "JogL": "Shift+&",
+                    "S0": "K",
+                    "S7": "Alt+Shift+4"
+                }
+            }
+        ]
+    }
+
+To use one, copy it to your config location (or point `--config` at it):
+
+    cp examples/editshare_lightworks.json ~/.shuttle-go.json
+
+Many of these start from the **official Contour Design Shuttle Pro V2
+presets** (the `.ini`/config files Contour ships for each DAW/NLE), translated
+into `shuttle-go`'s JSON binding format. So a file like
+`examples/adobe_premiere_pro_cc_edit.json` mirrors Contour's Adobe Premiere Pro
+CC layout: the same Shuttle buttons mapped to the same editor shortcuts. Pick
+the file matching your application, drop it in place, and the bindings take
+effect immediately (see [Configuration reloading](#configuration-reloading)).
 
 ## Install in `udev` with:
 
