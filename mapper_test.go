@@ -420,6 +420,45 @@ func TestJogDisabledSlowJog(t *testing.T) {
 	}
 }
 
+// TestM3M4DispatchRegression guards the M3/M4 -> M1/M2 translation: a device
+// that reports the M1/M2 buttons as 272/273 must fire the M1/M2 bindings, and
+// the release must clear the same translated code.
+func TestM3M4DispatchRegression(t *testing.T) {
+	m, fake := testMapper(t, map[string]interface{}{
+		"M1": "t",
+		"M2": "y",
+	})
+
+	// Press M3 (272) -> treated as M1 (269) -> hold "t" (20).
+	m.dispatch([]evdev.InputEvent{{Type: 1, Code: 272, Value: 1}})
+	if got := codesOf(fake.holds[len(fake.holds)-1]); got != "20" {
+		t.Errorf("M3 press: hold = %s, want 20 (t)", got)
+	}
+	// The held binding is tracked under the translated code (269, not 272).
+	if _, ok := m.state.activeBinding[269]; !ok {
+		t.Errorf("activeBinding should track M3 under 269 (M1)")
+	}
+	if _, ok := m.state.activeBinding[272]; ok {
+		t.Errorf("activeBinding should not track M3 under its raw code 272")
+	}
+
+	// Release M3 (272) -> release tracked under 269.
+	m.dispatch([]evdev.InputEvent{{Type: 1, Code: 272, Value: 0}})
+	if got := codesOf(fake.releases[len(fake.releases)-1]); got != "20" {
+		t.Errorf("M3 release: release = %s, want 20 (t)", got)
+	}
+
+	// Press M4 (273) -> treated as M2 (270) -> hold "y" (21).
+	m.dispatch([]evdev.InputEvent{{Type: 1, Code: 273, Value: 1}})
+	if got := codesOf(fake.holds[len(fake.holds)-1]); got != "21" {
+		t.Errorf("M4 press: hold = %s, want 21 (y)", got)
+	}
+	m.dispatch([]evdev.InputEvent{{Type: 1, Code: 273, Value: 0}})
+	if got := codesOf(fake.releases[len(fake.releases)-1]); got != "21" {
+		t.Errorf("M4 release: release = %s, want 21 (y)", got)
+	}
+}
+
 // confBinding returns the parsed deviceBinding for a raw key from the active
 // configuration, for direct use in macro tests.
 func (m *Mapper) confBinding(key string) *deviceBinding {

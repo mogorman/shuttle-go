@@ -22,6 +22,21 @@ var shuttleKeys = map[string]int{
 	"B4": 268,
 	"M1": 269,
 	"M2": 270,
+	"M3": 272,
+	"M4": 273,
+}
+
+// mToM1M2 remaps the M3/M4 button codes (272/273, as reported by some Shuttle
+// Pro variants) onto the M1/M2 codes (269/270). The two variants never report
+// both at once, so a config written with M1/M2 fires identically for either.
+func mToM1M2(code int) int {
+	switch code {
+	case 272:
+		return 269
+	case 273:
+		return 270
+	}
+	return code
 }
 
 var otherShuttleKeys = map[string]bool{

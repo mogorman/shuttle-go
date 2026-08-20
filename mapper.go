@@ -169,6 +169,15 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 		m.state.shuttle = newShuttleVal
 	}
 
+	for i := range evs {
+		// Some Shuttle Pro variants report the M1/M2 buttons as 272/273
+		// (M3/M4). Translate them onto the M1/M2 codes so a config written
+		// with M1/M2 fires for either variant.
+		if evs[i].Type == 1 {
+			evs[i].Code = uint16(mToM1M2(int(evs[i].Code)))
+		}
+	}
+
 	for _, ev := range evs {
 		if ev.Type != 1 {
 			continue
