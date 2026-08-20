@@ -3,7 +3,7 @@
         {
             "name": "Dassault Systems SolidWorks",
             "match_window_titles": [
-                "Dassault\\ Systems\\ SolidWorks",
+                "Dassault Systems SolidWorks",
                 "SLDWORKS"
             ],
             "slow_jog": 200,

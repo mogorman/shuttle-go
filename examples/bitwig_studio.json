@@ -3,7 +3,7 @@
         {
             "name": "Bitwig Studio",
             "match_window_titles": [
-                "Bitwig\\ Studio"
+                "Bitwig Studio"
             ],
             "slow_jog": 200,
             "bindings": {

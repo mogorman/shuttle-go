@@ -3,7 +3,7 @@
         {
             "name": "Microsoft Outlook",
             "match_window_titles": [
-                "Microsoft\\ Outlook",
+                "Microsoft Outlook",
                 "OUTLOOK"
             ],
             "slow_jog": 200,

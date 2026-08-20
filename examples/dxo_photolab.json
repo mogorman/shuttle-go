@@ -3,8 +3,8 @@
         {
             "name": "DxO PhotoLab",
             "match_window_titles": [
-                "DxO\\ PhotoLab",
-                "DxO\\.PhotoLab"
+                "DxO PhotoLab",
+                "DxO.PhotoLab"
             ],
             "slow_jog": 200,
             "bindings": {

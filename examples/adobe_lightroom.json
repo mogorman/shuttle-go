@@ -3,7 +3,7 @@
         {
             "name": "Adobe Lightroom",
             "match_window_titles": [
-                "Adobe\\ Lightroom",
+                "Adobe Lightroom",
                 "lightroom"
             ],
             "slow_jog": 200,

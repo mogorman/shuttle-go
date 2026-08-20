@@ -3,7 +3,7 @@
         {
             "name": "Adobe Premiere Elements",
             "match_window_titles": [
-                "Adobe\\ Premiere\\ Elements"
+                "Adobe Premiere Elements"
             ],
             "slow_jog": 200,
             "bindings": {

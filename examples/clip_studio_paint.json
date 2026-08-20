@@ -3,7 +3,7 @@
         {
             "name": "Clip Studio Paint",
             "match_window_titles": [
-                "Clip\\ Studio\\ Paint",
+                "Clip Studio Paint",
                 "CLIPStudioPaint"
             ],
             "slow_jog": 200,

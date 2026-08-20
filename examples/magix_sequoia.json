@@ -3,7 +3,7 @@
         {
             "name": "Magix Sequoia",
             "match_window_titles": [
-                "Magix\\ Sequoia",
+                "Magix Sequoia",
                 "Sequoia"
             ],
             "slow_jog": 200,

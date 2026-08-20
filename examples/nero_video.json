@@ -3,7 +3,7 @@
         {
             "name": "Nero Video",
             "match_window_titles": [
-                "Nero\\ Video",
+                "Nero Video",
                 "NeroVideo"
             ],
             "slow_jog": 200,

@@ -3,7 +3,7 @@
         {
             "name": "VLC Media Player",
             "match_window_titles": [
-                "VLC\\ Media\\ Player",
+                "VLC Media Player",
                 "vlc"
             ],
             "slow_jog": 200,

@@ -3,7 +3,7 @@
         {
             "name": "Adobe Illustrator CC",
             "match_window_titles": [
-                "Adobe\\ Illustrator\\ CC",
+                "Adobe Illustrator CC",
                 "Illustrator"
             ],
             "slow_jog": 200,

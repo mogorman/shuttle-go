@@ -3,8 +3,8 @@
         {
             "name": "Adobe Premiere Pro CC (Edit)",
             "match_window_titles": [
-                "Adobe\\ Premiere\\ Pro\\ CC\\ \\(Edit\\)",
-                "Adobe\\ Premiere\\ Pro"
+                "Adobe Premiere Pro CC (Edit)",
+                "Adobe Premiere Pro"
             ],
             "slow_jog": 200,
             "bindings": {

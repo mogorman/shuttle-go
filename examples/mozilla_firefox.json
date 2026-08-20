@@ -3,7 +3,7 @@
         {
             "name": "Mozilla Firefox",
             "match_window_titles": [
-                "Mozilla\\ Firefox",
+                "Mozilla Firefox",
                 "firefox"
             ],
             "slow_jog": 200,

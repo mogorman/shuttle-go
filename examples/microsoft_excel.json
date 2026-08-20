@@ -3,7 +3,7 @@
         {
             "name": "Microsoft Excel",
             "match_window_titles": [
-                "Microsoft\\ Excel",
+                "Microsoft Excel",
                 "EXCEL"
             ],
             "slow_jog": 200,

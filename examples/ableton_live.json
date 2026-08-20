@@ -3,7 +3,7 @@
         {
             "name": "Ableton Live",
             "match_window_titles": [
-                "Ableton\\ Live"
+                "Ableton Live"
             ],
             "slow_jog": 200,
             "bindings": {

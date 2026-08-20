@@ -3,7 +3,7 @@
         {
             "name": "Adobe Acrobat Reader",
             "match_window_titles": [
-                "Adobe\\ Acrobat\\ Reader",
+                "Adobe Acrobat Reader",
                 "Acrobat"
             ],
             "slow_jog": 200,

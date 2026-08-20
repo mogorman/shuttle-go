@@ -3,7 +3,7 @@
         {
             "name": "AVS Audio Editor",
             "match_window_titles": [
-                "AVS\\ Audio\\ Editor",
+                "AVS Audio Editor",
                 "AVSAudioEditor"
             ],
             "slow_jog": 200,

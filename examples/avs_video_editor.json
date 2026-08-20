@@ -3,7 +3,7 @@
         {
             "name": "AVS Video Editor",
             "match_window_titles": [
-                "AVS\\ Video\\ Editor",
+                "AVS Video Editor",
                 "AVSVideoEditor"
             ],
             "slow_jog": 200,

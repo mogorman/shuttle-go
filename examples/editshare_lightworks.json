@@ -3,7 +3,7 @@
         {
             "name": "EditShare Lightworks",
             "match_window_titles": [
-                "EditShare\\ Lightworks",
+                "EditShare Lightworks",
                 "Lightworks"
             ],
             "slow_jog": 200,

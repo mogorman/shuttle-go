@@ -3,7 +3,7 @@
         {
             "name": "Microsoft OneNote",
             "match_window_titles": [
-                "Microsoft\\ OneNote",
+                "Microsoft OneNote",
                 "ONENOTE"
             ],
             "slow_jog": 200,

@@ -3,7 +3,7 @@
         {
             "name": "Phase One Capture One",
             "match_window_titles": [
-                "Phase\\ One\\ Capture\\ One",
+                "Phase One Capture One",
                 "CaptureOne"
             ],
             "slow_jog": 200,

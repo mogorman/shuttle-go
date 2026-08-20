@@ -3,7 +3,7 @@
         {
             "name": "DaVinci Resolve",
             "match_window_titles": [
-                "DaVinci\\ Resolve",
+                "DaVinci Resolve",
                 "Resolve"
             ],
             "slow_jog": 200,

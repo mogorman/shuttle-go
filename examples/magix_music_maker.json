@@ -3,7 +3,7 @@
         {
             "name": "MAGIX Music Maker",
             "match_window_titles": [
-                "MAGIX\\ Music\\ Maker",
+                "MAGIX Music Maker",
                 "MusicMaker"
             ],
             "slow_jog": 200,

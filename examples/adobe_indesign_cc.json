@@ -3,7 +3,7 @@
         {
             "name": "Adobe InDesign CC",
             "match_window_titles": [
-                "Adobe\\ InDesign\\ CC",
+                "Adobe InDesign CC",
                 "InDesign"
             ],
             "slow_jog": 200,

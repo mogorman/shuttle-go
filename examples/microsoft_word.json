@@ -3,7 +3,7 @@
         {
             "name": "Microsoft Word",
             "match_window_titles": [
-                "Microsoft\\ Word",
+                "Microsoft Word",
                 "WINWORD"
             ],
             "slow_jog": 200,

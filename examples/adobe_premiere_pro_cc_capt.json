@@ -3,8 +3,8 @@
         {
             "name": "Adobe Premiere Pro CC (Capt)",
             "match_window_titles": [
-                "Adobe\\ Premiere\\ Pro\\ CC\\ \\(Capt\\)",
-                "Adobe\\ Premiere\\ Pro"
+                "Adobe Premiere Pro CC (Capt)",
+                "Adobe Premiere Pro"
             ],
             "slow_jog": 200,
             "bindings": {

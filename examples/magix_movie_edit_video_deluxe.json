@@ -3,7 +3,7 @@
         {
             "name": "MAGIX Movie Edit - Video Deluxe",
             "match_window_titles": [
-                "MAGIX\\ Movie\\ Edit\\ \\-\\ Video\\ Deluxe",
+                "MAGIX Movie Edit - Video Deluxe",
                 "MovieStudio"
             ],
             "slow_jog": 200,

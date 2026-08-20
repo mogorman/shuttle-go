@@ -3,7 +3,7 @@
         {
             "name": "Avid Media Composer",
             "match_window_titles": [
-                "Avid\\ Media\\ Composer",
+                "Avid Media Composer",
                 "AvidMediaComposer"
             ],
             "slow_jog": 200,

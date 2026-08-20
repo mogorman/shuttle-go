@@ -3,7 +3,7 @@
         {
             "name": "MS Windows Media Player",
             "match_window_titles": [
-                "MS\\ Windows\\ Media\\ Player",
+                "MS Windows Media Player",
                 "wmplayer"
             ],
             "slow_jog": 200,

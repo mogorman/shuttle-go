@@ -3,7 +3,7 @@
         {
             "name": "Apple Music",
             "match_window_titles": [
-                "Apple\\ Music",
+                "Apple Music",
                 "iTunes"
             ],
             "slow_jog": 200,

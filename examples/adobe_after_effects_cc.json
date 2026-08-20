@@ -3,7 +3,7 @@
         {
             "name": "Adobe After Effects CC",
             "match_window_titles": [
-                "Adobe\\ After\\ Effects\\ CC",
+                "Adobe After Effects CC",
                 "AfterFX"
             ],
             "slow_jog": 200,

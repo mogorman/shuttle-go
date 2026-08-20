@@ -3,7 +3,7 @@
         {
             "name": "Cockos REAPER",
             "match_window_titles": [
-                "Cockos\\ REAPER",
+                "Cockos REAPER",
                 "reaper"
             ],
             "slow_jog": 200,

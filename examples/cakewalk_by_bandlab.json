@@ -3,7 +3,7 @@
         {
             "name": "Cakewalk by BandLab",
             "match_window_titles": [
-                "Cakewalk\\ by\\ BandLab",
+                "Cakewalk by BandLab",
                 "Cakewalk"
             ],
             "slow_jog": 200,

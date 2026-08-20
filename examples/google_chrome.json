@@ -3,7 +3,7 @@
         {
             "name": "Google Chrome",
             "match_window_titles": [
-                "Google\\ Chrome",
+                "Google Chrome",
                 "chrome"
             ],
             "slow_jog": 200,

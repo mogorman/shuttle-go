@@ -3,7 +3,7 @@
         {
             "name": "Adobe Photoshop CC",
             "match_window_titles": [
-                "Adobe\\ Photoshop\\ CC",
+                "Adobe Photoshop CC",
                 "Photoshop"
             ],
             "slow_jog": 200,

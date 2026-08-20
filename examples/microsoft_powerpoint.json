@@ -3,7 +3,7 @@
         {
             "name": "Microsoft PowerPoint",
             "match_window_titles": [
-                "Microsoft\\ PowerPoint",
+                "Microsoft PowerPoint",
                 "POWERPNT"
             ],
             "slow_jog": 200,
