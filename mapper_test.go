@@ -258,7 +258,7 @@ func TestEveryBinding(t *testing.T) {
 
 // TestMacroBindings exercises the macro-chain execution paths (the uinput
 // driver with a JSON-array value): /type, /sleep, /exec, /mousemove, /click,
-// and the /once one-shot marker.
+// and the one-shot "once" flag.
 func TestMacroBindings(t *testing.T) {
 	macros := map[string]interface{}{
 		"F1": []string{
@@ -270,17 +270,16 @@ func TestMacroBindings(t *testing.T) {
 			"/click left",
 			"/click right 3",
 		},
-		"F2": []string{
-			"/once",
-			"/type once",
-			"/click middle",
+		"F2": map[string]interface{}{
+			"once":   true,
+			"macros": []string{"/type once", "/click middle"},
 		},
 	}
 
 	m, fake := testMapper(t, macros)
 
 	// F1: a repeating chain. Run the sequence directly (executeBindingTap
-	// would spawn a 25ms repeat goroutine for a non-/once chain).
+	// would spawn a repeat goroutine for a non-one-shot chain).
 	if err := m.executeMacroSequence(m.confBinding("F1")); err != nil {
 		t.Fatalf("executeMacroSequence(F1) error: %s", err)
 	}
@@ -294,7 +293,7 @@ func TestMacroBindings(t *testing.T) {
 		t.Errorf("F1 /click = %v, want %v", got, want)
 	}
 
-	// F2: a one-shot chain (leading "/once"). The "/once" marker is skipped.
+	// F2: a one-shot chain (object form with "once": true).
 	if err := m.executeMacroSequence(m.confBinding("F2")); err != nil {
 		t.Fatalf("executeMacroSequence(F2) error: %s", err)
 	}
@@ -303,6 +302,42 @@ func TestMacroBindings(t *testing.T) {
 	}
 	if got, want := fake.clicks, []string{"272 x1", "273 x3", "274 x1"}; !equalStr(got, want) {
 		t.Errorf("clicks after F2 = %v, want %v", got, want)
+	}
+}
+
+// TestRepeatTapBinding exercises the object-form binding knobs: a tap binding
+// with repeat/delay fires the key that many times, and the defaults (a plain
+// string) fire exactly once.
+func TestRepeatTapBinding(t *testing.T) {
+	bindings := map[string]interface{}{
+		"F1": "a",
+		"F2": map[string]interface{}{
+			"key":      "s",
+			"repeat":   3,
+			"delay_ms":   1,
+		},
+	}
+	m, fake := testMapper(t, bindings)
+
+	// F1: a plain string -> a single tap.
+	if err := m.executeBindingTap(m.confBinding("F1")); err != nil {
+		t.Fatalf("executeBindingTap(F1) error: %s", err)
+	}
+	if got := len(fake.taps); got != 1 {
+		t.Errorf("F1 taps = %d, want 1", got)
+	}
+
+	// F2: repeat 3 -> three taps of the same code.
+	if err := m.executeBindingTap(m.confBinding("F2")); err != nil {
+		t.Fatalf("executeBindingTap(F2) error: %s", err)
+	}
+	if got := len(fake.taps); got != 4 { // 1 (F1) + 3 (F2)
+		t.Fatalf("total taps = %d, want 4", got)
+	}
+	for i, want := range []string{"31", "31", "31"} {
+		if got := codesOf(fake.taps[1+i]); got != want {
+			t.Errorf("F2 tap %d = %s, want %s", i, got, want)
+		}
 	}
 }
 

@@ -215,11 +215,26 @@
                     "/mousemove 500 300 true",
                     "/click left 4"
                 ],
-                "F6": [
-                    "/once",
-                    "/type one-shot: this runs a single time on press"
-                ],
+                "F6": {
+                    "once": true,
+                    "macros": [
+                        "/type one-shot: this runs a single time on press"
+                    ]
+                },
                 "F7": "a // Plain single-key binding still works alongside macros"
+            }
+        },
+        {
+            "name": "Repeat / delay example (object form)",
+            "match_wm_class": [
+                "^Repeat$"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "JogL": { "key": "parenleft", "repeat": 5, "delay_ms": 1000 },
+                "JogR": { "key": "parenright", "repeat": 5, "delay_ms": 1000 },
+                "F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100 },
+                "F2": "b // A plain string is still just a single tap"
             }
         }
     ]

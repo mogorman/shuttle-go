@@ -13,11 +13,22 @@ import (
 	"github.com/hypebeast/go-osc/osc"
 )
 
-// bindingValue is a binding's raw JSON value: either a plain string
-// (a single key/command) or an array of strings (a macro sequence).
+// bindingValue is a binding's value. It may be written three ways in the
+// config:
+//
+//	"a plain string"      -> a single key/command (Key)
+//	["cmd", "cmd", ...]   -> a macro sequence (Macros)
+//	{ "key": ..., ... }    -> an object with per-binding knobs (see fields)
+//
+// The object form is the only one that can express repeat/delay/once; the
+// string and array forms decode to it with sensible defaults.
 type bindingValue struct {
-	plain  string
-	macros []string
+	Key          string   `json:"key"`
+	Repeat       int      `json:"repeat"`
+	DelayMS      int      `json:"delay_ms"`
+	StartDelayMS int      `json:"start_delay_ms"`
+	Once         bool     `json:"once"`
+	Macros       []string `json:"macros"`
 }
 
 var loadedConfiguration = &Config{}
@@ -113,6 +124,9 @@ type deviceBinding struct {
 	description string
 	macros      []string
 	once        bool
+	repeat      int
+	delayMS     int
+	startDelayMS int
 }
 
 func (ac *AppConfig) parseBindings() error {
@@ -151,13 +165,8 @@ func (ac *AppConfig) parseBindings() error {
 			return fmt.Errorf("binding %q: %s", key, err)
 		}
 
-		binding, description := bindingAndDescription(driverProtocol, bv.plain)
-		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: bv.plain, original: binding, description: description, driver: driverProtocol, oscClient: oscClient, macros: bv.macros}
-
-		// A leading "/once" marker makes the chain a one-shot (uinput driver only).
-		if driverProtocol == "uinput" && len(bv.macros) > 0 && strings.TrimSpace(bv.macros[0]) == "/once" {
-			newBinding.once = true
-		}
+		binding, description := bindingAndDescription(driverProtocol, bv.Key)
+		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: bv.Key, original: binding, description: description, driver: driverProtocol, oscClient: oscClient, macros: bv.Macros, once: bv.Once, repeat: bv.Repeat, delayMS: bv.DelayMS, startDelayMS: bv.StartDelayMS}
 
 		// Input
 		input := strings.Split(key, "+")
@@ -209,28 +218,49 @@ func bindingAndDescription(protocol, input string) (string, string) {
 }
 
 // decodeBindingValue interprets a binding's raw JSON value. It may be a plain
-// string (a single key/command) or an array of strings (a macro sequence).
+// string (a single key/command), an array of strings (a macro sequence), or an
+// object with the per-binding knobs (repeat, delay_ms, start_delay_ms, once,
+// key, macros). Defaults are applied for any field left unset.
 func decodeBindingValue(raw json.RawMessage) (bindingValue, error) {
 	trimmed := strings.TrimSpace(string(raw))
 	if trimmed == "" {
 		return bindingValue{}, fmt.Errorf("empty binding value")
 	}
 
-	// Array of strings -> macro sequence.
-	if strings.HasPrefix(trimmed, "[") {
+	var bv bindingValue
+	switch {
+	case strings.HasPrefix(trimmed, "["):
+		// Array of strings -> macro sequence.
 		var items []string
 		if err := json.Unmarshal(raw, &items); err != nil {
-			return bindingValue{}, fmt.Errorf("expected a string or an array of strings: %s", err)
+			return bindingValue{}, fmt.Errorf("expected a string, an object, or an array of strings: %s", err)
 		}
-		return bindingValue{macros: items}, nil
+		bv = bindingValue{Macros: items}
+	case strings.HasPrefix(trimmed, "{"):
+		// Object form with the per-binding knobs.
+		if err := json.Unmarshal(raw, &bv); err != nil {
+			return bindingValue{}, fmt.Errorf("invalid binding object: %s", err)
+		}
+	default:
+		// Plain string -> a single key/command.
+		var s string
+		if err := json.Unmarshal(raw, &s); err != nil {
+			return bindingValue{}, fmt.Errorf("expected a string, an object, or an array of strings: %s", err)
+		}
+		bv = bindingValue{Key: s}
 	}
 
-	// Plain string.
-	var s string
-	if err := json.Unmarshal(raw, &s); err != nil {
-		return bindingValue{}, fmt.Errorf("expected a string or an array of strings: %s", err)
+	// Apply defaults for any knob left unset.
+	if bv.Repeat <= 0 {
+		bv.Repeat = 1
 	}
-	return bindingValue{plain: s}, nil
+	if bv.DelayMS <= 0 {
+		bv.DelayMS = 25
+	}
+	if bv.StartDelayMS < 0 {
+		bv.StartDelayMS = 0
+	}
+	return bv, nil
 }
 
 func LoadConfig(filename string) error {

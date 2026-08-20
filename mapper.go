@@ -313,7 +313,7 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 		return nil, exec.Command("env", "bash", "-c", binding.original).Run()
 	case "uinput":
 		if len(binding.macros) > 0 {
-			// Macro chains: run once (a "/once" chain) or repeat while held.
+			// Macro chains: run once (a one-shot) or repeat while held.
 			// Either way nothing is held, so no key codes are returned.
 			return nil, m.runMacroBinding(binding)
 		}
@@ -353,10 +353,30 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 	}
 }
 
-// runMacroBinding runs a binding's macro chain on a button press. A "/once"
-// chain runs exactly once. Any other chain runs immediately, then repeats every
-// 25ms while the button stays held; a background goroutine drives the repeats
-// and is cancelled on key-up (see dispatch) or on exit (see ReleaseAll).
+// tapKeys fires a single key (or key combo) binding.repeat times, sleeping
+// binding.delayMS between taps and binding.startDelayMS before the first. The
+// defaults (repeat 1, delay 25ms, no start delay) reproduce a plain tap, so
+// ordinary bindings are unaffected.
+func (m *Mapper) tapKeys(codes []int, binding *deviceBinding) error {
+	if binding.startDelayMS > 0 {
+		time.Sleep(time.Duration(binding.startDelayMS) * time.Millisecond)
+	}
+	for i := 0; i < binding.repeat; i++ {
+		if i > 0 {
+			time.Sleep(time.Duration(binding.delayMS) * time.Millisecond)
+		}
+		if err := m.uinput.KeyTap(codes); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// runMacroBinding runs a binding's macro chain on a button press. A one-shot
+// chain (binding.once) runs exactly once. Any other chain runs immediately,
+// then repeats every binding.delayMS (default 25ms) while the button stays
+// held; a background goroutine drives the repeats and is cancelled on key-up
+// (see dispatch) or on exit (see ReleaseAll).
 func (m *Mapper) runMacroBinding(binding *deviceBinding) error {
 	if binding.once {
 		return m.executeMacroSequence(binding)
@@ -370,8 +390,13 @@ func (m *Mapper) runMacroBinding(binding *deviceBinding) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	m.state.activeMacroCancel[binding.buttonDown] = cancel
 
+	delay := binding.delayMS
+	if delay <= 0 {
+		delay = 25
+	}
+
 	go func() {
-		ticker := time.NewTicker(25 * time.Millisecond)
+		ticker := time.NewTicker(time.Duration(delay) * time.Millisecond)
 		defer ticker.Stop()
 		for {
 			select {
@@ -410,9 +435,6 @@ func (m *Mapper) executeMacroSequence(binding *deviceBinding) error {
 		rest := strings.TrimSpace(macro[len(verb):])
 
 		switch verb {
-		case "/once":
-			// A marker only (first position); it is not itself executed.
-			continue
 		case "/type":
 			if rest == "" {
 				return fmt.Errorf("/type in binding %q needs text to type", binding.rawKey)
@@ -511,8 +533,8 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 		return exec.Command("env", "bash", "-c", binding.original).Run()
 	case "uinput":
 		if len(binding.macros) > 0 {
-			// A macro chain: run it once (a "/once" chain) or repeat while
-			// held. Nothing is held, so no key codes are returned.
+			// A macro chain: run it once (a one-shot) or repeat while held.
+			// Nothing is held, so no key codes are returned.
 			return m.runMacroBinding(binding)
 		}
 		codes, err := keyCodes(binding.original)
@@ -520,12 +542,9 @@ func (m *Mapper) executeBindingTap(binding *deviceBinding) error {
 			return err
 		}
 		if *debugMode {
-			fmt.Printf("uinput tap %v\n", codes)
+			fmt.Printf("uinput tap %v x%d\n", codes, binding.repeat)
 		}
-		if err := m.uinput.KeyTap(codes); err != nil {
-			return err
-		}
-		return nil
+		return m.tapKeys(codes, binding)
 	case "osc":
 		msgs := parseOSCMessages(binding.original)
 		if msgs == nil {
