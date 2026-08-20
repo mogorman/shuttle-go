@@ -18,71 +18,71 @@
                 "F2": "Ctrl+S",
                 "F3": "Ctrl+Shift+T",
                 "F4": "M",
-                "F5": "Ctrl+ShiftApostrophe",
-                "F6": "Ctrl+Percent",
+                "F5": "Ctrl+Shift+'",
+                "F6": "Ctrl+Shift+%",
                 "F9": "space",
-                "JogL": "Percent",
-                "JogR": "ShiftApostrophe",
-                "S-1": "Alt+Shift+Percent",
+                "JogL": "Shift+%",
+                "JogR": "Shift+'",
+                "S-1": "Alt+Shift+Shift+%",
                 "S-2": {
-                    "key": "Alt+Shift+Percent",
+                    "key": "Alt+Shift+Shift+%",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Alt+Shift+Percent",
+                    "key": "Alt+Shift+Shift+%",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "Alt+Shift+Percent",
+                    "key": "Alt+Shift+Shift+%",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "Alt+Shift+Percent",
+                    "key": "Alt+Shift+Shift+%",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "Alt+Shift+Percent",
+                    "key": "Alt+Shift+Shift+%",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "Alt+Shift+Percent",
+                    "key": "Alt+Shift+Shift+%",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S0": "Alt+Shift+LeftParen",
-                "S1": "Alt+Shift+ShiftApostrophe",
+                "S0": "Alt+Shift+Shift+(",
+                "S1": "Alt+Shift+Shift+'",
                 "S2": {
-                    "key": "Alt+Shift+ShiftApostrophe",
+                    "key": "Alt+Shift+Shift+'",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S3": {
-                    "key": "Alt+Shift+ShiftApostrophe",
+                    "key": "Alt+Shift+Shift+'",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S4": {
-                    "key": "Alt+Shift+ShiftApostrophe",
+                    "key": "Alt+Shift+Shift+'",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "Alt+Shift+ShiftApostrophe",
+                    "key": "Alt+Shift+Shift+'",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "Alt+Shift+ShiftApostrophe",
+                    "key": "Alt+Shift+Shift+'",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S7": {
-                    "key": "Alt+Shift+ShiftApostrophe",
+                    "key": "Alt+Shift+Shift+'",
                     "repeat": 45,
                     "delay_ms": 1000
                 }

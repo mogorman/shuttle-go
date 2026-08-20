@@ -25,8 +25,8 @@
                 "F9": "Ctrl+Alt+M",
                 "JogL": "Ctrl+M",
                 "JogR": "Ctrl+K",
-                "S-1": "Percent",
-                "S1": "ShiftApostrophe"
+                "S-1": "Shift+%",
+                "S1": "Shift+'"
             }
         }
     ]

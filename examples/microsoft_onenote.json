@@ -22,9 +22,9 @@
                 "F7": "Ctrl+F",
                 "F8": "F3",
                 "F9": "Ctrl+E",
-                "JogL": "Percent",
-                "JogR": "ShiftApostrophe",
-                "S-7": "Shift+1"
+                "JogL": "Shift+%",
+                "JogR": "Shift+'",
+                "S-7": "Shift+!"
             }
         }
     ]

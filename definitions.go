@@ -178,19 +178,6 @@ var keyboardKeys = map[string]int{
 	"KPPlusMinus":     118,
 	"Pause":           119,
 	"Scale":           120, /*AlCompizScale(Expose)*/
-
-	// Named aliases for the shifted symbol keys. These let a binding read as a
-	// name instead of a hex keycode. (The unshifted base keys already have
-	// their own entries: "Apostrophe"=40, "Grave"=41, etc.)
-	"Percent":      0x14, // %
-	"ShiftApostrophe": 0x16, // '
-	"Ampersand":    0x15, // &
-	"LeftParen":    0x17, // (
-	"RightParen":   0x18, // )
-	"Exclam":       0x11, // !
-	"Hash":         0x12, // #
-	"Dollar":       0x13, // $
-	"ShiftGrave":   0x19, // `
 	"KPComma":         121,
 	"LeftMeta":        125,
 	"Meta":            125,

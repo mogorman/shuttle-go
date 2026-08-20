@@ -21,8 +21,8 @@
                 "F7": "Ctrl+Shift+N",
                 "F8": "Ctrl+L",
                 "F9": "Ctrl+Shift+R",
-                "S-1": "Percent",
-                "S1": "ShiftApostrophe"
+                "S-1": "Shift+%",
+                "S1": "Shift+'"
             }
         }
     ]

@@ -19,9 +19,9 @@
                 "F3": "T",
                 "F4": "P",
                 "F5": "Ctrl+S",
-                "S-6": "Shift+1",
+                "S-6": "Shift+!",
                 "S-7": {
-                    "key": "Shift+1",
+                    "key": "Shift+!",
                     "repeat": 45,
                     "delay_ms": 1000
                 }

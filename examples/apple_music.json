@@ -16,52 +16,52 @@
                 "M1": "Ctrl+J",
                 "M2": "Ctrl+B",
                 "F2": "Ctrl+O",
-                "F5": "Ctrl+Alt+Percent",
-                "F6": "Percent",
+                "F5": "Ctrl+Alt+Shift+%",
+                "F6": "Shift+%",
                 "F7": "space",
-                "F8": "ShiftApostrophe",
-                "F9": "Ctrl+Alt+ShiftApostrophe",
-                "JogL": "Ctrl+LeftParen",
-                "JogR": "Ctrl+Ampersand",
-                "S-1": "Ampersand",
+                "F8": "Shift+'",
+                "F9": "Ctrl+Alt+Shift+'",
+                "JogL": "Ctrl+Shift+(",
+                "JogR": "Ctrl+Shift+&",
+                "S-1": "Shift+&",
                 "S-4": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
-                "S1": "LeftParen",
+                "S1": "Shift+(",
                 "S4": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S7": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 15,
                     "delay_ms": 1000
                 }

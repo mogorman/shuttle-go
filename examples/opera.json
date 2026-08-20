@@ -11,83 +11,83 @@
                 "B1": "F11",
                 "B2": "F5",
                 "B4": "Ctrl+P",
-                "M1": "Alt+Percent",
-                "M2": "Alt+ShiftApostrophe",
+                "M1": "Alt+Shift+%",
+                "M2": "Alt+Shift+'",
                 "F2": "Ctrl+W",
                 "F3": "Ctrl+O",
-                "F4": "Alt+Shift+4",
-                "F5": "Alt+Percent",
+                "F4": "Alt+Shift+$",
+                "F5": "Alt+Shift+%",
                 "F6": "Ctrl+H",
                 "F7": "Ctrl+Shift+B",
                 "F8": "Ctrl+T",
                 "F9": "Ctrl+F",
                 "S-1": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "Ampersand",
+                    "key": "Shift+&",
                     "repeat": 60,
                     "delay_ms": 1000
                 },
                 "S1": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S2": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S3": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S4": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S7": {
-                    "key": "LeftParen",
+                    "key": "Shift+(",
                     "repeat": 60,
                     "delay_ms": 1000
                 }

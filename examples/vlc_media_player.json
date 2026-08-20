@@ -8,11 +8,11 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+Percent",
+                "F1": "Ctrl+Shift+%",
                 "B1": "M",
-                "B2": "Ctrl+Ampersand",
+                "B2": "Ctrl+Shift+&",
                 "B3": "Shift+M",
-                "B4": "Ctrl+LeftParen",
+                "B4": "Ctrl+Shift+(",
                 "M1": "Shift+Z",
                 "M2": "Z",
                 "F2": "Ctrl+F",
@@ -20,33 +20,33 @@
                 "F4": "Ctrl+E",
                 "F5": "F",
                 "F7": "space",
-                "JogL": "Alt+Percent",
+                "JogL": "Alt+Shift+%",
                 "JogR": "E",
-                "S-1": "Shift+Percent",
+                "S-1": "Shift+Shift+%",
                 "S-2": {
-                    "key": "Shift+Percent",
+                    "key": "Shift+Shift+%",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Shift+Percent",
+                    "key": "Shift+Shift+%",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S-4": "Alt+Percent",
+                "S-4": "Alt+Shift+%",
                 "S-5": {
-                    "key": "Alt+Percent",
+                    "key": "Alt+Shift+%",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S-6": "Ctrl+Alt+Percent",
+                "S-6": "Ctrl+Alt+Shift+%",
                 "S-7": {
-                    "key": "Ctrl+Alt+Percent",
+                    "key": "Ctrl+Alt+Shift+%",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S1": "LeftParen",
-                "S2": "LeftParen"
+                "S1": "Shift+(",
+                "S2": "Shift+("
             }
         }
     ]

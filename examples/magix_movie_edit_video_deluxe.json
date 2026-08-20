@@ -22,8 +22,8 @@
                 "F6": "J",
                 "F7": "K",
                 "F8": "L",
-                "JogL": "Percent",
-                "JogR": "ShiftApostrophe",
+                "JogL": "Shift+%",
+                "JogR": "Shift+'",
                 "S0": "K"
             }
         }

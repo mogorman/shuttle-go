@@ -13,47 +13,47 @@
                 "B3": "W",
                 "B4": "Z",
                 "F2": "Ctrl+K",
-                "F3": "Ctrl+LeftParen",
-                "F4": "Ctrl+Ampersand",
-                "F5": "Shift+4",
+                "F3": "Ctrl+Shift+(",
+                "F4": "Ctrl+Shift+&",
+                "F5": "Shift+$",
                 "F6": "J",
                 "F7": "space",
                 "F8": "K",
-                "F9": "Shift+3",
-                "JogL": "Ctrl+Percent",
-                "JogR": "Ctrl+ShiftApostrophe",
+                "F9": "Shift+#",
+                "JogL": "Ctrl+Shift+%",
+                "JogR": "Ctrl+Shift+'",
                 "S-1": {
-                    "key": "Shift+1",
+                    "key": "Shift+!",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "Shift+1",
+                    "key": "Shift+!",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Shift+1",
+                    "key": "Shift+!",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "Shift+1",
+                    "key": "Shift+!",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "Shift+1",
+                    "key": "Shift+!",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "Shift+Shift+1",
+                    "key": "Shift+Shift+!",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "Shift+Shift+1",
+                    "key": "Shift+Shift+!",
                     "repeat": 15,
                     "delay_ms": 1000
                 }
