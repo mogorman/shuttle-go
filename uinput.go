@@ -193,11 +193,11 @@ func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 }
 
 // peekMousePos returns the current pointer position and the index of the
-// monitor it is on. On Wayland it first asks the "Mouse Position" GNOME
-// extension over D-Bus, which reports the real cursor position and monitor;
-// if that is unavailable it falls back to peeking the mouse interface
-// (/dev/input/mice), which only reports relative motion and no monitor (the
-// monitor is then reported as 0).
+// monitor it is on. On Wayland it first asks the Shuttle Pro GNOME extension
+// over D-Bus, which reports the real cursor position and monitor; if that is
+// unavailable it falls back to peeking the mouse interface (/dev/input/mice),
+// which only reports relative motion and no monitor (the monitor is then
+// reported as 0).
 func peekMousePos() (x, y, monitor int, err error) {
 	if isWayland() {
 		if px, py, pm, ok := getWaylandMousePos(); ok {

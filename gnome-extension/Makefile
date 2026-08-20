@@ -1,4 +1,4 @@
-UUID := mouse-position@shuttle-go.dev
+UUID := shuttle-pro@shuttle-go.dev
 VERSION := $(shell jq -r '.version' metadata.json)
 TARBALL := $(UUID)-v$(VERSION).tar.gz
 

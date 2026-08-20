@@ -60,11 +60,11 @@ func getWaylandWindow() (title, wmClass string) {
 }
 
 // getWaylandMousePos returns the current pointer position by querying the
-// "Mouse Position" GNOME extension over D-Bus. That extension reads the real
-// cursor position from the shell, which /dev/input/mice cannot (it only
-// reports relative motion). It also reports the index of the monitor the
-// pointer is on. It returns (0, 0, 0, false) when not on Wayland or the
-// extension is not installed/enabled, so callers fall back to a relative move.
+// Shuttle Pro GNOME extension over D-Bus. That extension reads the real cursor
+// position from the shell, which /dev/input/mice cannot (it only reports
+// relative motion). It also reports the index of the monitor the pointer is on.
+// It returns (0, 0, 0, false) when not on Wayland or the extension is not
+// installed/enabled, so callers fall back to a relative move.
 func getWaylandMousePos() (x, y, monitor int, ok bool) {
 	if os.Getenv("WAYLAND_DISPLAY") == "" {
 		return 0, 0, 0, false
@@ -72,8 +72,8 @@ func getWaylandMousePos() (x, y, monitor int, ok bool) {
 
 	cmd := exec.Command("dbus-send", "--session", "--print-reply=literal",
 		"--dest=org.gnome.Shell",
-		"/org/gnome/Shell/Extensions/Mouse",
-		"org.gnome.Shell.Extensions.Mouse.Position")
+		"/org/gnome/Shell/Extensions/ShuttlePro",
+		"org.gnome.Shell.Extensions.ShuttlePro.Position")
 	out, err := cmd.Output()
 	if err != nil || len(out) == 0 {
 		return 0, 0, 0, false
@@ -91,6 +91,56 @@ func getWaylandMousePos() (x, y, monitor int, ok bool) {
 		return p.X, p.Y, p.Monitor, true
 	}
 	return 0, 0, 0, false
+}
+
+// getWaylandFocusedWindow returns the focused window's title, wm_class, frame
+// origin (x, y in the global all-monitors coordinate space), and the index of
+// the monitor it is on, by querying the Shuttle Pro GNOME extension over D-Bus.
+// It returns ok=false when not on Wayland, the extension is not
+// installed/enabled, or no window is focused (the extension reports null
+// fields in that case).
+func getWaylandFocusedWindow() (title, wmClass string, x, y, monitor int, ok bool) {
+	if os.Getenv("WAYLAND_DISPLAY") == "" {
+		return "", "", 0, 0, 0, false
+	}
+
+	cmd := exec.Command("dbus-send", "--session", "--print-reply=literal",
+		"--dest=org.gnome.Shell",
+		"/org/gnome/Shell/Extensions/ShuttlePro",
+		"org.gnome.Shell.Extensions.ShuttlePro.FocusedWindow")
+	out, err := cmd.Output()
+	if err != nil || len(out) == 0 {
+		return "", "", 0, 0, 0, false
+	}
+
+	// dbus-send wraps the single string reply in a D-Bus array; parse the
+	// embedded JSON object. Null fields (no focused window) unmarshal to the
+	// zero value, so we detect "no window" via a null title.
+	type win struct {
+		Title   *string `json:"title"`
+		WMClass *string `json:"wm_class"`
+		X       *int    `json:"x"`
+		Y       *int    `json:"y"`
+		Monitor *int    `json:"monitor"`
+	}
+	var w win
+	if json.Unmarshal(out, &w) == nil && w.Title != nil {
+		title = *w.Title
+		if w.WMClass != nil {
+			wmClass = *w.WMClass
+		}
+		if w.X != nil {
+			x = *w.X
+		}
+		if w.Y != nil {
+			y = *w.Y
+		}
+		if w.Monitor != nil {
+			monitor = *w.Monitor
+		}
+		return title, wmClass, x, y, monitor, true
+	}
+	return "", "", 0, 0, 0, false
 }
 
 func (w *watcher) Setup() error {
