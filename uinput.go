@@ -173,13 +173,12 @@ func (d *uinputDevice) Type(text string) error {
 // MouseMove moves the pointer by (dx, dy) relative units, or to the absolute
 // screen position (x, y) when abs is true.
 //
-// The absolute case is implemented as a relative move: we peek the current
-// pointer position (the latest event queued on the mouse interface, which only
-// reports relative motion) and emit a relative move of (x-currentX, y-currentY).
-// This is used instead of the uinput ABS axes because the input layer on this
+// The absolute case is implemented as a relative move: we read the current
+// pointer position and emit a relative move of (x-currentX, y-currentY). This
+// is used instead of the uinput ABS axes because the input layer on this
 // machine does not trust the virtual device's absolute axis, so ABS events are
-// ignored. If the position cannot be read (e.g. /dev/input/mice is not
-// available), the move degrades to a relative move of the raw (x, y).
+// ignored. If the position cannot be read, the move degrades to a relative move
+// of the raw (x, y).
 func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	if abs {
 		if x, y, err := peekMousePos(); err == nil {
@@ -193,13 +192,26 @@ func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	return nil
 }
 
-// peekMousePos returns the current pointer position by peeking the latest event
+// peekMousePos returns the current pointer position. On Wayland it first asks
+// the "Mouse Position" GNOME extension over D-Bus, which reports the real
+// cursor position; if that is unavailable it falls back to peeking the mouse
+// interface (/dev/input/mice), which only reports relative motion.
+func peekMousePos() (x, y int, err error) {
+	if isWayland() {
+		if px, py, ok := getWaylandMousePos(); ok {
+			return px, py, nil
+		}
+	}
+	return peekMicePos()
+}
+
+// peekMicePos returns the current pointer position by peeking the latest event
 // queued on the mouse interface (/dev/input/mice). That interface reports only
 // relative motion, so the newest queued event is the pointer's current
 // position; if the queue is empty the pointer is idle at its last known
 // position, which we report as (0, 0). The peek is non-blocking (O_NONBLOCK),
 // so it never waits for a new event and never consumes one.
-func peekMousePos() (x, y int, err error) {
+func peekMicePos() (x, y int, err error) {
 	f, err := os.Open("/dev/input/mice")
 	if err != nil {
 		return 0, 0, fmt.Errorf("opening /dev/input/mice: %s", err)

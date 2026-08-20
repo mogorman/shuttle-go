@@ -1,0 +1,15 @@
+{
+  "name": "Mouse Position",
+  "description": "Exposes the current pointer position over D-Bus so other tools can read it, e.g. shuttle-go's absolute /mousemove macro.",
+  "uuid": "mouse-position@shuttle-go.dev",
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50"
+  ],
+  "version": 1.0,
+  "url": "https://github.com/mog/shuttle-go"
+}

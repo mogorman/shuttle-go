@@ -59,6 +59,39 @@ func getWaylandWindow() (title, wmClass string) {
 	return "", ""
 }
 
+// getWaylandMousePos returns the current pointer position by querying the
+// "Mouse Position" GNOME extension over D-Bus. That extension reads the real
+// cursor position from the shell, which /dev/input/mice cannot (it only
+// reports relative motion). It returns (0, 0, false) when not on Wayland or
+// the extension is not installed/enabled, so callers fall back to a relative
+// move.
+func getWaylandMousePos() (x, y int, ok bool) {
+	if os.Getenv("WAYLAND_DISPLAY") == "" {
+		return 0, 0, false
+	}
+
+	cmd := exec.Command("dbus-send", "--session", "--print-reply=literal",
+		"--dest=org.gnome.Shell",
+		"/org/gnome/Shell/Extensions/Mouse",
+		"org.gnome.Shell.Extensions.Mouse.Position")
+	out, err := cmd.Output()
+	if err != nil || len(out) == 0 {
+		return 0, 0, false
+	}
+
+	// dbus-send wraps the single string reply in a D-Bus array, e.g.
+	// [ { "x": 100, "y": 300 } ]; parse the embedded JSON object.
+	type pos struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	}
+	var p pos
+	if json.Unmarshal(out, &p) == nil {
+		return p.X, p.Y, true
+	}
+	return 0, 0, false
+}
+
 func (w *watcher) Setup() error {
 	if isWayland() {
 		// No X server on Wayland; window-title matching is driven by
