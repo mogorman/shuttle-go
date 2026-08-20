@@ -21,67 +21,67 @@
                 "F7": "Ctrl+V",
                 "F8": "Ctrl+Shift+F",
                 "F9": "B",
-                "JogL": "0x14",
-                "JogR": "0x16",
-                "S-1": "0x14",
+                "JogL": "Percent",
+                "JogR": "ShiftApostrophe",
+                "S-1": "Percent",
                 "S-2": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S1": "0x16",
+                "S1": "ShiftApostrophe",
                 "S2": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S3": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S4": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S7": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 45,
                     "delay_ms": 1000
                 }

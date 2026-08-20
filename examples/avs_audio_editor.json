@@ -9,84 +9,84 @@
             "slow_jog": 200,
             "bindings": {
                 "F1": "Ctrl+S",
-                "B1": "Shift+0x14",
-                "B2": "Shift+0x16",
-                "B3": "Ctrl+0x14",
-                "B4": "Ctrl+0x16",
+                "B1": "Shift+Percent",
+                "B2": "Shift+ShiftApostrophe",
+                "B3": "Ctrl+Percent",
+                "B4": "Ctrl+ShiftApostrophe",
                 "M1": "Ctrl+Z",
                 "M2": "Ctrl+Shift+Z",
                 "F2": "Ctrl+T",
-                "F3": "0x18",
+                "F3": "Shift+8",
                 "F4": "W",
                 "F5": "Ctrl+M",
-                "F6": "0x13",
+                "F6": "Shift+4",
                 "F7": "space",
-                "F8": "0x12",
+                "F8": "Shift+3",
                 "F9": "Ctrl+K",
-                "JogL": "0x14",
-                "JogR": "0x16",
+                "JogL": "Percent",
+                "JogR": "ShiftApostrophe",
                 "S-1": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S-7": "0x14",
+                "S-7": "Percent",
                 "S1": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S2": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S3": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S4": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S7": "0x16"
+                "S7": "ShiftApostrophe"
             }
         }
     ]

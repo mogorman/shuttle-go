@@ -22,70 +22,70 @@
                 "F7": "Ctrl+X",
                 "F8": "Ctrl+V",
                 "F9": "Ctrl+C",
-                "JogL": "0x14",
-                "JogR": "0x16",
+                "JogL": "Percent",
+                "JogR": "ShiftApostrophe",
                 "S-1": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 60,
                     "delay_ms": 1000
                 },
-                "S-7": "0x15",
+                "S-7": "Ampersand",
                 "S1": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S2": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S3": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S4": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 60,
                     "delay_ms": 1000
                 },
-                "S7": "0x17"
+                "S7": "LeftParen"
             }
         }
     ]

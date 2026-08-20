@@ -22,37 +22,37 @@
                 "F7": "Ctrl+P",
                 "F8": "Ctrl+D",
                 "S-1": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "Shift+0x11",
+                    "key": "Shift+Shift+1",
                     "repeat": 60,
                     "delay_ms": 1000
                 }

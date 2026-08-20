@@ -12,85 +12,85 @@
                 "B1": "F11",
                 "B2": "F5",
                 "B4": "Ctrl+P",
-                "M1": "Alt+0x14",
-                "M2": "Alt+0x16",
+                "M1": "Alt+Percent",
+                "M2": "Alt+ShiftApostrophe",
                 "F2": "Ctrl+W",
                 "F3": "Ctrl+O",
-                "F4": "Alt+0x13",
-                "F5": "Alt+0x14",
+                "F4": "Alt+Shift+4",
+                "F5": "Alt+Percent",
                 "F6": "Ctrl+H",
                 "F7": "Ctrl+I",
                 "F8": "Ctrl+T",
                 "F9": "Ctrl+F",
-                "JogL": "0x14",
-                "JogR": "0x16",
+                "JogL": "Percent",
+                "JogR": "ShiftApostrophe",
                 "S-1": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 60,
                     "delay_ms": 1000
                 },
                 "S1": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S2": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S3": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S4": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S7": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 60,
                     "delay_ms": 1000
                 }

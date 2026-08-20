@@ -15,8 +15,8 @@
                 "F4": "Ctrl+Z",
                 "F8": "Ctrl+D",
                 "F9": "Ctrl+M",
-                "JogL": "0x15",
-                "JogR": "0x17"
+                "JogL": "Ampersand",
+                "JogR": "LeftParen"
             }
         }
     ]

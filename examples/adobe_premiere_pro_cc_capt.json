@@ -20,8 +20,8 @@
                 "F7": "K",
                 "F8": "L",
                 "F9": "W",
-                "JogL": "0x14",
-                "JogR": "0x16",
+                "JogL": "Percent",
+                "JogR": "ShiftApostrophe",
                 "S0": "K"
             }
         }

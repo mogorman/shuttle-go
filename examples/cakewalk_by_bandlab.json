@@ -9,12 +9,12 @@
             "slow_jog": 200,
             "bindings": {
                 "B1": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "B3": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
@@ -25,48 +25,48 @@
                 "F4": "R",
                 "F5": "Ctrl+Z",
                 "F6": {
-                    "key": "0x14",
+                    "key": "Percent",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "F7": {
-                    "key": "0x16",
+                    "key": "ShiftApostrophe",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
-                "F8": "Ctrl+0x11",
-                "JogL": "Ctrl+0x11",
+                "F8": "Ctrl+Shift+1",
+                "JogL": "Ctrl+Shift+1",
                 "S-1": {
-                    "key": "Ctrl+0x11",
+                    "key": "Ctrl+Shift+1",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-2": {
-                    "key": "Ctrl+0x11",
+                    "key": "Ctrl+Shift+1",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Ctrl+0x11",
+                    "key": "Ctrl+Shift+1",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-4": {
-                    "key": "Ctrl+0x11",
+                    "key": "Ctrl+Shift+1",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "Ctrl+0x11",
+                    "key": "Ctrl+Shift+1",
                     "repeat": 30,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "Ctrl+0x11",
+                    "key": "Ctrl+Shift+1",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S-7": "Ctrl+0x11"
+                "S-7": "Ctrl+Shift+1"
             }
         }
     ]

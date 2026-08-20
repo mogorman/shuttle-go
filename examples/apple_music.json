@@ -16,52 +16,52 @@
                 "M1": "Ctrl+J",
                 "M2": "Ctrl+B",
                 "F2": "Ctrl+O",
-                "F5": "Ctrl+Alt+0x14",
-                "F6": "0x14",
+                "F5": "Ctrl+Alt+Percent",
+                "F6": "Percent",
                 "F7": "space",
-                "F8": "0x16",
-                "F9": "Ctrl+Alt+0x16",
-                "JogL": "Ctrl+0x17",
-                "JogR": "Ctrl+0x15",
-                "S-1": "0x15",
+                "F8": "ShiftApostrophe",
+                "F9": "Ctrl+Alt+ShiftApostrophe",
+                "JogL": "Ctrl+LeftParen",
+                "JogR": "Ctrl+Ampersand",
+                "S-1": "Ampersand",
                 "S-4": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S-5": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S-6": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S-7": {
-                    "key": "0x15",
+                    "key": "Ampersand",
                     "repeat": 15,
                     "delay_ms": 1000
                 },
-                "S1": "0x17",
+                "S1": "LeftParen",
                 "S4": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 2,
                     "delay_ms": 1000
                 },
                 "S5": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 5,
                     "delay_ms": 1000
                 },
                 "S6": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 10,
                     "delay_ms": 1000
                 },
                 "S7": {
-                    "key": "0x17",
+                    "key": "LeftParen",
                     "repeat": 15,
                     "delay_ms": 1000
                 }

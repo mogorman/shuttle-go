@@ -8,11 +8,11 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+0x14",
+                "F1": "Ctrl+Percent",
                 "B1": "M",
-                "B2": "Ctrl+0x15",
+                "B2": "Ctrl+Ampersand",
                 "B3": "Shift+M",
-                "B4": "Ctrl+0x17",
+                "B4": "Ctrl+LeftParen",
                 "M1": "Shift+Z",
                 "M2": "Z",
                 "F2": "Ctrl+F",
@@ -20,33 +20,33 @@
                 "F4": "Ctrl+E",
                 "F5": "F",
                 "F7": "space",
-                "JogL": "Alt+0x14",
+                "JogL": "Alt+Percent",
                 "JogR": "E",
-                "S-1": "Shift+0x14",
+                "S-1": "Shift+Percent",
                 "S-2": {
-                    "key": "Shift+0x14",
+                    "key": "Shift+Percent",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
                 "S-3": {
-                    "key": "Shift+0x14",
+                    "key": "Shift+Percent",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S-4": "Alt+0x14",
+                "S-4": "Alt+Percent",
                 "S-5": {
-                    "key": "Alt+0x14",
+                    "key": "Alt+Percent",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S-6": "Ctrl+Alt+0x14",
+                "S-6": "Ctrl+Alt+Percent",
                 "S-7": {
-                    "key": "Ctrl+Alt+0x14",
+                    "key": "Ctrl+Alt+Percent",
                     "repeat": 45,
                     "delay_ms": 1000
                 },
-                "S1": "0x17",
-                "S2": "0x17"
+                "S1": "LeftParen",
+                "S2": "LeftParen"
             }
         }
     ]
