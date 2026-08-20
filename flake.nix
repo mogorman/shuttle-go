@@ -13,6 +13,7 @@
       in
       {
         packages.default = pkgs.callPackage ./shuttle-go.nix { };
+        packages.shuttle-pro = pkgs.callPackage ./gnome-extension/shuttle-pro.nix { };
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
