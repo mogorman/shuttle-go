@@ -29,7 +29,7 @@ buildGoModule rec {
 
   nativeBuildInputs = [ makeWrapper ] ++ runtimeDeps;
 
-  vendorHash = "sha256-Ko32HIshjL3J1nOBE3EgDYP0CuM9s0cRHYUTP1aRQ3k=";
+  vendorHash = "sha256-PG+uUiIkK/nAIxKZ2o6lek05fjnN/3zsOjE4PPkABqM=";
   doCheck = false;
 
   # Stamp the semantic version into the binary so `shuttle-go --version`

@@ -264,9 +264,10 @@ MIT
 
 `shuttle-go` watches the config file (the one given via `--config`, default
 `~/.shuttle-go.json`) and **reloads it automatically when it changes** — no
-restart needed. Edits take effect on the next poll (about a second later). If an
-edit is invalid (e.g. a broken regexp or malformed JSON), the reload is skipped
-and the previous configuration stays in effect until the file is fixed.
+restart needed. It uses `inotify` for immediate notification on Linux, and falls
+back to polling every 5 seconds if `inotify` is unavailable. If an edit is
+invalid (e.g. a broken regexp or malformed JSON), the reload is skipped and the
+previous configuration stays in effect until the file is fixed.
 
 ## TODO
 

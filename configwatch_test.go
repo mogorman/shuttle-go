@@ -3,8 +3,11 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
+
+	"golang.org/x/sys/unix"
 )
 
 // writeConfigFile writes content to a fresh temp file and returns its path.
@@ -83,5 +86,35 @@ func TestConfigWatcherKeepsPreviousOnInvalidEdit(t *testing.T) {
 
 	if loadedConfiguration != before {
 		t.Fatal("expected the previous config to be kept after an invalid edit")
+	}
+}
+
+// TestConfigWatcherInotifyDelivers verifies the inotify watch is set up and
+// that a real edit to the file produces a readable event on the watch fd. It
+// skips on non-Linux platforms where inotify is unavailable.
+func TestConfigWatcherInotifyDelivers(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("inotify is Linux-only")
+	}
+
+	path := writeConfigFile(t, `{"apps":[{"name":"A","bindings":{}}]}`)
+	cw := NewConfigWatcher(path, nil)
+	if !cw.setupInotify() {
+		t.Fatal("expected inotify setup to succeed on linux")
+	}
+	defer cw.teardownInotify()
+
+	// Rewrite the file; this should enqueue an inotify event on the watch fd.
+	if err := os.WriteFile(path, []byte(`{"apps":[{"name":"C","bindings":{}}]}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	buf := make([]byte, 4096)
+	n, err := unix.Read(cw.inotifyFd, buf)
+	if err != nil {
+		t.Fatalf("reading inotify event: %v", err)
+	}
+	if n < unix.SizeofInotifyEvent {
+		t.Fatalf("expected at least one inotify event, read %d bytes", n)
 	}
 }
