@@ -1,0 +1,62 @@
+{
+    "apps": [
+        {
+            "name": "Adobe Photoshop CC",
+            "match_window_titles": [
+                "Adobe\\ Photoshop\\ CC",
+                "Photoshop"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+O",
+                "B1": "Ctrl+L",
+                "B2": "Ctrl+M",
+                "B3": "Ctrl+B",
+                "B4": "Ctrl+U",
+                "M1": "Ctrl+Shift+Z",
+                "M2": "Ctrl+Alt+Z",
+                "F2": "Ctrl+S",
+                "F3": "Ctrl+Shift+S",
+                "F4": "Ctrl+N",
+                "F6": "Ctrl+T",
+                "F7": "Ctrl+P",
+                "F8": "Ctrl+D",
+                "S-1": {
+                    "key": "Shift+0x11",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "Shift+0x11",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "Shift+0x11",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "Shift+0x11",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "Shift+0x11",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "Shift+0x11",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "Shift+0x11",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

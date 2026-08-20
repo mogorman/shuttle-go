@@ -1,0 +1,84 @@
+{
+    "apps": [
+        {
+            "name": "WavePad",
+            "match_window_titles": [
+                "WavePad"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+N",
+                "B1": "Ctrl+Shift+P",
+                "B2": "Ctrl+T",
+                "B3": "Ctrl+Shift+D",
+                "B4": "Ctrl+R",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Y",
+                "F2": "Ctrl+S",
+                "F3": "T",
+                "F4": "Shift+X",
+                "F5": "0x13",
+                "F6": "Ctrl+M",
+                "F7": "space",
+                "F8": "Ctrl+K",
+                "F9": "0x12",
+                "JogL": "Alt+0x14",
+                "JogR": "Alt+0x16",
+                "S-1": "0x14",
+                "S-2": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x14",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                },
+                "S1": "Z",
+                "S2": "Y",
+                "S3": "F12",
+                "S4": {
+                    "key": "0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x16",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x16",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

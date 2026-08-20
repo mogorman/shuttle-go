@@ -1,0 +1,91 @@
+{
+    "apps": [
+        {
+            "name": "Adobe Illustrator CC",
+            "match_window_titles": [
+                "Adobe\\ Illustrator\\ CC",
+                "Illustrator"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "0x18",
+                "B1": "P",
+                "B2": "Ctrl+Shift+E",
+                "B3": "T",
+                "B4": "Ctrl+Alt+Shift+E",
+                "M1": "Ctrl+Shift+Z",
+                "M2": "Ctrl+Z",
+                "F2": "Ctrl+S",
+                "F3": "Ctrl+Shift+S",
+                "F4": "Ctrl+N",
+                "F6": "Ctrl+X",
+                "F7": "Ctrl+C",
+                "F8": "Ctrl+V",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-1": "0x15",
+                "S-2": {
+                    "key": "0x15",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "Shift+0x15",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "Shift+0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "Shift+0x15",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "Shift+0x15",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S1": "0x17",
+                "S2": {
+                    "key": "0x17",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "Shift+0x17",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "Shift+0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "Shift+0x17",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "Shift+0x17",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

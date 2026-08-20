@@ -1,0 +1,91 @@
+{
+    "apps": [
+        {
+            "name": "Ableton Live",
+            "match_window_titles": [
+                "Ableton\\ Live"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+N",
+                "B1": "Ctrl+Shift+T",
+                "B2": "Z",
+                "B4": "space",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Y",
+                "F2": "Ctrl+I",
+                "F3": "Ctrl+Shift+I",
+                "F4": "Ctrl+T",
+                "F5": "Ctrl+X",
+                "F6": "Ctrl+C",
+                "F7": "Ctrl+V",
+                "F8": "Ctrl+Shift+F",
+                "F9": "B",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-1": "0x14",
+                "S-2": {
+                    "key": "0x14",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S1": "0x16",
+                "S2": {
+                    "key": "0x16",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x16",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x16",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

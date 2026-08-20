@@ -1,0 +1,63 @@
+{
+    "apps": [
+        {
+            "name": "Adobe After Effects CC",
+            "match_window_titles": [
+                "Adobe\\ After\\ Effects\\ CC",
+                "AfterFX"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "B1": "V",
+                "B2": "H",
+                "B3": "W",
+                "B4": "Z",
+                "F2": "Ctrl+K",
+                "F3": "Ctrl+0x17",
+                "F4": "Ctrl+0x15",
+                "F5": "0x13",
+                "F6": "J",
+                "F7": "space",
+                "F8": "K",
+                "F9": "0x12",
+                "JogL": "Ctrl+0x14",
+                "JogR": "Ctrl+0x16",
+                "S-1": {
+                    "key": "0x11",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "0x11",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x11",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x11",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x11",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "Shift+0x11",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "Shift+0x11",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

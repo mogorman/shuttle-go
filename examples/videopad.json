@@ -1,0 +1,88 @@
+{
+    "apps": [
+        {
+            "name": "VideoPad",
+            "match_window_titles": [
+                "VideoPad"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+S",
+                "B3": "Shift+L",
+                "B4": "Ctrl+Shift+L",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Y",
+                "F2": "Ctrl+X",
+                "F3": "Ctrl+C",
+                "F4": "Ctrl+V",
+                "F5": "Ctrl+0x13",
+                "F7": "Ctrl+space",
+                "F9": "Ctrl+0x12",
+                "JogL": "Ctrl+0x14",
+                "JogR": "Ctrl+0x16",
+                "S-1": {
+                    "key": "Ctrl+0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "Ctrl+0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "Ctrl+0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "Ctrl+0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "Ctrl+0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "Ctrl+0x14",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                },
+                "S-7": "Ctrl+0x14",
+                "S1": {
+                    "key": "Ctrl+0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S2": {
+                    "key": "Ctrl+0x16",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "Ctrl+0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "Ctrl+0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "Ctrl+0x16",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "Ctrl+0x16",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                },
+                "S7": "Ctrl+0x16"
+            }
+        }
+    ]
+}

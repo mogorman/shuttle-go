@@ -1,0 +1,97 @@
+{
+    "apps": [
+        {
+            "name": "Adobe Premiere Pro CC (Edit)",
+            "match_window_titles": [
+                "Adobe\\ Premiere\\ Pro\\ CC\\ \\(Edit\\)",
+                "Adobe\\ Premiere\\ Pro"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "B1": "Ctrl+Shift+I",
+                "B2": "Ctrl+Shift+O",
+                "B3": "T",
+                "M1": "I",
+                "M2": "O",
+                "F2": "Ctrl+D",
+                "F5": "0x15",
+                "F6": "J",
+                "F7": "K",
+                "F8": "L",
+                "F9": "0x17",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-1": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "Shift+0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "Shift+0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S1": {
+                    "key": "0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S2": {
+                    "key": "0x16",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x16",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "Shift+0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "Shift+0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

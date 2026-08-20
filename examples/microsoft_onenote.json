@@ -1,0 +1,31 @@
+{
+    "apps": [
+        {
+            "name": "Microsoft OneNote",
+            "match_window_titles": [
+                "Microsoft\\ OneNote",
+                "ONENOTE"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+Z",
+                "B1": "Ctrl+N",
+                "B2": "Ctrl+T",
+                "B3": "Ctrl+L",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Y",
+                "F2": "Ctrl+X",
+                "F3": "Ctrl+C",
+                "F4": "Ctrl+V",
+                "F5": "F11",
+                "F6": "Shift+X",
+                "F7": "Ctrl+F",
+                "F8": "F3",
+                "F9": "Ctrl+E",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-7": "0x11"
+            }
+        }
+    ]
+}

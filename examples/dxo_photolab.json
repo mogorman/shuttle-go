@@ -1,0 +1,33 @@
+{
+    "apps": [
+        {
+            "name": "DxO PhotoLab",
+            "match_window_titles": [
+                "DxO\\ PhotoLab",
+                "DxO\\.PhotoLab"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "X",
+                "B1": "Ctrl+L",
+                "B2": "Ctrl+R",
+                "B3": "Ctrl+P",
+                "B4": "Ctrl+Q",
+                "M1": "Ctrl+Y",
+                "M2": "Ctrl+Z",
+                "F2": "Ctrl+Alt+P",
+                "F3": "Ctrl+J",
+                "F4": "Z",
+                "F5": "Ctrl+H",
+                "F6": "Ctrl+G",
+                "F7": "Ctrl+U",
+                "F8": "Ctrl+I",
+                "F9": "Ctrl+Shift+C",
+                "JogL": "Ctrl+M",
+                "JogR": "Ctrl+K",
+                "S-1": "0x14",
+                "S1": "0x16"
+            }
+        }
+    ]
+}

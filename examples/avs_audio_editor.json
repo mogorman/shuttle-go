@@ -1,0 +1,93 @@
+{
+    "apps": [
+        {
+            "name": "AVS Audio Editor",
+            "match_window_titles": [
+                "AVS\\ Audio\\ Editor",
+                "AVSAudioEditor"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+S",
+                "B1": "Shift+0x14",
+                "B2": "Shift+0x16",
+                "B3": "Ctrl+0x14",
+                "B4": "Ctrl+0x16",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Shift+Z",
+                "F2": "Ctrl+T",
+                "F3": "0x18",
+                "F4": "W",
+                "F5": "Ctrl+M",
+                "F6": "0x13",
+                "F7": "space",
+                "F8": "0x12",
+                "F9": "Ctrl+K",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-1": {
+                    "key": "0x14",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-7": "0x14",
+                "S1": {
+                    "key": "0x16",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S2": {
+                    "key": "0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x16",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x16",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S7": "0x16"
+            }
+        }
+    ]
+}

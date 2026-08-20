@@ -1,0 +1,31 @@
+{
+    "apps": [
+        {
+            "name": "Adobe InDesign CC",
+            "match_window_titles": [
+                "Adobe\\ InDesign\\ CC",
+                "InDesign"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "V",
+                "B1": "Ctrl+G",
+                "B2": "Ctrl+L",
+                "B3": "Ctrl+Shift+G",
+                "B4": "Ctrl+Alt+L",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Shift+Z",
+                "F2": "A",
+                "F3": "T",
+                "F4": "P",
+                "F5": "Ctrl+S",
+                "S-6": "0x11",
+                "S-7": {
+                    "key": "0x11",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

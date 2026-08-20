@@ -1,0 +1,83 @@
+{
+    "apps": [
+        {
+            "name": "Microsoft Outlook",
+            "match_window_titles": [
+                "Microsoft\\ Outlook",
+                "OUTLOOK"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+F",
+                "B2": "Ctrl+Shift+B",
+                "B3": "Alt+F4",
+                "B4": "F7",
+                "M1": "Ctrl+Shift+G",
+                "M2": "Ctrl+Z",
+                "F2": "Ctrl+Shift+R",
+                "F3": "Ctrl+R",
+                "F4": "Ctrl+N",
+                "F5": "Ctrl+Y",
+                "F6": "Ctrl+X",
+                "F7": "Ctrl+V",
+                "F8": "Ctrl+C",
+                "F9": "Ctrl+Shift+F",
+                "JogL": "0x11",
+                "S-1": "0x15",
+                "S-2": "0x15",
+                "S-3": {
+                    "key": "0x15",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x15",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x15",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x15",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S1": "0x17",
+                "S2": "0x17",
+                "S3": {
+                    "key": "0x17",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x17",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x17",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x17",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,71 @@
+{
+    "apps": [
+        {
+            "name": "Apple Music",
+            "match_window_titles": [
+                "Apple\\ Music",
+                "iTunes"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+N",
+                "B1": "Ctrl+T",
+                "B2": "Ctrl+Shift+2",
+                "B3": "Ctrl+Shift+F",
+                "B4": "Ctrl+L",
+                "M1": "Ctrl+J",
+                "M2": "Ctrl+B",
+                "F2": "Ctrl+O",
+                "F5": "Ctrl+Alt+0x14",
+                "F6": "0x14",
+                "F7": "space",
+                "F8": "0x16",
+                "F9": "Ctrl+Alt+0x16",
+                "JogL": "Ctrl+0x17",
+                "JogR": "Ctrl+0x15",
+                "S-1": "0x15",
+                "S-4": {
+                    "key": "0x15",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x15",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x15",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S1": "0x17",
+                "S4": {
+                    "key": "0x17",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x17",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x17",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

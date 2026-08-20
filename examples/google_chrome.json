@@ -1,0 +1,98 @@
+{
+    "apps": [
+        {
+            "name": "Google Chrome",
+            "match_window_titles": [
+                "Google\\ Chrome",
+                "chrome"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+N",
+                "B1": "F11",
+                "B2": "F5",
+                "B4": "Ctrl+P",
+                "M1": "Alt+0x14",
+                "M2": "Alt+0x16",
+                "F2": "Ctrl+W",
+                "F3": "Ctrl+O",
+                "F4": "Alt+0x13",
+                "F5": "Alt+0x14",
+                "F6": "Ctrl+H",
+                "F7": "Ctrl+Shift+O",
+                "F8": "Ctrl+T",
+                "F9": "Ctrl+F",
+                "S-1": {
+                    "key": "0x15",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x15",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x15",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x15",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x15",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x15",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                },
+                "S1": {
+                    "key": "0x17",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S2": {
+                    "key": "0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x17",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x17",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x17",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x17",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x17",
+                    "repeat": 60,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

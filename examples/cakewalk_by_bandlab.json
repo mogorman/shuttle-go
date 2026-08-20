@@ -1,0 +1,73 @@
+{
+    "apps": [
+        {
+            "name": "Cakewalk by BandLab",
+            "match_window_titles": [
+                "Cakewalk\\ by\\ BandLab",
+                "Cakewalk"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "B1": {
+                    "key": "0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "B3": {
+                    "key": "0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "B4": "Alt+I",
+                "M1": "Ctrl+Shift+Z",
+                "M2": "Ctrl+S",
+                "F2": "space",
+                "F4": "R",
+                "F5": "Ctrl+Z",
+                "F6": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "F7": {
+                    "key": "0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "F8": "Ctrl+0x11",
+                "JogL": "Ctrl+0x11",
+                "S-1": {
+                    "key": "Ctrl+0x11",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-2": {
+                    "key": "Ctrl+0x11",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "Ctrl+0x11",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "Ctrl+0x11",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "Ctrl+0x11",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "Ctrl+0x11",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-7": "Ctrl+0x11"
+            }
+        }
+    ]
+}

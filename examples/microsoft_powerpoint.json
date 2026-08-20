@@ -1,0 +1,23 @@
+{
+    "apps": [
+        {
+            "name": "Microsoft PowerPoint",
+            "match_window_titles": [
+                "Microsoft\\ PowerPoint",
+                "POWERPNT"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+V",
+                "B2": "F5",
+                "F2": "Ctrl+C",
+                "F3": "Ctrl+Y",
+                "F4": "Ctrl+Z",
+                "F8": "Ctrl+D",
+                "F9": "Ctrl+M",
+                "JogL": "0x15",
+                "JogR": "0x17"
+            }
+        }
+    ]
+}

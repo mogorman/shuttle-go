@@ -1,0 +1,42 @@
+{
+    "apps": [
+        {
+            "name": "EditShare Lightworks",
+            "match_window_titles": [
+                "EditShare\\ Lightworks",
+                "Lightworks"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "V",
+                "B3": "N",
+                "M1": "Alt+Shift+K",
+                "F2": "Shift+B",
+                "F3": "Z",
+                "F4": "X",
+                "F5": "Shift+J",
+                "F6": "Shift+L",
+                "F7": "I",
+                "F8": "A",
+                "F9": "S",
+                "JogL": "0x15",
+                "JogR": "0x17",
+                "S-1": "Ctrl+2",
+                "S-2": "Ctrl+4",
+                "S-3": "Ctrl+6",
+                "S-4": "Ctrl+8",
+                "S-5": "Ctrl+0",
+                "S-6": "Ctrl+Shift+2",
+                "S-7": "Ctrl+Shift+4",
+                "S0": "K",
+                "S1": "Shift+2",
+                "S2": "Shift+4",
+                "S3": "Shift+6",
+                "S4": "Shift+8",
+                "S5": "Shift+0",
+                "S6": "Alt+Shift+2",
+                "S7": "Alt+Shift+4"
+            }
+        }
+    ]
+}

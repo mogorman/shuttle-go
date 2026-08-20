@@ -1,0 +1,78 @@
+{
+    "apps": [
+        {
+            "name": "Microsoft Excel",
+            "match_window_titles": [
+                "Microsoft\\ Excel",
+                "EXCEL"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+Z",
+                "B1": "Alt+F11",
+                "B3": "Alt+F8",
+                "M1": "Ctrl+P",
+                "M2": "Ctrl+S",
+                "F2": "Ctrl+R",
+                "F3": "Shift+F3",
+                "F4": "Ctrl+1",
+                "F8": "Shift+space",
+                "F9": "Ctrl+space",
+                "S-1": "0x14",
+                "S-2": "0x14",
+                "S-3": {
+                    "key": "0x14",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S1": "0x16",
+                "S2": "0x16",
+                "S3": {
+                    "key": "0x16",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x16",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

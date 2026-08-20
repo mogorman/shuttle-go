@@ -1,0 +1,29 @@
+{
+    "apps": [
+        {
+            "name": "Adobe Lightroom",
+            "match_window_titles": [
+                "Adobe\\ Lightroom",
+                "lightroom"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+Shift+I",
+                "B2": "Y",
+                "B4": "L",
+                "M1": "Ctrl+Y",
+                "M2": "Ctrl+Z",
+                "F2": "Ctrl+Shift+E",
+                "F3": "Ctrl+E",
+                "F4": "Ctrl+Shift+F",
+                "F5": "Ctrl+U",
+                "F6": "Ctrl+Shift+U",
+                "F7": "Ctrl+Shift+N",
+                "F8": "Ctrl+L",
+                "F9": "Ctrl+Shift+R",
+                "S-1": "0x14",
+                "S1": "0x16"
+            }
+        }
+    ]
+}

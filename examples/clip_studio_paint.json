@@ -1,0 +1,27 @@
+{
+    "apps": [
+        {
+            "name": "Clip Studio Paint",
+            "match_window_titles": [
+                "Clip\\ Studio\\ Paint",
+                "CLIPStudioPaint"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+S",
+                "B1": "P",
+                "B2": "B",
+                "B3": "U",
+                "B4": "T",
+                "M1": "Ctrl+Y",
+                "M2": "Ctrl+Z",
+                "F2": "Ctrl+X",
+                "F3": "Ctrl+C",
+                "F4": "Ctrl+V",
+                "F6": "Ctrl+T",
+                "F7": "Ctrl+P",
+                "F8": "Ctrl+D"
+            }
+        }
+    ]
+}

@@ -1,0 +1,93 @@
+{
+    "apps": [
+        {
+            "name": "Dassault Systems SolidWorks",
+            "match_window_titles": [
+                "Dassault\\ Systems\\ SolidWorks",
+                "SLDWORKS"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+S",
+                "B1": "Ctrl+5",
+                "B2": "Shift+Z",
+                "B3": "Ctrl+6",
+                "B4": "Z",
+                "M1": "Ctrl+Z",
+                "M2": "space",
+                "F2": "F",
+                "F3": "Ctrl+B",
+                "F4": "Ctrl+R",
+                "F5": "Ctrl+1",
+                "F6": "Ctrl+3",
+                "F7": "Ctrl+8",
+                "F8": "Ctrl+4",
+                "F9": "Ctrl+2",
+                "JogL": "0x14",
+                "JogR": "0x17",
+                "S-1": "0x14",
+                "S-2": {
+                    "key": "0x14",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x14",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x14",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x14",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x14",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-7": {
+                    "key": "0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S1": "0x16",
+                "S2": {
+                    "key": "0x16",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x16",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x16",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x16",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x16",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S7": {
+                    "key": "0x16",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                }
+            }
+        }
+    ]
+}

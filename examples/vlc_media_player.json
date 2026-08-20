@@ -1,0 +1,53 @@
+{
+    "apps": [
+        {
+            "name": "VLC Media Player",
+            "match_window_titles": [
+                "VLC\\ Media\\ Player",
+                "vlc"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+0x14",
+                "B1": "M",
+                "B2": "Ctrl+0x15",
+                "B3": "Shift+M",
+                "B4": "Ctrl+0x17",
+                "M1": "Shift+Z",
+                "M2": "Z",
+                "F2": "Ctrl+F",
+                "F3": "Ctrl+I",
+                "F4": "Ctrl+E",
+                "F5": "F",
+                "F7": "space",
+                "JogL": "Alt+0x14",
+                "JogR": "E",
+                "S-1": "Shift+0x14",
+                "S-2": {
+                    "key": "Shift+0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "Shift+0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-4": "Alt+0x14",
+                "S-5": {
+                    "key": "Alt+0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S-6": "Ctrl+Alt+0x14",
+                "S-7": {
+                    "key": "Ctrl+Alt+0x14",
+                    "repeat": 45,
+                    "delay_ms": 1000
+                },
+                "S1": "0x17",
+                "S2": "0x17"
+            }
+        }
+    ]
+}

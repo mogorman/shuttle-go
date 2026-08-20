@@ -1,0 +1,25 @@
+{
+    "apps": [
+        {
+            "name": "Bitwig Studio",
+            "match_window_titles": [
+                "Bitwig\\ Studio"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "B1": "Ctrl+0",
+                "B2": "I",
+                "B4": "M",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Y",
+                "F2": "A",
+                "F3": "D",
+                "F4": "E",
+                "F5": "Ctrl+T",
+                "F6": "Ctrl+Shift+T",
+                "F7": "space",
+                "F9": "Ctrl+Alt+T"
+            }
+        }
+    ]
+}

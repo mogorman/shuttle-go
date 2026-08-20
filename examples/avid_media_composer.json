@@ -1,0 +1,43 @@
+{
+    "apps": [
+        {
+            "name": "Avid Media Composer",
+            "match_window_titles": [
+                "Avid\\ Media\\ Composer",
+                "AvidMediaComposer"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+Z",
+                "B1": "D",
+                "B2": "F",
+                "B3": "T",
+                "M1": "I",
+                "M2": "O",
+                "F2": "Ctrl+R",
+                "F3": "B",
+                "F4": "H",
+                "F5": "A",
+                "F6": "J",
+                "F7": "K",
+                "F8": "L",
+                "F9": "S",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-1": "J",
+                "S-3": "J",
+                "S-4": "J",
+                "S-5": "J",
+                "S-6": "J",
+                "S-7": "J",
+                "S0": "K",
+                "S1": "L",
+                "S3": "L",
+                "S4": "L",
+                "S5": "L",
+                "S6": "L",
+                "S7": "L"
+            }
+        }
+    ]
+}

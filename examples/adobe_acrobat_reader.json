@@ -1,0 +1,84 @@
+{
+    "apps": [
+        {
+            "name": "Adobe Acrobat Reader",
+            "match_window_titles": [
+                "Adobe\\ Acrobat\\ Reader",
+                "Acrobat"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+O",
+                "B1": "Ctrl+Shift+K",
+                "B2": "Ctrl+K",
+                "B3": "Ctrl+Shift+M",
+                "B4": "Ctrl+M",
+                "M1": "0x14",
+                "M2": "0x16",
+                "F2": "Ctrl+W",
+                "F3": "Ctrl+P",
+                "F4": "Ctrl+F",
+                "F5": "Ctrl+Shift+0x11",
+                "F6": "Ctrl+A",
+                "F7": "Ctrl+0x19",
+                "F8": "Ctrl+B",
+                "JogL": "Shift+0x14",
+                "JogR": "Shift+0x16",
+                "S-1": "0x15",
+                "S-2": {
+                    "key": "0x15",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S-3": {
+                    "key": "0x15",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S-4": {
+                    "key": "0x15",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S-5": {
+                    "key": "0x15",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S-6": {
+                    "key": "0x15",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S-7": "0x15",
+                "S1": "0x17",
+                "S2": {
+                    "key": "0x17",
+                    "repeat": 2,
+                    "delay_ms": 1000
+                },
+                "S3": {
+                    "key": "0x17",
+                    "repeat": 5,
+                    "delay_ms": 1000
+                },
+                "S4": {
+                    "key": "0x17",
+                    "repeat": 10,
+                    "delay_ms": 1000
+                },
+                "S5": {
+                    "key": "0x17",
+                    "repeat": 15,
+                    "delay_ms": 1000
+                },
+                "S6": {
+                    "key": "0x17",
+                    "repeat": 30,
+                    "delay_ms": 1000
+                },
+                "S7": "0x17"
+            }
+        }
+    ]
+}

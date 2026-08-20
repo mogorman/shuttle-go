@@ -1,0 +1,44 @@
+{
+    "apps": [
+        {
+            "name": "MAGIX Music Maker",
+            "match_window_titles": [
+                "MAGIX\\ Music\\ Maker",
+                "MusicMaker"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "Ctrl+X",
+                "B1": "Shift+N",
+                "B2": "Ctrl+M",
+                "B3": "Ctrl+S",
+                "B4": "Ctrl+G",
+                "M1": "Ctrl+Z",
+                "M2": "Ctrl+Y",
+                "F2": "Ctrl+C",
+                "F3": "Ctrl+V",
+                "F4": "Ctrl+D",
+                "F5": "Ctrl+0x13",
+                "F7": "space",
+                "F8": "T",
+                "F9": "Ctrl+0x12",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S-1": "Ctrl+0x14",
+                "S-2": "Ctrl+0x14",
+                "S-3": "Ctrl+0x14",
+                "S-4": "Ctrl+0x14",
+                "S-5": "Ctrl+0x14",
+                "S-6": "Ctrl+0x14",
+                "S-7": "Ctrl+0x14",
+                "S1": "Ctrl+0x16",
+                "S2": "Ctrl+0x16",
+                "S3": "Ctrl+0x16",
+                "S4": "Ctrl+0x16",
+                "S5": "Ctrl+0x16",
+                "S6": "Ctrl+0x16",
+                "S7": "Ctrl+0x16"
+            }
+        }
+    ]
+}

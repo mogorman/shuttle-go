@@ -1,0 +1,29 @@
+{
+    "apps": [
+        {
+            "name": "Adobe Premiere Pro CC (Capt)",
+            "match_window_titles": [
+                "Adobe\\ Premiere\\ Pro\\ CC\\ \\(Capt\\)",
+                "Adobe\\ Premiere\\ Pro"
+            ],
+            "slow_jog": 200,
+            "bindings": {
+                "F1": "R",
+                "B1": "G",
+                "M1": "I",
+                "M2": "O",
+                "F2": "S",
+                "F3": "F",
+                "F4": "T",
+                "F5": "Q",
+                "F6": "J",
+                "F7": "K",
+                "F8": "L",
+                "F9": "W",
+                "JogL": "0x14",
+                "JogR": "0x16",
+                "S0": "K"
+            }
+        }
+    ]
+}
