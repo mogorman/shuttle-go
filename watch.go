@@ -232,3 +232,14 @@ func (w *watcher) loadWindowConfiguration(windowName, wmClass string) {
 		fmt.Println("Keeping previous config even if window changed")
 	}
 }
+
+// reapplyWindow re-resolves the active window against the (re)loaded
+// configuration, using the last window title/wm_class this watcher saw. It is
+// called after a config reload so currentConfiguration points at the matching
+// app in the fresh config. If no window was ever seen it does nothing.
+func (w *watcher) reapplyWindow() {
+	if w.prevWindowName == "" && w.prevWMClass == "" {
+		return
+	}
+	w.loadWindowConfiguration(w.prevWindowName, w.prevWMClass)
+}

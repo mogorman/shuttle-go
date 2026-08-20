@@ -123,6 +123,10 @@ func main() {
 
 	go watcher.Run()
 
+	// Watch the config file and reload it (and re-resolve the active window)
+	// whenever it changes, so edits take effect without a restart.
+	go NewConfigWatcher(*configFile, watcher).Run()
+
 	// Only launch the OSC feedback listener if some binding actually uses the
 	// "osc" driver. It binds a fixed port and must run at most once for the
 	// process lifetime.
