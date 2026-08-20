@@ -181,7 +181,7 @@ func (d *uinputDevice) Type(text string) error {
 // of the raw (x, y).
 func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	if abs {
-		if x, y, err := peekMousePos(); err == nil {
+		if x, y, _, err := peekMousePos(); err == nil {
 			dx -= x
 			dy -= y
 		}
@@ -192,17 +192,20 @@ func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	return nil
 }
 
-// peekMousePos returns the current pointer position. On Wayland it first asks
-// the "Mouse Position" GNOME extension over D-Bus, which reports the real
-// cursor position; if that is unavailable it falls back to peeking the mouse
-// interface (/dev/input/mice), which only reports relative motion.
-func peekMousePos() (x, y int, err error) {
+// peekMousePos returns the current pointer position and the index of the
+// monitor it is on. On Wayland it first asks the "Mouse Position" GNOME
+// extension over D-Bus, which reports the real cursor position and monitor;
+// if that is unavailable it falls back to peeking the mouse interface
+// (/dev/input/mice), which only reports relative motion and no monitor (the
+// monitor is then reported as 0).
+func peekMousePos() (x, y, monitor int, err error) {
 	if isWayland() {
-		if px, py, ok := getWaylandMousePos(); ok {
-			return px, py, nil
+		if px, py, pm, ok := getWaylandMousePos(); ok {
+			return px, py, pm, nil
 		}
 	}
-	return peekMicePos()
+	x, y, err = peekMicePos()
+	return x, y, 0, err
 }
 
 // peekMicePos returns the current pointer position by peeking the latest event

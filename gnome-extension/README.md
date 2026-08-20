@@ -18,14 +18,23 @@ make            # produces mouse-position@shuttle-go.dev-v1.0.tar.gz
 ## Install
 
 ```sh
-make install    # gnome-extensions install --enable <tarball>
+make install    # gnome-extensions install <tarball>
 ```
 
 or, from the repository root:
 
 ```sh
-gnome-extensions install --enable \
+gnome-extensions install \
     gnome-extension/mouse-position@shuttle-go.dev-v1.0.tar.gz
+```
+
+## Activate
+
+Installing does not enable the extension. Turn it on either in the
+**Extensions** app (toggle **Mouse Position** on) or from the command line:
+
+```sh
+make enable    # gnome-extensions enable mouse-position@shuttle-go.dev
 ```
 
 ## Usage
@@ -39,10 +48,12 @@ dbus-send --session --print-reply=literal \
     org.gnome.Shell.Extensions.Mouse.Position
 ```
 
-Response (a single JSON object):
+Response (a single JSON object). `monitor` is the index of the display the
+pointer is on, so the position can be resolved against the right screen in a
+multi-monitor setup:
 
 ```
-{"x":100,"y":300}
+{"x":100,"y":300,"monitor":0}
 ```
 
 With `jq` (note the literal reply is wrapped in a D-Bus array by `dbus-send`):

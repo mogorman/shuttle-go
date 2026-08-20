@@ -42,9 +42,12 @@ export default class Extension {
   }
 
   // Position returns the current pointer position as a JSON object
-  // {"x": <int>, "y": <int>}.
+  // {"x": <int>, "y": <int>, "monitor": <int>}. The monitor is the index of
+  // the display the pointer is currently on, so callers can resolve the
+  // position against the right screen in a multi-monitor setup.
   Position() {
     const [x, y] = global.get_pointer();
-    return JSON.stringify({ x: x, y: y });
+    const monitor = global.get_display().get_current_monitor();
+    return JSON.stringify({ x: x, y: y, monitor: monitor });
   }
 }
