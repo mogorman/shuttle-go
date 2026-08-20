@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
+	"os"
+	"syscall"
 	"time"
 
 	virtual_device "github.com/jbdemonte/virtual-device"
@@ -82,15 +85,7 @@ func newUinputDevice() (*uinputDevice, error) {
 			linux.BTN_FORWARD,
 			linux.BTN_BACK,
 		}).
-		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y, linux.REL_WHEEL}).
-		// Absolute axes let the pointer be moved to a screen coordinate (for
-		// the /mousemove <x> <y> true macro). The range is a generous 0..32767
-		// so any reasonable coordinate fits; the kernel clamps to the real
-		// screen size.
-		WithAbsAxes([]virtual_device.AbsAxis{
-			{Axis: linux.ABS_X, Min: 0, Max: 32767},
-			{Axis: linux.ABS_Y, Min: 0, Max: 32767},
-		})
+		WithRelAxes([]linux.RelativeAxis{linux.REL_X, linux.REL_Y, linux.REL_WHEEL})
 
 	if err := mouse.Register(); err != nil {
 		keyboard.Unregister()
@@ -176,19 +171,60 @@ func (d *uinputDevice) Type(text string) error {
 }
 
 // MouseMove moves the pointer by (dx, dy) relative units, or to the absolute
-// screen position (x, y) when abs is true. The absolute case uses the device's
-// ABS_X/ABS_Y axes, which move the pointer to a coordinate (the kernel clamps
-// it to the real screen size).
+// screen position (x, y) when abs is true.
+//
+// The absolute case is implemented as a relative move: we peek the current
+// pointer position (the latest event queued on the mouse interface, which only
+// reports relative motion) and emit a relative move of (x-currentX, y-currentY).
+// This is used instead of the uinput ABS axes because the input layer on this
+// machine does not trust the virtual device's absolute axis, so ABS events are
+// ignored. If the position cannot be read (e.g. /dev/input/mice is not
+// available), the move degrades to a relative move of the raw (x, y).
 func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 	if abs {
-		d.mouse.SendAbsoluteEvent(linux.ABS_X, int32(dx))
-		d.mouse.SendAbsoluteEvent(linux.ABS_Y, int32(dy))
-	} else {
-		d.mouse.SendRelativeEvent(linux.REL_X, int32(dx))
-		d.mouse.SendRelativeEvent(linux.REL_Y, int32(dy))
+		if x, y, err := peekMousePos(); err == nil {
+			dx -= x
+			dy -= y
+		}
 	}
+	d.mouse.SendRelativeEvent(linux.REL_X, int32(dx))
+	d.mouse.SendRelativeEvent(linux.REL_Y, int32(dy))
 	d.mouse.SyncReport()
 	return nil
+}
+
+// peekMousePos returns the current pointer position by peeking the latest event
+// queued on the mouse interface (/dev/input/mice). That interface reports only
+// relative motion, so the newest queued event is the pointer's current
+// position; if the queue is empty the pointer is idle at its last known
+// position, which we report as (0, 0). The peek is non-blocking (O_NONBLOCK),
+// so it never waits for a new event and never consumes one.
+func peekMousePos() (x, y int, err error) {
+	f, err := os.Open("/dev/input/mice")
+	if err != nil {
+		return 0, 0, fmt.Errorf("opening /dev/input/mice: %s", err)
+	}
+	defer f.Close()
+
+	if err := syscall.SetNonblock(int(f.Fd()), true); err != nil {
+		return 0, 0, fmt.Errorf("setting /dev/input/mice nonblocking: %s", err)
+	}
+
+	// A single 7-byte mouseevent: 3 status bytes + x, y, z as int16
+	// little-endian.
+	buf := make([]byte, 7)
+	n, rerr := f.Read(buf)
+	if n < 7 {
+		// No event queued (EAGAIN) or a short read: the pointer is idle at its
+		// last known position.
+		if rerr != nil && rerr != syscall.EAGAIN {
+			return 0, 0, fmt.Errorf("reading /dev/input/mice: %s", rerr)
+		}
+		return 0, 0, nil
+	}
+	x = int(int16(binary.LittleEndian.Uint16(buf[3:5])))
+	y = int(int16(binary.LittleEndian.Uint16(buf[5:7])))
+	return x, y, nil
 }
 
 // Click presses and releases the given EV_KEY button code repeats times.
