@@ -199,7 +199,7 @@ func (d *uinputDevice) MouseMove(dx, dy int, abs bool) error {
 func peekMousePos() (x, y int, err error) {
 	if isWayland() {
 		if info, ok := getWaylandInfo(); ok {
-			return info.PointerX, info.PointerY, nil
+			return info.X, info.Y, nil
 		}
 	}
 	return peekMicePos()

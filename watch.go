@@ -60,16 +60,13 @@ func getWaylandWindow() (title, wmClass string) {
 }
 
 // waylandInfo is the single object the Shuttle Pro GNOME extension returns
-// from its Info method: the focused window's title, wm_class, frame origin, and
-// monitor, plus the current pointer position.
+// from its Info method: the focused window's title and wm_class, plus the
+// current pointer position.
 type waylandInfo struct {
-	Title     *string `json:"title"`
-	WMClass   *string `json:"wm_class"`
-	X         *int    `json:"x"`
-	Y         *int    `json:"y"`
-	Monitor   *int    `json:"monitor"`
-	PointerX  int     `json:"pointer_x"`
-	PointerY  int     `json:"pointer_y"`
+	Title   *string `json:"title"`
+	WMClass *string `json:"wm_class"`
+	X       int     `json:"x"`
+	Y       int     `json:"y"`
 }
 
 // getWaylandInfo queries the Shuttle Pro GNOME extension over D-Bus for the
