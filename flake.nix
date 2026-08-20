@@ -10,10 +10,13 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        shuttleGo = pkgs.callPackage ./shuttle-go.nix { };
+        shuttlePro = pkgs.callPackage ./gnome-extension/shuttle-pro.nix { };
       in
       {
-        packages.default = pkgs.callPackage ./shuttle-go.nix { };
-        packages.shuttle-pro = pkgs.callPackage ./gnome-extension/shuttle-pro.nix { };
+        packages.shuttle-go = shuttleGo;
+        packages.default = shuttleGo;
+        packages.shuttle-pro = shuttlePro;
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
