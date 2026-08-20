@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
-	"golang.org/x/sys/unix"
+	"github.com/fsnotify/fsnotify"
 )
 
 // configWatcher watches the config file and, when it changes, fully reloads
@@ -13,15 +14,14 @@ import (
 // It runs as its own goroutine (see NewConfigWatcher) so a running shuttle-go
 // picks up edits to the config file without a restart.
 //
-// It prefers inotify for immediate notification and falls back to polling on a
-// 5 second interval if inotify is unavailable (non-Linux, or the file is on a
-// filesystem inotify cannot watch).
+// It uses fsnotify to watch the config file's parent directory (so both
+// in-place saves and temp-file+rename saves are caught) and falls back to
+// polling on a 5 second interval if the watcher cannot be set up.
 type configWatcher struct {
-	path      string
-	watcher   *watcher
-	lastMod   time.Time
-	lastSize  int64
-	inotifyFd int // >=0 when inotify is active; -1 when polling
+	path     string
+	watcher  *watcher
+	lastMod  time.Time
+	lastSize int64
 }
 
 // NewConfigWatcher builds a configWatcher for the given config file path.
@@ -29,7 +29,7 @@ type configWatcher struct {
 // reload; it may be nil (in which case a reload updates loadedConfiguration but
 // leaves currentConfiguration as-is).
 func NewConfigWatcher(path string, watcher *watcher) *configWatcher {
-	cw := &configWatcher{path: path, watcher: watcher, inotifyFd: -1}
+	cw := &configWatcher{path: path, watcher: watcher}
 	if st, err := os.Stat(path); err == nil {
 		cw.lastMod = st.ModTime()
 		cw.lastSize = st.Size()
@@ -38,66 +38,45 @@ func NewConfigWatcher(path string, watcher *watcher) *configWatcher {
 }
 
 // Run blocks, watching the config file and reloading it on change. It uses
-// inotify when available and otherwise polls every 5 seconds.
+// fsnotify when available and otherwise polls every 5 seconds.
 func (cw *configWatcher) Run() {
-	if cw.setupInotify() {
-		cw.runInotify()
-	} else {
+	w, err := fsnotify.NewWatcher()
+	if err != nil || w == nil {
 		cw.runPolling(5 * time.Second)
+		return
 	}
-}
+	defer w.Close()
 
-// setupInotify creates an inotify instance and watches the config file. It
-// returns true on success. It watches the file itself (editors that save by
-// writing a temp file and renaming it over the original still deliver
-// IN_MOVED_TO/IN_CREATE on the watched path).
-func (cw *configWatcher) setupInotify() bool {
-	fd, err := unix.InotifyInit1(unix.IN_CLOEXEC | unix.IN_NONBLOCK)
-	if err != nil {
-		return false
+	// Watch the parent directory rather than the file itself: editors commonly
+	// save by writing a temp file and renaming it over the original, which
+	// replaces the file's inode and would orphan a watch on the file. Watching
+	// the directory catches the create/rename of the filename either way.
+	dir := filepath.Dir(cw.path)
+	name := filepath.Base(cw.path)
+	if err := w.Add(dir); err != nil {
+		cw.runPolling(5 * time.Second)
+		return
 	}
-	mask := uint32(unix.IN_MODIFY | unix.IN_CLOSE_WRITE | unix.IN_CREATE | unix.IN_MOVED_TO)
-	if _, err := unix.InotifyAddWatch(fd, cw.path, mask); err != nil {
-		unix.Close(fd)
-		return false
-	}
-	cw.inotifyFd = fd
-	return true
-}
 
-// runInotify blocks reading inotify events. Any relevant event triggers a
-// change check (which re-stats and reloads only if mtime/size actually
-// changed). If the watch is lost (e.g. the file is replaced and the kernel
-// drops the watch) it falls back to polling.
-func (cw *configWatcher) runInotify() {
-	buf := make([]byte, 4096)
 	for {
-		n, err := unix.Read(cw.inotifyFd, buf)
-		if err != nil {
-			// EAGAIN/EWOULDBLOCK is expected with a non-blocking fd and simply
-			// means "no event right now"; sleep briefly and retry. Any other
-			// error (e.g. EBADF once the watch is gone) drops to polling.
-			if err == unix.EAGAIN || err == unix.EWOULDBLOCK {
-				time.Sleep(200 * time.Millisecond)
+		select {
+		case event, ok := <-w.Events:
+			if !ok {
+				return
+			}
+			// Only react to events for our config file.
+			if filepath.Base(event.Name) != name {
 				continue
 			}
-			cw.teardownInotify()
+			cw.check()
+		case _, ok := <-w.Errors:
+			if !ok {
+				return
+			}
+			// The watcher is gone; fall back to polling.
 			cw.runPolling(5 * time.Second)
 			return
 		}
-		if n == 0 {
-			time.Sleep(200 * time.Millisecond)
-			continue
-		}
-		// At least one event arrived; the file may have changed.
-		cw.check()
-	}
-}
-
-func (cw *configWatcher) teardownInotify() {
-	if cw.inotifyFd >= 0 {
-		unix.Close(cw.inotifyFd)
-		cw.inotifyFd = -1
 	}
 }
 

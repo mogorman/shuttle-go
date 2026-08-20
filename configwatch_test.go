@@ -3,11 +3,8 @@ package main
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 	"time"
-
-	"golang.org/x/sys/unix"
 )
 
 // writeConfigFile writes content to a fresh temp file and returns its path.
@@ -89,32 +86,70 @@ func TestConfigWatcherKeepsPreviousOnInvalidEdit(t *testing.T) {
 	}
 }
 
-// TestConfigWatcherInotifyDelivers verifies the inotify watch is set up and
-// that a real edit to the file produces a readable event on the watch fd. It
-// skips on non-Linux platforms where inotify is unavailable.
-func TestConfigWatcherInotifyDelivers(t *testing.T) {
-	if runtime.GOOS != "linux" {
-		t.Skip("inotify is Linux-only")
+// saveTempRename mimics an editor that saves by writing a temp file in the same
+// directory and renaming it over the target, replacing the target's inode.
+func saveTempRename(t *testing.T, target, content string) {
+	t.Helper()
+	dir := filepath.Dir(target)
+	tmp, err := os.CreateTemp(dir, ".shuttle-go.tmp-*")
+	if err != nil {
+		t.Fatal(err)
 	}
+	if _, err := tmp.WriteString(content); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmp.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(tmp.Name(), target); err != nil {
+		t.Fatal(err)
+	}
+}
 
+// waitForApp polls until the loaded config's first app has the given name,
+// failing on timeout.
+func waitForApp(t *testing.T, want string, done chan struct{}) {
+	t.Helper()
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		if loadedConfiguration != nil && len(loadedConfiguration.Apps) == 1 &&
+			loadedConfiguration.Apps[0].Name == want {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("timed out waiting for app %q to be loaded", want)
+		}
+		select {
+		case <-done:
+			t.Fatal("watcher loop exited unexpectedly")
+		default:
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
+
+// TestConfigWatcherReloadsAcrossRenameSaves drives the real Run() (fsnotify
+// watching the parent directory) through two consecutive temp+rename saves, each
+// of which replaces the file's inode, and asserts a reload happens for both.
+// This is the regression test for "only the first config change is caught".
+func TestConfigWatcherReloadsAcrossRenameSaves(t *testing.T) {
 	path := writeConfigFile(t, `{"apps":[{"name":"A","bindings":{}}]}`)
-	cw := NewConfigWatcher(path, nil)
-	if !cw.setupInotify() {
-		t.Fatal("expected inotify setup to succeed on linux")
-	}
-	defer cw.teardownInotify()
-
-	// Rewrite the file; this should enqueue an inotify event on the watch fd.
-	if err := os.WriteFile(path, []byte(`{"apps":[{"name":"C","bindings":{}}]}`), 0o644); err != nil {
+	if err := LoadConfig(path); err != nil {
 		t.Fatal(err)
 	}
 
-	buf := make([]byte, 4096)
-	n, err := unix.Read(cw.inotifyFd, buf)
-	if err != nil {
-		t.Fatalf("reading inotify event: %v", err)
-	}
-	if n < unix.SizeofInotifyEvent {
-		t.Fatalf("expected at least one inotify event, read %d bytes", n)
-	}
+	done := make(chan struct{})
+	go func() {
+		NewConfigWatcher(path, nil).Run()
+		close(done)
+	}()
+	// Give the watcher goroutine a moment to reach its read loop before the
+	// first save, so its early events are not dropped.
+	time.Sleep(300 * time.Millisecond)
+
+	saveTempRename(t, path, `{"apps":[{"name":"B","bindings":{}}]}`)
+	waitForApp(t, "B", done)
+
+	saveTempRename(t, path, `{"apps":[{"name":"C","bindings":{}}]}`)
+	waitForApp(t, "C", done)
 }
