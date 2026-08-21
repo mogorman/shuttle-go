@@ -156,11 +156,16 @@ The object form's fields (all optional; defaults shown):
 * `"delay_ms"` — milliseconds between repeats (default `25`)
 * `"start_delay_ms"` — milliseconds to wait before the first action (default
   `0`)
+* `"comment"` — an optional human note for the binding (e.g. `"Prev clip"`).
+  In the string/array forms the note is embedded in the value after `//` or
+  `#`; in the object form it lives here, so porting a binding to the object
+  form does not lose the note. When present, it takes precedence over any note
+  embedded in `"key"`.
 
 A plain key with repeat, for example:
 
 ```json
-"F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100 }
+"F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100, "comment": "Prev clip" }
 ```
 
 ##### Macro sequences

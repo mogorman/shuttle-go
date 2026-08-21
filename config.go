@@ -29,6 +29,11 @@ type bindingValue struct {
 	StartDelayMS int      `json:"start_delay_ms"`
 	Once         bool     `json:"once"`
 	Macros       []string `json:"macros"`
+	// Comment is an optional human note for the binding (e.g. "Play"). In the
+	// string/array forms the note is embedded in the value after "//" or "#";
+	// in the object form it lives here so porting a binding to the object form
+	// does not lose the note.
+	Comment string `json:"comment"`
 }
 
 var loadedConfiguration = &Config{}
@@ -39,15 +44,15 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name              string   `json:"name"`
-	MatchWindowTitles []string `json:"match_window_titles"`
-	MatchWMClass      []string `json:"match_wm_class"`
-	SlowJog           *int     `json:"slow_jog"` // Time in millisecond to use slow jog
-	Driver            string   `json:"driver"`
+	Name               string   `json:"name"`
+	MatchWindowTitles  []string `json:"match_window_titles"`
+	MatchWMClass       []string `json:"match_wm_class"`
+	SlowJog            *int     `json:"slow_jog"` // Time in millisecond to use slow jog
+	Driver             string   `json:"driver"`
 	windowTitleRegexps []*regexp.Regexp
 	wmClassRegexps     []*regexp.Regexp
-	Bindings          map[string]json.RawMessage `json:"bindings"`
-	bindings          []*deviceBinding
+	Bindings           map[string]json.RawMessage `json:"bindings"`
+	bindings           []*deviceBinding
 }
 
 func (ac *AppConfig) parse() error {
@@ -118,14 +123,14 @@ type deviceBinding struct {
 	oscClient *osc.Client
 
 	// Output
-	holdButtons []string
-	pressButton string
-	original    string
-	description string
-	macros      []string
-	once        bool
-	repeat      int
-	delayMS     int
+	holdButtons  []string
+	pressButton  string
+	original     string
+	description  string
+	macros       []string
+	once         bool
+	repeat       int
+	delayMS      int
 	startDelayMS int
 }
 
@@ -166,6 +171,11 @@ func (ac *AppConfig) parseBindings() error {
 		}
 
 		binding, description := bindingAndDescription(driverProtocol, bv.Key)
+		// An explicit "comment" in the object form wins over a note embedded in
+		// the key string, so porting a binding to the object form keeps its note.
+		if c := strings.TrimSpace(bv.Comment); c != "" {
+			description = c
+		}
 		newBinding := &deviceBinding{heldButtons: make(map[int]bool), rawKey: key, rawValue: bv.Key, original: binding, description: description, driver: driverProtocol, oscClient: oscClient, macros: bv.Macros, once: bv.Once, repeat: bv.Repeat, delayMS: bv.DelayMS, startDelayMS: bv.StartDelayMS}
 
 		// Input

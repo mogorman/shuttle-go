@@ -231,9 +231,9 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "JogL": { "key": "(", "repeat": 5, "delay_ms": 1000 },
-                "JogR": { "key": ")", "repeat": 5, "delay_ms": 1000 },
-                "F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100 },
+                "JogL": { "key": "(", "repeat": 5, "delay_ms": 1000, "comment": "One frame left" },
+                "JogR": { "key": ")", "repeat": 5, "delay_ms": 1000, "comment": "One frame right" },
+                "F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100, "comment": "Prev clip" },
                 "F2": "b // A plain string is still just a single tap"
             }
         }
