@@ -110,6 +110,7 @@ var keyboardKeys = map[string]int{
 	"Apostrophe": 40,
 	"'":          40,
 	"Grave":      41,
+	"`":          41,
 	"LeftShift":  42,
 	"Shift":      42,
 	"Backslash":  43,
