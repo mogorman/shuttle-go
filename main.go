@@ -15,7 +15,7 @@ var debugMode = flag.Bool("debug", false, "Show debug messages (like window titl
 var verboseMode = flag.Bool("verbose", false, "For each held key, print which key is held and the output it is sending (to debug key-repeat timing)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 var showVersion = flag.Bool("version", false, "Print the semantic version and exit")
-var testEmit = flag.String("test", "", "Emit a known key sequence and exit for verifying uinput delivery: 'test' taps a,b,c,d,e; 'hold' presses one key, holds it 3s, then releases it (to check the release event reaches the kernel)")
+var testEmit = flag.String("test", "", "Emit a known key sequence and exit for verifying uinput delivery: 'test' taps a,b,c,d,e; 'hold' presses one key, holds it 3s, then releases it; 'tap' taps the same key 5x at 200ms (like the shuttle ticker)")
 var holdDevice = flag.Bool("hold", false, "Create the uinput device, report the grab state, and keep it alive until interrupted")
 
 // version is the semantic version, set at build time via
@@ -82,6 +82,29 @@ func main() {
 			fmt.Println("Holding the device for 10s more so evtest can keep reading...")
 			time.Sleep(10 * time.Second)
 			fmt.Println("Done. Did evtest show BOTH the value-1 and the later value-0 for code 30?")
+			return
+		}
+
+		if *testEmit == "tap" {
+			// Mimic the shuttle-repeat ticker: tap the SAME key (a, code 30)
+			// several times at a fixed 200ms interval. Each tap is a clean
+			// press+release. In evtest you should see five short down/up pairs
+			// for code 30 and NO run of repeated 'a's. If you instead see a long
+			// auto-repeat run, a tap is being held down long enough to trigger it.
+			fmt.Println("Tapping 'a' (code 30) 5 times, 200ms apart (like the shuttle ticker).")
+			for i := 0; i < 5; i++ {
+				if err := uinput.KeyTap([]int{30}); err != nil {
+					fmt.Println("Error tapping test key:", err)
+					os.Exit(12)
+				}
+				fmt.Printf("  tap %d (EV_KEY 30 down+up)\n", i+1)
+				if i < 4 {
+					time.Sleep(200 * time.Millisecond)
+				}
+			}
+			fmt.Println("Holding the device for 10s more so evtest can keep reading...")
+			time.Sleep(10 * time.Second)
+			fmt.Println("Done. Did you see five clean down/up pairs, or a long auto-repeat run of 'a's?")
 			return
 		}
 
