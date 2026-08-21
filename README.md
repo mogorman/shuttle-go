@@ -1,3 +1,5 @@
+<p align="center"><img src="icons/hicolor/512x512/apps/shuttle-go.png" alt="shuttle-go" width="256"></p>
+
 Linux driver for Contour Design Shuttle Pro V2
 ==============================================
 
