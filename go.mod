@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802
 	github.com/fsnotify/fsnotify v1.10.1
+	github.com/godbus/dbus/v5 v5.2.2
 	github.com/gvalkov/golang-evdev v0.0.0-20160925111049-87c03aa1a370
 	github.com/hypebeast/go-osc v0.0.0-20200115085105-85fee7fed692
 	github.com/jbdemonte/virtual-device v1.2.1
