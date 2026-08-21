@@ -132,21 +132,52 @@ This driver emits events through a virtual `uinput` device created by
 daemon is needed. It must run with permission to open `/dev/uinput`
 (typically as root, e.g. via `sudo` or a udev rule).
 
+##### Binding value forms
+
+With the `uinput` driver, a binding's value can be written three ways. All
+three decode to the same internal form, so they can be mixed freely within one
+app:
+
+* **A plain string** — a single key or key combo (e.g. `"F1": "Escape"`).
+  This is the common case and the only form most bindings need.
+* **An array of strings** — a [macro sequence](#macro-sequences)
+  (e.g. `"F5": ["/type hello", "/click left"]`).
+* **An object** — the full form, with per-binding knobs. This is the only form
+  that can express `repeat`, `delay_ms`, `start_delay_ms`, and `once`.
+
+The object form's fields (all optional; defaults shown):
+
+* `"key"` — a single key or combo to tap (used when there is no `"macros"`)
+* `"macros"` — an array of [macro commands](#macro-sequences) to run
+* `"once"` — `true` (default `false`): run the chain exactly once on key-down
+  instead of repeating while the button is held
+* `"repeat"` — how many times to tap the key (default `1`); only used with
+  `"key"`, not with `"macros"`
+* `"delay_ms"` — milliseconds between repeats (default `25`)
+* `"start_delay_ms"` — milliseconds to wait before the first action (default
+  `0`)
+
+A plain key with repeat, for example:
+
+```json
+"F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100 }
+```
+
 ##### Macro sequences
 
-With the `uinput` driver, a binding value can also be a **JSON array of
-macro commands** instead of a single key. Nothing is held or released on
-key-up; the difference is in how often the chain runs while the button is held:
+A binding whose value is an **array of macro commands** (or an object with a
+`"macros"` array) runs those commands in order through the virtual `uinput`
+device. Nothing is held or released on key-up; the difference is in how often
+the chain runs while the button is held:
 
 * **Default** — the chain runs immediately on key-down, then repeats every
-  25 ms for as long as the button stays held (like a key auto-repeat).
-* **`"/once"`** — if the *first* command in the chain is `"/once"`, the chain
-  runs exactly once on key-down and does not repeat. `"/once"` is a marker
-  only; it is not itself executed.
+  `delay_ms` (default 25 ms) for as long as the button stays held (like a key
+  auto-repeat).
+* **`"once": true`** — the chain runs exactly once on key-down and does not
+  repeat.
 
 Available macros:
 
-* `"/once"` — (first position only) make the chain a one-shot
 * `"/type <text>"` — types `<text>` through the virtual keyboard
 * `"/sleep <seconds>"` — pauses for `<seconds>` seconds (e.g. `1.5`)
 * `"/exec <command>"` — runs `<command>` through `bash -c`
@@ -159,7 +190,7 @@ Available macros:
   corresponding hex codes `0x00`-`0x06`). The optional `repeats` count
   repeats the click (e.g. `"/click left 4"` clicks four times).
 
-Example (repeats while held):
+Example (a macro chain that repeats while held — the array form):
 
 ```json
 "F5": [
@@ -172,18 +203,20 @@ Example (repeats while held):
 ]
 ```
 
-Example (one-shot, via a leading `"/once"`):
+Example (a one-shot macro, using the object form with `"once": true`):
 
 ```json
-"F6": [
-    "/once",
-    "/type hello world",
-    "/click left"
-]
+"F6": {
+    "once": true,
+    "macros": [
+        "/type one-shot: this runs a single time on press",
+        "/click left"
+    ]
+}
 ```
 
-A plain string value (e.g. `"F1": "Escape"`) keeps the usual single-key
-behavior, so the two forms can be mixed freely within one app.
+The array form above is shorthand for the same object with `"once"` left
+unset, so the two are interchangeable.
 
 #### `exec`
 
