@@ -37,13 +37,13 @@ type Mapper struct {
 }
 
 type buttonsState struct {
-	jog              int
-	shuttle          int
-	shuttleCodes     []int
-	buttonsHeld      map[int]bool
-	activeBinding    map[int][]int
+	jog               int
+	shuttle           int
+	buttonsHeld       map[int]bool
+	activeBinding     map[int][]int
 	activeMacroCancel map[int]context.CancelFunc
-	lastJog          time.Time
+	shuttleRepeat     context.CancelFunc
+	lastJog           time.Time
 }
 
 func NewMapper(inputDevice *evdev.InputDevice, uinput eventEmitter) *Mapper {
@@ -59,16 +59,8 @@ func NewMapper(inputDevice *evdev.InputDevice, uinput eventEmitter) *Mapper {
 }
 
 func (m *Mapper) ReleaseAll() {
-	if len(m.state.shuttleCodes) > 0 {
-		if *debugMode {
-			fmt.Printf("uinput release %v\n", m.state.shuttleCodes)
-		}
-		if *verboseMode {
-			fmt.Printf("RELEASE (all) codes=%v\n", m.state.shuttleCodes)
-		}
-		m.uinput.KeyRelease(m.state.shuttleCodes)
-		m.state.shuttleCodes = nil
-	}
+	// Stop any shuttle-position repeat that is still running.
+	m.stopShuttleRepeat()
 	for _, codes := range m.state.activeBinding {
 		if *debugMode {
 			fmt.Printf("uinput release %v\n", codes)
@@ -145,17 +137,9 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 
 	newShuttleVal := shuttleVal(evs)
 	if m.state.shuttle != newShuttleVal {
-		// Release the previously held shuttle keys
-		if len(m.state.shuttleCodes) > 0 {
-			if *debugMode {
-				fmt.Printf("uinput release %v\n", m.state.shuttleCodes)
-			}
-			if *verboseMode {
-				fmt.Printf("RELEASE shuttle codes=%v\n", m.state.shuttleCodes)
-			}
-			m.uinput.KeyRelease(m.state.shuttleCodes)
-			m.state.shuttleCodes = nil
-		}
+		// Leaving the previous position: stop its repeat (if any). A held
+		// position is a tap-based repeat, so there is no key to release.
+		m.stopShuttleRepeat()
 
 		keyName := fmt.Sprintf("S%d", newShuttleVal)
 		if *debugMode {
@@ -163,17 +147,15 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 		}
 
 		if newShuttleVal == 0 {
-			// S0 is a tap
+			// S0 is a single tap (e.g. "Stop").
 			if err := m.EmitOther(keyName); err != nil {
 				fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
 			}
 		} else {
-			// S-7..S7 hold the keys down until shuttle moves again
-			codes, err := m.EmitOtherHold(keyName)
-			if err != nil {
+			// S-7..S7 repeat their command while the wheel stays held here.
+			if err := m.EmitOtherRepeat(keyName); err != nil {
 				fmt.Printf("Shuttle movement %q: %s\n", keyName, err)
 			}
-			m.state.shuttleCodes = codes
 		}
 		m.state.shuttle = newShuttleVal
 	}
@@ -272,25 +254,92 @@ func (m *Mapper) EmitOther(key string) error {
 	return fmt.Errorf("No bindings for those movements")
 }
 
-func (m *Mapper) EmitOtherHold(key string) ([]int, error) {
+// EmitOtherRepeat starts repeating a shuttle-position binding while the wheel
+// stays held at that position. Unlike a plain tap, a held shuttle position is a
+// continuous control: the command fires once immediately, then again every
+// delayMS (default 25ms) until the wheel moves to another position or back to
+// center (see dispatch) or the device is released (see ReleaseAll). The
+// previous position's repeat, if any, is cancelled first.
+func (m *Mapper) EmitOtherRepeat(key string) error {
 	conf := currentConfiguration
 	if conf == nil {
-		return nil, fmt.Errorf("No configuration for this Window")
+		return fmt.Errorf("No configuration for this Window")
 	}
 
 	upperKey := strings.ToUpper(key)
 
 	if *debugMode {
-		fmt.Println("EmitOtherHold:", key)
+		fmt.Println("EmitOtherRepeat:", key)
 	}
 
 	for _, binding := range conf.bindings {
 		if binding.otherKey == upperKey {
-			return m.executeBinding(binding)
+			return m.startShuttleRepeat(binding)
 		}
 	}
 
-	return nil, fmt.Errorf("No bindings for those movements")
+	return fmt.Errorf("No bindings for those movements")
+}
+
+// startShuttleRepeat runs a binding's output as a repeated tap while the
+// shuttle is held at its position. It cancels any repeat from a previous
+// position, fires the command once immediately, then schedules a ticker that
+// re-fires it every delayMS (default 25ms). The cancel func is stored in
+// state.shuttleRepeat so dispatch (on position change / center) and ReleaseAll
+// (on device loss / exit) can stop it.
+func (m *Mapper) startShuttleRepeat(binding *deviceBinding) error {
+	m.stopShuttleRepeat()
+
+	codes, err := keyCodes(binding.original)
+	if err != nil {
+		return err
+	}
+
+	if *debugMode {
+		fmt.Printf("uinput repeat %v every %dms\n", codes, binding.delayMS)
+	}
+	if *verboseMode {
+		fmt.Printf("REPEAT key=%q output=%q codes=%v every %dms\n", binding.rawKey, binding.original, codes, binding.delayMS)
+	}
+
+	// Immediate first run, then repeat on a ticker.
+	if err := m.uinput.KeyTap(codes); err != nil {
+		return err
+	}
+
+	delay := binding.delayMS
+	if delay <= 0 {
+		delay = 25
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	m.state.shuttleRepeat = cancel
+
+	go func() {
+		ticker := time.NewTicker(time.Duration(delay) * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if err := m.uinput.KeyTap(codes); err != nil {
+					fmt.Println("Shuttle repeat:", err)
+					return
+				}
+			}
+		}
+	}()
+
+	return nil
+}
+
+// stopShuttleRepeat cancels the active shuttle-repeat ticker, if any.
+func (m *Mapper) stopShuttleRepeat() {
+	if m.state.shuttleRepeat != nil {
+		m.state.shuttleRepeat()
+		m.state.shuttleRepeat = nil
+	}
 }
 
 func (m *Mapper) EmitKeys(modifiers map[int]bool, keyDown int) ([]int, error) {

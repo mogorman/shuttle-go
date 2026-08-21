@@ -225,7 +225,9 @@ func TestEveryBinding(t *testing.T) {
 		t.Errorf("EmitOther(S0): tap = %s, want 57", got)
 	}
 
-	holds := []struct {
+	// Held shuttle positions repeat their command while held; the first fire is
+	// an immediate tap, so each position should record a tap of its key.
+	repeats := []struct {
 		key  string
 		want string
 	}{
@@ -234,14 +236,17 @@ func TestEveryBinding(t *testing.T) {
 		{"S1", "108"}, {"S2", "108"}, {"S3", "108"}, {"S4", "108"},
 		{"S5", "108"}, {"S6", "108"}, {"S7", "108"},
 	}
-	for _, c := range holds {
-		if _, err := m.EmitOtherHold(c.key); err != nil {
-			t.Fatalf("EmitOtherHold(%q) error: %s", c.key, err)
+	for _, c := range repeats {
+		if err := m.EmitOtherRepeat(c.key); err != nil {
+			t.Fatalf("EmitOtherRepeat(%q) error: %s", c.key, err)
 		}
-		if got := codesOf(fake.holds[len(fake.holds)-1]); got != c.want {
-			t.Errorf("EmitOtherHold(%q): hold = %s, want %s", c.key, got, c.want)
+		if got := codesOf(fake.taps[len(fake.taps)-1]); got != c.want {
+			t.Errorf("EmitOtherRepeat(%q): first tap = %s, want %s", c.key, got, c.want)
 		}
 	}
+	// Stop the last position's repeat ticker so its goroutine does not keep
+	// tapping (and racing the assertions below) after the loop.
+	m.stopShuttleRepeat()
 
 	// --- Jog taps. ---
 	for key, want := range map[string]string{

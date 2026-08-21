@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"syscall"
+	"sync"
 	"time"
 
 	virtual_device "github.com/jbdemonte/virtual-device"
@@ -46,6 +47,10 @@ var mouseButtonCodes = map[string]int{
 type uinputDevice struct {
 	keyboard virtual_device.VirtualDevice
 	mouse    virtual_device.VirtualDevice
+	// keyMu serializes keyboard key events. The main dispatch loop and the
+	// shuttle-repeat ticker goroutine can both tap keys; without a lock their
+	// press/syn/release sequences could interleave and corrupt the key state.
+	keyMu sync.Mutex
 }
 
 // newUinputDevice creates and registers a virtual keyboard (full EV_KEY range so
@@ -113,6 +118,8 @@ func (d *uinputDevice) Destroy() {
 // KeyTap presses and releases each keycode in order, with a SYN after each
 // press and after each release.
 func (d *uinputDevice) KeyTap(codes []int) error {
+	d.keyMu.Lock()
+	defer d.keyMu.Unlock()
 	for _, code := range codes {
 		d.keyboard.PressKey(linux.Key(code))
 		d.keyboard.SyncReport()
@@ -126,6 +133,8 @@ func (d *uinputDevice) KeyTap(codes []int) error {
 
 // KeyHold presses each keycode (value 1) and SYNs.
 func (d *uinputDevice) KeyHold(codes []int) error {
+	d.keyMu.Lock()
+	defer d.keyMu.Unlock()
 	for _, code := range codes {
 		d.keyboard.PressKey(linux.Key(code))
 	}
@@ -135,6 +144,8 @@ func (d *uinputDevice) KeyHold(codes []int) error {
 
 // KeyRelease releases each keycode (value 0) and SYNs.
 func (d *uinputDevice) KeyRelease(codes []int) error {
+	d.keyMu.Lock()
+	defer d.keyMu.Unlock()
 	for _, code := range codes {
 		d.keyboard.ReleaseKey(linux.Key(code))
 	}

@@ -152,8 +152,9 @@ The object form's fields (all optional; defaults shown):
 * `"once"` — `true` (default `false`): run the chain exactly once on key-down
   instead of repeating while the button is held
 * `"repeat"` — how many times to tap the key (default `1`); only used with
-  `"key"`, not with `"macros"`
-* `"delay_ms"` — milliseconds between repeats (default `25`)
+  `"key"`, not with `"macros"`. Not used for shuttle positions (see below).
+* `"delay_ms"` — milliseconds between repeats (default `25`). For a shuttle
+  position this is the **repeat interval** while the wheel is held there.
 * `"start_delay_ms"` — milliseconds to wait before the first action (default
   `0`)
 * `"comment"` — an optional human note for the binding (e.g. `"Prev clip"`).
@@ -166,6 +167,24 @@ A plain key with repeat, for example:
 
 ```json
 "F1": { "key": "a", "repeat": 3, "delay_ms": 50, "start_delay_ms": 100, "comment": "Prev clip" }
+```
+
+##### Shuttle positions repeat while held
+
+The shuttle positions (`S-1`…`S-7` and `S1`…`S7`) are **held** controls: you
+keep the wheel parked on one. When you do, the binding's command fires once
+immediately and then **repeats every `delay_ms`** (default `25 ms`) for as long
+as the wheel stays at that position. Moving the wheel to another position — or
+back to center (`S0`) — stops the repeat. So `"delay_ms"` is the repeat
+*interval* (e.g. `100` = 10 steps per second); the `"repeat"` count is not
+used for shuttle positions.
+
+Porting an old `repeat`-based binding: the interval is `delay_ms / repeat`.
+A binding that was `"repeat": 30, "delay_ms": 1000` (30 taps over 10 s = 3
+per second) becomes `"delay_ms": 33` (1000 / 30), keeping the same rate.
+
+```json
+"S-5": { "key": "Shift+%", "delay_ms": 100, "comment": "Reverse, 10 frames/sec" }
 ```
 
 ##### Macro sequences

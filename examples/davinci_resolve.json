@@ -74,45 +74,38 @@
                 },
                 "S-1": {
                     "key": "Shift+%",
-                    "repeat": 2,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 2 Frames"
+                    "delay_ms": 500,
+                    "comment": "Reverse 2 Frames (2 fps)"
                 },
                 "S-2": {
                     "key": "Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 5 Frames"
+                    "delay_ms": 200,
+                    "comment": "Reverse 5 Frames (5 fps)"
                 },
                 "S-3": {
                     "key": "Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 10 Frames"
+                    "delay_ms": 100,
+                    "comment": "Reverse 10 Frames (10 fps)"
                 },
                 "S-4": {
                     "key": "Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 15 Frames"
+                    "delay_ms": 67,
+                    "comment": "Reverse 15 Frames (15 fps)"
                 },
                 "S-5": {
                     "key": "Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 30 Frames"
+                    "delay_ms": 33,
+                    "comment": "Reverse 30 Frames (30 fps)"
                 },
                 "S-6": {
                     "key": "Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 45 Frames"
+                    "delay_ms": 22,
+                    "comment": "Reverse 45 Frames (45 fps)"
                 },
                 "S-7": {
                     "key": "Shift+%",
-                    "repeat": 60,
-                    "delay_ms": 1000,
-                    "comment": "Reverse 60 Frames"
+                    "delay_ms": 17,
+                    "comment": "Reverse 60 Frames (60 fps)"
                 },
                 "S0": {
                     "key": "K",
@@ -120,45 +113,38 @@
                 },
                 "S1": {
                     "key": "Shift+'",
-                    "repeat": 2,
-                    "delay_ms": 1000,
-                    "comment": "Forward 2 Frames"
+                    "delay_ms": 500,
+                    "comment": "Forward 2 Frames (2 fps)"
                 },
                 "S2": {
                     "key": "Shift+'",
-                    "repeat": 5,
-                    "delay_ms": 1000,
-                    "comment": "Forward 5 Frames"
+                    "delay_ms": 200,
+                    "comment": "Forward 5 Frames (5 fps)"
                 },
                 "S3": {
                     "key": "Shift+'",
-                    "repeat": 10,
-                    "delay_ms": 1000,
-                    "comment": "Forward 10 Frames"
+                    "delay_ms": 100,
+                    "comment": "Forward 10 Frames (10 fps)"
                 },
                 "S4": {
                     "key": "Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000,
-                    "comment": "Forward 15 Frames"
+                    "delay_ms": 67,
+                    "comment": "Forward 15 Frames (15 fps)"
                 },
                 "S5": {
                     "key": "Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000,
-                    "comment": "Forward 30 Frames"
+                    "delay_ms": 33,
+                    "comment": "Forward 30 Frames (30 fps)"
                 },
                 "S6": {
                     "key": "Shift+'",
-                    "repeat": 45,
-                    "delay_ms": 1000,
-                    "comment": "Forward 45 Frames"
+                    "delay_ms": 22,
+                    "comment": "Forward 45 Frames (45 fps)"
                 },
                 "S7": {
                     "key": "Shift+'",
-                    "repeat": 60,
-                    "delay_ms": 1000,
-                    "comment": "Forward 60 Frames"
+                    "delay_ms": 17,
+                    "comment": "Forward 60 Frames (60 fps)"
                 }
             }
         }
