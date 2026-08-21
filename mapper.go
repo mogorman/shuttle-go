@@ -94,6 +94,18 @@ func (m *Mapper) Process() error {
 }
 
 func (m *Mapper) dispatch(evs []evdev.InputEvent) {
+	if *verboseMode {
+		// Raw input trace: show every event in the batch plus the decoded
+		// shuttle/jog values, so we can see how a held wheel position is
+		// actually reported (e.g. whether SYN-only batches make shuttleVal
+		// flap back to 0).
+		parts := make([]string, 0, len(evs))
+		for _, ev := range evs {
+			parts = append(parts, fmt.Sprintf("t%d c%d v%d", ev.Type, ev.Code, ev.Value))
+		}
+		fmt.Printf("IN shuttle=%d jog=%d batch=[%s]\n", shuttleVal(evs), jogVal(evs), strings.Join(parts, ", "))
+	}
+
 	newJogVal := jogVal(evs)
 	if m.state.jog != newJogVal {
 		if m.state.jog != -1 {
