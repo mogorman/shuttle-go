@@ -74,38 +74,32 @@
                 },
                 "S-2": {
                     "key": "Shift+&",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Move selection up"
                 },
                 "S-3": {
                     "key": "Shift+&",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Move selection up"
                 },
                 "S-4": {
                     "key": "Shift+Shift+&",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Move selection up"
                 },
                 "S-5": {
                     "key": "Shift+Shift+&",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Move selection up"
                 },
                 "S-6": {
                     "key": "Shift+Shift+&",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Move selection up"
                 },
                 "S-7": {
                     "key": "Shift+Shift+&",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Move selection up"
                 },
                 "S1": {
@@ -114,38 +108,32 @@
                 },
                 "S2": {
                     "key": "Shift+(",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Move selection down"
                 },
                 "S3": {
                     "key": "Shift+(",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Move selection down"
                 },
                 "S4": {
                     "key": "Shift+Shift+(",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Move selection down"
                 },
                 "S5": {
                     "key": "Shift+Shift+(",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Move selection down"
                 },
                 "S6": {
                     "key": "Shift+Shift+(",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Move selection down"
                 },
                 "S7": {
                     "key": "Shift+Shift+(",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Move selection down"
                 }
             }

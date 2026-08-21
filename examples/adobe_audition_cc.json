@@ -74,38 +74,32 @@
                 },
                 "S-1": {
                     "key": "Shift+%",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Shuttle reverse"
                 },
                 "S-2": {
                     "key": "Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Shuttle reverse"
                 },
                 "S-3": {
                     "key": "Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Shuttle reverse"
                 },
                 "S-4": {
                     "key": "Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Shuttle reverse"
                 },
                 "S-5": {
                     "key": "Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Shuttle reverse"
                 },
                 "S-6": {
                     "key": "Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Shuttle reverse"
                 },
                 "S-7": {
@@ -114,38 +108,32 @@
                 },
                 "S1": {
                     "key": "Shift+'",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Shuttle forward"
                 },
                 "S2": {
                     "key": "Shift+'",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Shuttle forward"
                 },
                 "S3": {
                     "key": "Shift+'",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Shuttle forward"
                 },
                 "S4": {
                     "key": "Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Shuttle forward"
                 },
                 "S5": {
                     "key": "Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Shuttle forward"
                 },
                 "S6": {
                     "key": "Shift+'",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Shuttle forward"
                 },
                 "S7": {

@@ -52,55 +52,45 @@
                 "S-2": "Shift+%",
                 "S-3": {
                     "key": "Shift+%",
-                    "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 500
                 },
                 "S-4": {
                     "key": "Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 200
                 },
                 "S-5": {
                     "key": "Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 100
                 },
                 "S-6": {
                     "key": "Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 67
                 },
                 "S-7": {
                     "key": "Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 33
                 },
                 "S1": "Shift+'",
                 "S2": "Shift+'",
                 "S3": {
                     "key": "Shift+'",
-                    "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 500
                 },
                 "S4": {
                     "key": "Shift+'",
-                    "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 200
                 },
                 "S5": {
                     "key": "Shift+'",
-                    "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 100
                 },
                 "S6": {
                     "key": "Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 67
                 },
                 "S7": {
                     "key": "Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 33
                 }
             }
         }

@@ -58,8 +58,7 @@
                 },
                 "S-7": {
                     "key": "Shift+!",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Page Up 2x"
                 }
             }

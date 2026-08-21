@@ -81,38 +81,32 @@
                 },
                 "S-2": {
                     "key": "Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Rewind"
                 },
                 "S-3": {
                     "key": "Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Rewind"
                 },
                 "S-4": {
                     "key": "Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Rewind"
                 },
                 "S-5": {
                     "key": "Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Rewind"
                 },
                 "S-6": {
                     "key": "Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Rewind"
                 },
                 "S-7": {
                     "key": "Shift+%",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Rewind"
                 },
                 "S1": {
@@ -129,26 +123,22 @@
                 },
                 "S4": {
                     "key": "Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Forward Play"
                 },
                 "S5": {
                     "key": "Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Forward Play"
                 },
                 "S6": {
                     "key": "Shift+'",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Forward Play"
                 },
                 "S7": {
                     "key": "Shift+'",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Forward Play"
                 }
             }

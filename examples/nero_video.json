@@ -74,38 +74,32 @@
                 },
                 "S-1": {
                     "key": "Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Reverse 5 frames per sec."
                 },
                 "S-2": {
                     "key": "Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Reverse 10 frames per sec."
                 },
                 "S-3": {
                     "key": "Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Reverse 15 frames per sec."
                 },
                 "S-4": {
                     "key": "Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Reverse 30 frames per sec."
                 },
                 "S-5": {
                     "key": "Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Reverse 45 frames per sec."
                 },
                 "S-6": {
                     "key": "Shift+%",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Reverse 60 frames per sec."
                 },
                 "S-7": {
@@ -114,38 +108,32 @@
                 },
                 "S1": {
                     "key": "Shift+'",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Forward 5 frames per sec."
                 },
                 "S2": {
                     "key": "Shift+'",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Forward 10 frames per sec."
                 },
                 "S3": {
                     "key": "Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Forward 15 frames per sec."
                 },
                 "S4": {
                     "key": "Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Forward 30 frames per sec."
                 },
                 "S5": {
                     "key": "Shift+'",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Forward 45 frames per sec."
                 },
                 "S6": {
                     "key": "Shift+'",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Forward 60 frames per sec."
                 },
                 "S7": {

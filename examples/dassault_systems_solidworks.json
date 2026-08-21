@@ -82,38 +82,32 @@
                 },
                 "S-2": {
                     "key": "Shift+%",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Left 2x"
                 },
                 "S-3": {
                     "key": "Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Zoom Out 5x"
                 },
                 "S-4": {
                     "key": "Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Zoom Out 10x"
                 },
                 "S-5": {
                     "key": "Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Zoom Out 15x"
                 },
                 "S-6": {
                     "key": "Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Zoom Out 30x"
                 },
                 "S-7": {
                     "key": "Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Zoom Out 45x"
                 },
                 "S1": {
@@ -122,38 +116,32 @@
                 },
                 "S2": {
                     "key": "Shift+'",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Right 2x"
                 },
                 "S3": {
                     "key": "Shift+'",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Right 5x"
                 },
                 "S4": {
                     "key": "Shift+'",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Right 10x"
                 },
                 "S5": {
                     "key": "Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Right 15x"
                 },
                 "S6": {
                     "key": "Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Right 30x"
                 },
                 "S7": {
                     "key": "Shift+'",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Right 45x"
                 }
             }

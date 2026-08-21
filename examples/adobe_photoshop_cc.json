@@ -62,44 +62,37 @@
                 },
                 "S-1": {
                     "key": "Shift+Shift+!",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Scroll up"
                 },
                 "S-2": {
                     "key": "Shift+Shift+!",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Scroll up"
                 },
                 "S-3": {
                     "key": "Shift+Shift+!",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Scroll up"
                 },
                 "S-4": {
                     "key": "Shift+Shift+!",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Scroll up"
                 },
                 "S-5": {
                     "key": "Shift+Shift+!",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Scroll up"
                 },
                 "S-6": {
                     "key": "Shift+Shift+!",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Scroll up"
                 },
                 "S-7": {
                     "key": "Shift+Shift+!",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Scroll up"
                 }
             }

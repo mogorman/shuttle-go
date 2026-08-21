@@ -77,13 +77,26 @@ def key_string(kc: str) -> str:
     return ""
 
 
-def build_value(action: dict) -> object:
+def is_shuttle_position(key: str) -> bool:
+    """True for the held shuttle-wheel positions (S-7..S-1, S1..S7)."""
+    m = re.fullmatch(r"S(-?)(\d+)", key)
+    if not m:
+        return False
+    return 1 <= int(m.group(2)) <= 7
+
+
+def build_value(action: dict, key: str = "") -> object:
     """Return the shuttle-go binding value (string or object) for an action.
 
     The value is a plain key string in the common case. It becomes an object
     when the action either repeats more than once or carries a human comment
     (the Contour "Comment"), so that the comment is preserved via the object
     form's "comment" field instead of being lost.
+
+    For a held shuttle position, a Contour "repeat N over DelayRepeat ms" is
+    re-expressed as a single repeat *interval* (delay_ms = DelayRepeat / N),
+    because shuttle-go now repeats a held position at a fixed rate rather than
+    firing a fixed number of taps. Button bindings keep the plain "repeat" count.
     """
     kc = action.get("KeyCode", "")
     if not kc:
@@ -98,19 +111,24 @@ def build_value(action: dict) -> object:
         parts.append("Alt")
     if action.get("UseShift"):
         parts.append("Shift")
-    key = "+".join(parts + [base])
+    out_key = "+".join(parts + [base])
     repeat = action.get("Repeat", 0) or 0
     delay = action.get("DelayRepeat", 0) or 0
     comment = action.get("Comment", "").strip()
     if repeat > 1 or comment:
-        obj = {"key": key}
+        obj = {"key": out_key}
         if repeat > 1:
-            obj["repeat"] = repeat
-            obj["delay_ms"] = delay if delay > 0 else 25
+            if is_shuttle_position(key):
+                # Convert "repeat N over delay ms" into a repeat interval.
+                interval = round(delay / repeat) if delay > 0 else 25
+                obj["delay_ms"] = interval
+            else:
+                obj["repeat"] = repeat
+                obj["delay_ms"] = delay if delay > 0 else 25
         if comment:
             obj["comment"] = comment
         return obj
-    return key
+    return out_key
 
 
 def port_app(app_name: str, exe: str, actions: list) -> dict:
@@ -122,7 +140,7 @@ def port_app(app_name: str, exe: str, actions: list) -> dict:
         k = control_key(a.get("MouseButton", ""))
         if not k:
             continue
-        v = build_value(a)
+        v = build_value(a, k)
         if v == "":
             continue
         if k in bindings:

@@ -66,38 +66,32 @@
                 },
                 "S-1": {
                     "key": "Ctrl+Shift+!",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Scroll By Measure Reverse"
                 },
                 "S-2": {
                     "key": "Ctrl+Shift+!",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Scroll By Measure Reverse"
                 },
                 "S-3": {
                     "key": "Ctrl+Shift+!",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Scroll By Measure Reverse"
                 },
                 "S-4": {
                     "key": "Ctrl+Shift+!",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Scroll By Measure Reverse"
                 },
                 "S-5": {
                     "key": "Ctrl+Shift+!",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Scroll By Measure Reverse"
                 },
                 "S-6": {
                     "key": "Ctrl+Shift+!",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Scroll By Measure Reverse"
                 },
                 "S-7": {

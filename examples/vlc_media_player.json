@@ -67,25 +67,21 @@
                 "S-1": "Shift+Shift+%",
                 "S-2": {
                     "key": "Shift+Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 22
                 },
                 "S-3": {
                     "key": "Shift+Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 22
                 },
                 "S-4": "Alt+Shift+%",
                 "S-5": {
                     "key": "Alt+Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 22
                 },
                 "S-6": "Ctrl+Alt+Shift+%",
                 "S-7": {
                     "key": "Ctrl+Alt+Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 22
                 },
                 "S1": "Shift+(",
                 "S2": "Shift+("

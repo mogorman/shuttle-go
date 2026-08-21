@@ -74,38 +74,32 @@
                 },
                 "S-2": {
                     "key": "Alt+Shift+Shift+%",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Jog Left"
                 },
                 "S-3": {
                     "key": "Alt+Shift+Shift+%",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Jog Left"
                 },
                 "S-4": {
                     "key": "Alt+Shift+Shift+%",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Jog Left"
                 },
                 "S-5": {
                     "key": "Alt+Shift+Shift+%",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Jog Left"
                 },
                 "S-6": {
                     "key": "Alt+Shift+Shift+%",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Jog Left"
                 },
                 "S-7": {
                     "key": "Alt+Shift+Shift+%",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Jog Left"
                 },
                 "S0": {
@@ -118,38 +112,32 @@
                 },
                 "S2": {
                     "key": "Alt+Shift+Shift+'",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Jog Right"
                 },
                 "S3": {
                     "key": "Alt+Shift+Shift+'",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Jog Right"
                 },
                 "S4": {
                     "key": "Alt+Shift+Shift+'",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Jog Right"
                 },
                 "S5": {
                     "key": "Alt+Shift+Shift+'",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Jog Right"
                 },
                 "S6": {
                     "key": "Alt+Shift+Shift+'",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Jog Right"
                 },
                 "S7": {
                     "key": "Alt+Shift+Shift+'",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Jog Right"
                 }
             }

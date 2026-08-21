@@ -65,86 +65,72 @@
                 },
                 "S-1": {
                     "key": "Shift+&",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Scroll Up"
                 },
                 "S-2": {
                     "key": "Shift+&",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Scroll Up"
                 },
                 "S-3": {
                     "key": "Shift+&",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Scroll Up"
                 },
                 "S-4": {
                     "key": "Shift+&",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Scroll Up"
                 },
                 "S-5": {
                     "key": "Shift+&",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Scroll Up"
                 },
                 "S-6": {
                     "key": "Shift+&",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Scroll Up"
                 },
                 "S-7": {
                     "key": "Shift+&",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Scroll Up"
                 },
                 "S1": {
                     "key": "Shift+(",
-                    "repeat": 2,
-                    "delay_ms": 1000,
+                    "delay_ms": 500,
                     "comment": "Scroll Down"
                 },
                 "S2": {
                     "key": "Shift+(",
-                    "repeat": 5,
-                    "delay_ms": 1000,
+                    "delay_ms": 200,
                     "comment": "Scroll Down"
                 },
                 "S3": {
                     "key": "Shift+(",
-                    "repeat": 10,
-                    "delay_ms": 1000,
+                    "delay_ms": 100,
                     "comment": "Scroll Down"
                 },
                 "S4": {
                     "key": "Shift+(",
-                    "repeat": 15,
-                    "delay_ms": 1000,
+                    "delay_ms": 67,
                     "comment": "Scroll Down"
                 },
                 "S5": {
                     "key": "Shift+(",
-                    "repeat": 30,
-                    "delay_ms": 1000,
+                    "delay_ms": 33,
                     "comment": "Scroll Down"
                 },
                 "S6": {
                     "key": "Shift+(",
-                    "repeat": 45,
-                    "delay_ms": 1000,
+                    "delay_ms": 22,
                     "comment": "Scroll Down"
                 },
                 "S7": {
                     "key": "Shift+(",
-                    "repeat": 60,
-                    "delay_ms": 1000,
+                    "delay_ms": 17,
                     "comment": "Scroll Down"
                 }
             }
