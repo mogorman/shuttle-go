@@ -27,27 +27,22 @@ func NewWindowWatcher() *watcher {
 	return &watcher{}
 }
 
-// sessionBus is a shared, goroutine-safe connection to the session D-Bus,
-// dialed lazily on first use. It is only ever used on Wayland, where the
-// GNOME Shell extensions are the only reliable source of window/pointer
-// state. A nil value means the session bus is unavailable (e.g. no
-// DBUS_SESSION_BUS_ADDRESS), in which case the callers fall back to their
-// non-D-Bus code paths.
-var sessionBus *dbus.Conn
+// dbusSession returns a shared session-bus connection, or nil if the session
+// bus is unavailable. It is only dialed on first use, which happens only on
+// Wayland; the connection is shared and goroutine-safe, so it is reused across
+// the watcher loop and the mouse-peek path.
+var dbusSession *dbus.Conn
 
-// dbusSession returns the shared session-bus connection, dialing it on first
-// use. It returns nil when the session bus cannot be reached, so callers can
-// degrade gracefully instead of erroring.
-func dbusSession() *dbus.Conn {
-	if sessionBus != nil {
-		return sessionBus
+func sessionBus() *dbus.Conn {
+	if dbusSession != nil {
+		return dbusSession
 	}
-	c, err := dbus.SessionBus()
+	conn, err := dbus.SessionBus()
 	if err != nil {
 		return nil
 	}
-	sessionBus = c
-	return c
+	dbusSession = conn
+	return conn
 }
 
 func getWaylandWindow() (title, wmClass string) {
@@ -55,14 +50,14 @@ func getWaylandWindow() (title, wmClass string) {
 		return "", ""
 	}
 
-	c := dbusSession()
-	if c == nil {
+	conn := sessionBus()
+	if conn == nil {
 		return "", ""
 	}
 
 	// GNOME Shell "Windows" extension: list all windows as JSON
 	var out string
-	call := c.Object("org.gnome.Shell", "/org/gnome/Shell/Extensions/Windows").
+	call := conn.Object("org.gnome.Shell", "/org/gnome/Shell/Extensions/Windows").
 		Call("org.gnome.Shell.Extensions.Windows.List", 0)
 	if err := call.Store(&out); err != nil || out == "" {
 		return "", ""
@@ -106,20 +101,19 @@ func getWaylandInfo() (info *waylandInfo, ok bool) {
 		return nil, false
 	}
 
-	c := dbusSession()
-	if c == nil {
+	conn := sessionBus()
+	if conn == nil {
 		return nil, false
 	}
 
 	var out string
-	call := c.Object("org.gnome.Shell", "/org/gnome/Shell/Extensions/ShuttlePro").
+	call := conn.Object("org.gnome.Shell", "/org/gnome/Shell/Extensions/ShuttlePro").
 		Call("org.gnome.Shell.Extensions.ShuttlePro.Info", 0)
 	if err := call.Store(&out); err != nil || out == "" {
 		return nil, false
 	}
 
-	// The extension returns the shell state as a single JSON string; parse
-	// the embedded object.
+	// The extension returns the shell state as a single JSON object.
 	var w waylandInfo
 	if json.Unmarshal([]byte(out), &w) == nil {
 		return &w, true
