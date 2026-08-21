@@ -63,12 +63,18 @@ func (m *Mapper) ReleaseAll() {
 		if *debugMode {
 			fmt.Printf("uinput release %v\n", m.state.shuttleCodes)
 		}
+		if *verboseMode {
+			fmt.Printf("RELEASE (all) codes=%v\n", m.state.shuttleCodes)
+		}
 		m.uinput.KeyRelease(m.state.shuttleCodes)
 		m.state.shuttleCodes = nil
 	}
 	for _, codes := range m.state.activeBinding {
 		if *debugMode {
 			fmt.Printf("uinput release %v\n", codes)
+		}
+		if *verboseMode {
+			fmt.Printf("RELEASE (all) codes=%v\n", codes)
 		}
 		m.uinput.KeyRelease(codes)
 	}
@@ -144,6 +150,9 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 			if *debugMode {
 				fmt.Printf("uinput release %v\n", m.state.shuttleCodes)
 			}
+			if *verboseMode {
+				fmt.Printf("RELEASE shuttle codes=%v\n", m.state.shuttleCodes)
+			}
 			m.uinput.KeyRelease(m.state.shuttleCodes)
 			m.state.shuttleCodes = nil
 		}
@@ -198,6 +207,9 @@ func (m *Mapper) dispatch(evs []evdev.InputEvent) {
 			if codes, ok := m.state.activeBinding[int(ev.Code)]; ok {
 				if *debugMode {
 					fmt.Printf("uinput release %v\n", codes)
+				}
+				if *verboseMode {
+					fmt.Printf("RELEASE key=%q codes=%v\n", reverseShuttleKeys[int(ev.Code)], codes)
 				}
 				if err := m.uinput.KeyRelease(codes); err != nil {
 					fmt.Println("Button release:", err)
@@ -332,6 +344,9 @@ func (m *Mapper) executeBinding(binding *deviceBinding) ([]int, error) {
 		}
 		if *debugMode {
 			fmt.Printf("uinput hold %v\n", codes)
+		}
+		if *verboseMode {
+			fmt.Printf("HOLD key=%q output=%q codes=%v\n", binding.rawKey, binding.original, codes)
 		}
 		return codes, m.uinput.KeyHold(codes)
 	case "osc":

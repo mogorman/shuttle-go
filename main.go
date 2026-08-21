@@ -12,6 +12,7 @@ import (
 
 var configFile = flag.String("config", filepath.Join(os.Getenv("HOME"), ".shuttle-go.json"), "Location to the .shuttle-go.json configuration")
 var debugMode = flag.Bool("debug", false, "Show debug messages (like window titles)")
+var verboseMode = flag.Bool("verbose", false, "For each held key, print which key is held and the output it is sending (to debug key-repeat timing)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 var showVersion = flag.Bool("version", false, "Print the semantic version and exit")
 var testEmit = flag.String("test", "", "Emit a known key sequence and exit (e.g. 'test' emits a, b, c, d, e) for verifying uinput delivery")
