@@ -8,25 +8,82 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "X",
-                "B1": "Ctrl+L",
-                "B2": "Ctrl+R",
-                "B3": "Ctrl+P",
-                "B4": "Ctrl+Q",
-                "M1": "Ctrl+Y",
-                "M2": "Ctrl+Z",
-                "F2": "Ctrl+Alt+P",
-                "F3": "Ctrl+J",
-                "F4": "Z",
-                "F5": "Ctrl+H",
-                "F6": "Ctrl+G",
-                "F7": "Ctrl+U",
-                "F8": "Ctrl+I",
-                "F9": "Ctrl+Shift+C",
-                "JogL": "Ctrl+M",
-                "JogR": "Ctrl+K",
-                "S-1": "Shift+%",
-                "S1": "Shift+'"
+                "F1": {
+                    "key": "X",
+                    "comment": "Show/Hide All Pallettes"
+                },
+                "B1": {
+                    "key": "Ctrl+L",
+                    "comment": "Rotate Left"
+                },
+                "B2": {
+                    "key": "Ctrl+R",
+                    "comment": "Rotate Right"
+                },
+                "B3": {
+                    "key": "Ctrl+P",
+                    "comment": "Go to Organize"
+                },
+                "B4": {
+                    "key": "Ctrl+Q",
+                    "comment": "Go to Customize"
+                },
+                "M1": {
+                    "key": "Ctrl+Y",
+                    "comment": "Redo"
+                },
+                "M2": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "F2": {
+                    "key": "Ctrl+Alt+P",
+                    "comment": "Export Selected Photo"
+                },
+                "F3": {
+                    "key": "Ctrl+J",
+                    "comment": "Create Virtual Copy"
+                },
+                "F4": {
+                    "key": "Z",
+                    "comment": "Full  Mode"
+                },
+                "F5": {
+                    "key": "Ctrl+H",
+                    "comment": "Show/Hide Info Overlay"
+                },
+                "F6": {
+                    "key": "Ctrl+G",
+                    "comment": "Show Hide Grid Overlay"
+                },
+                "F7": {
+                    "key": "Ctrl+U",
+                    "comment": "Dock/Undock Image Browser"
+                },
+                "F8": {
+                    "key": "Ctrl+I",
+                    "comment": "Image Properties"
+                },
+                "F9": {
+                    "key": "Ctrl+Shift+C",
+                    "comment": "Copy Correction Settings"
+                },
+                "JogL": {
+                    "key": "Ctrl+M",
+                    "comment": "Zoom Out"
+                },
+                "JogR": {
+                    "key": "Ctrl+K",
+                    "comment": "Zoom In"
+                },
+                "S-1": {
+                    "key": "Shift+%",
+                    "comment": "Previous Photo"
+                },
+                "S1": {
+                    "key": "Shift+'",
+                    "comment": "Next Photo"
+                }
             }
         }
     ]

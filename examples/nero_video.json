@@ -8,84 +8,150 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Z",
-                "B1": "I",
-                "B2": "O",
-                "B3": "Ctrl+Z",
-                "B4": "Ctrl+Y",
-                "M1": "Ctrl+K",
-                "M2": "Ctrl+M",
-                "F2": "Ctrl+S",
-                "F3": "Ctrl+M",
-                "F4": "Shift+.",
-                "F5": "Shift+$",
-                "F6": "Shift+!",
-                "F7": "space",
-                "F9": "Shift+#",
-                "JogL": "Shift+%",
-                "JogR": "Shift+'",
+                "F1": {
+                    "key": "Z",
+                    "comment": "Full screen mode"
+                },
+                "B1": {
+                    "key": "I",
+                    "comment": "Mark in"
+                },
+                "B2": {
+                    "key": "O",
+                    "comment": "Mark out"
+                },
+                "B3": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "B4": {
+                    "key": "Ctrl+Y",
+                    "comment": "Redo"
+                },
+                "M1": {
+                    "key": "Ctrl+K",
+                    "comment": "Zoom in"
+                },
+                "M2": {
+                    "key": "Ctrl+M",
+                    "comment": "Zoom out"
+                },
+                "F2": {
+                    "key": "Ctrl+S",
+                    "comment": "Save project"
+                },
+                "F3": {
+                    "key": "Ctrl+M",
+                    "comment": "Open Themes"
+                },
+                "F4": {
+                    "key": "Shift+.",
+                    "comment": "Delete the object"
+                },
+                "F5": {
+                    "key": "Shift+$",
+                    "comment": "Jump to first frame"
+                },
+                "F6": {
+                    "key": "Shift+!",
+                    "comment": "Jump to previous cut"
+                },
+                "F7": {
+                    "key": "space",
+                    "comment": "Play/Pause"
+                },
+                "F9": {
+                    "key": "Shift+#",
+                    "comment": "Jump to last frame"
+                },
+                "JogL": {
+                    "key": "Shift+%",
+                    "comment": "Reverse frame by frame"
+                },
+                "JogR": {
+                    "key": "Shift+'",
+                    "comment": "Forward frame by frame"
+                },
                 "S-1": {
                     "key": "Shift+%",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 5 frames per sec."
                 },
                 "S-2": {
                     "key": "Shift+%",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 10 frames per sec."
                 },
                 "S-3": {
                     "key": "Shift+%",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 15 frames per sec."
                 },
                 "S-4": {
                     "key": "Shift+%",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 30 frames per sec."
                 },
                 "S-5": {
                     "key": "Shift+%",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 45 frames per sec."
                 },
                 "S-6": {
                     "key": "Shift+%",
                     "repeat": 60,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 60 frames per sec."
                 },
-                "S-7": "Shift+%",
+                "S-7": {
+                    "key": "Shift+%",
+                    "comment": "Reverse"
+                },
                 "S1": {
                     "key": "Shift+'",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward 5 frames per sec."
                 },
                 "S2": {
                     "key": "Shift+'",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward 10 frames per sec."
                 },
                 "S3": {
                     "key": "Shift+'",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward 15 frames per sec."
                 },
                 "S4": {
                     "key": "Shift+'",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward 30 frames per sec."
                 },
                 "S5": {
                     "key": "Shift+'",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward 45 frames per sec."
                 },
                 "S6": {
                     "key": "Shift+'",
                     "repeat": 60,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward 60 frames per sec."
                 },
-                "S7": "Shift+'"
+                "S7": {
+                    "key": "Shift+'",
+                    "comment": "Fast Forward"
+                }
             }
         }
     ]

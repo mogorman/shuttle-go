@@ -8,76 +8,146 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+O",
-                "B1": "Ctrl+Shift+K",
-                "B2": "Ctrl+K",
-                "B3": "Ctrl+Shift+M",
-                "B4": "Ctrl+M",
-                "M1": "Shift+%",
-                "M2": "Shift+'",
-                "F2": "Ctrl+W",
-                "F3": "Ctrl+P",
-                "F4": "Ctrl+F",
-                "F5": "Ctrl+Shift+Shift+!",
-                "F6": "Ctrl+A",
-                "F7": "Ctrl+Shift+`",
-                "F8": "Ctrl+B",
-                "JogL": "Shift+Shift+%",
-                "JogR": "Shift+Shift+'",
-                "S-1": "Shift+&",
+                "F1": {
+                    "key": "Ctrl+O",
+                    "comment": "Open"
+                },
+                "B1": {
+                    "key": "Ctrl+Shift+K",
+                    "comment": "Rotate clockwise"
+                },
+                "B2": {
+                    "key": "Ctrl+K",
+                    "comment": "Zoom in"
+                },
+                "B3": {
+                    "key": "Ctrl+Shift+M",
+                    "comment": "Rotate counterclockwise"
+                },
+                "B4": {
+                    "key": "Ctrl+M",
+                    "comment": "Zoom out"
+                },
+                "M1": {
+                    "key": "Shift+%",
+                    "comment": "Previous page"
+                },
+                "M2": {
+                    "key": "Shift+'",
+                    "comment": "Next page"
+                },
+                "F2": {
+                    "key": "Ctrl+W",
+                    "comment": "Close"
+                },
+                "F3": {
+                    "key": "Ctrl+P",
+                    "comment": "Print"
+                },
+                "F4": {
+                    "key": "Ctrl+F",
+                    "comment": "Find"
+                },
+                "F5": {
+                    "key": "Ctrl+Shift+Shift+!",
+                    "comment": "First page"
+                },
+                "F6": {
+                    "key": "Ctrl+A",
+                    "comment": "Actual size"
+                },
+                "F7": {
+                    "key": "Ctrl+Shift+`",
+                    "comment": "Fit in window"
+                },
+                "F8": {
+                    "key": "Ctrl+B",
+                    "comment": "Fit width"
+                },
+                "JogL": {
+                    "key": "Shift+Shift+%",
+                    "comment": "Scroll left"
+                },
+                "JogR": {
+                    "key": "Shift+Shift+'",
+                    "comment": "Scroll right"
+                },
+                "S-1": {
+                    "key": "Shift+&",
+                    "comment": "Scroll up"
+                },
                 "S-2": {
                     "key": "Shift+&",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-3": {
                     "key": "Shift+&",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-4": {
                     "key": "Shift+&",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-5": {
                     "key": "Shift+&",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-6": {
                     "key": "Shift+&",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
-                "S-7": "Shift+&",
-                "S1": "Shift+(",
+                "S-7": {
+                    "key": "Shift+&",
+                    "comment": "Scroll up"
+                },
+                "S1": {
+                    "key": "Shift+(",
+                    "comment": "Scroll down"
+                },
                 "S2": {
                     "key": "Shift+(",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll down"
                 },
                 "S3": {
                     "key": "Shift+(",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll down"
                 },
                 "S4": {
                     "key": "Shift+(",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll down"
                 },
                 "S5": {
                     "key": "Shift+(",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll down"
                 },
                 "S6": {
                     "key": "Shift+(",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll down"
                 },
-                "S7": "Shift+("
+                "S7": {
+                    "key": "Shift+(",
+                    "comment": "Scroll down"
+                }
             }
         }
     ]

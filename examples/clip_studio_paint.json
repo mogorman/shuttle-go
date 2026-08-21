@@ -8,19 +8,58 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+S",
-                "B1": "P",
-                "B2": "B",
-                "B3": "U",
-                "B4": "T",
-                "M1": "Ctrl+Y",
-                "M2": "Ctrl+Z",
-                "F2": "Ctrl+X",
-                "F3": "Ctrl+C",
-                "F4": "Ctrl+V",
-                "F6": "Ctrl+T",
-                "F7": "Ctrl+P",
-                "F8": "Ctrl+D"
+                "F1": {
+                    "key": "Ctrl+S",
+                    "comment": "File Save"
+                },
+                "B1": {
+                    "key": "P",
+                    "comment": "Pen/Pencil"
+                },
+                "B2": {
+                    "key": "B",
+                    "comment": "Brush/Airbrush/Decoration"
+                },
+                "B3": {
+                    "key": "U",
+                    "comment": "Figure"
+                },
+                "B4": {
+                    "key": "T",
+                    "comment": "Text"
+                },
+                "M1": {
+                    "key": "Ctrl+Y",
+                    "comment": "Redo"
+                },
+                "M2": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "F2": {
+                    "key": "Ctrl+X",
+                    "comment": "Cut"
+                },
+                "F3": {
+                    "key": "Ctrl+C",
+                    "comment": "Copy"
+                },
+                "F4": {
+                    "key": "Ctrl+V",
+                    "comment": "Paste"
+                },
+                "F6": {
+                    "key": "Ctrl+T",
+                    "comment": "Free transform"
+                },
+                "F7": {
+                    "key": "Ctrl+P",
+                    "comment": "Print"
+                },
+                "F8": {
+                    "key": "Ctrl+D",
+                    "comment": "De-select"
+                }
             }
         }
     ]

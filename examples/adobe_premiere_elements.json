@@ -7,80 +7,137 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+N",
-                "B1": "Ctrl+K",
-                "M1": "Ctrl+Z",
-                "M2": "Ctrl+Shift+Z",
-                "F2": "Ctrl+O",
-                "F3": "Ctrl+S",
-                "F5": "Shift+$",
-                "F6": "J",
-                "F7": "space",
-                "F8": "L",
-                "F9": "Shift+#",
-                "JogL": "Shift+%",
-                "JogR": "Shift+'",
-                "S-1": "Shift+%",
+                "F1": {
+                    "key": "Ctrl+N",
+                    "comment": "New Project"
+                },
+                "B1": {
+                    "key": "Ctrl+K",
+                    "comment": "Split Clip"
+                },
+                "M1": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "M2": {
+                    "key": "Ctrl+Shift+Z",
+                    "comment": "Redo"
+                },
+                "F2": {
+                    "key": "Ctrl+O",
+                    "comment": "Open Project"
+                },
+                "F3": {
+                    "key": "Ctrl+S",
+                    "comment": "Save Project"
+                },
+                "F5": {
+                    "key": "Shift+$",
+                    "comment": "Go to Beginning"
+                },
+                "F6": {
+                    "key": "J",
+                    "comment": "Reverse"
+                },
+                "F7": {
+                    "key": "space",
+                    "comment": "Play/Stop"
+                },
+                "F8": {
+                    "key": "L",
+                    "comment": "Forward"
+                },
+                "F9": {
+                    "key": "Shift+#",
+                    "comment": "Go to End"
+                },
+                "JogL": {
+                    "key": "Shift+%",
+                    "comment": "Reverse frame by frame"
+                },
+                "JogR": {
+                    "key": "Shift+'",
+                    "comment": "Forward frame by frame"
+                },
+                "S-1": {
+                    "key": "Shift+%",
+                    "comment": "Shuttle Reverse 1x"
+                },
                 "S-2": {
                     "key": "Shift+%",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Reverse 2x"
                 },
                 "S-3": {
                     "key": "Shift+%",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Reverse 5x"
                 },
                 "S-4": {
                     "key": "Shift+%",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Reverse 10x"
                 },
                 "S-5": {
                     "key": "Shift+%",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Reverse 15x"
                 },
                 "S-6": {
                     "key": "Shift+%",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Reverse 30x"
                 },
                 "S-7": {
                     "key": "Shift+%",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Reverse 30x"
                 },
-                "S1": "Shift+'",
+                "S1": {
+                    "key": "Shift+'",
+                    "comment": "Shuttle Forward 1x"
+                },
                 "S2": {
                     "key": "Shift+'",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Forward 2x"
                 },
                 "S3": {
                     "key": "Shift+'",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Forward 5x"
                 },
                 "S4": {
                     "key": "Shift+'",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Forward 10x"
                 },
                 "S5": {
                     "key": "Shift+'",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Forward 15x"
                 },
                 "S6": {
                     "key": "Shift+'",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Forward 30x"
                 },
                 "S7": {
                     "key": "Shift+'",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Forward 3x"
                 }
             }
         }

@@ -7,83 +7,149 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+N",
-                "B1": "Ctrl+Shift+T",
-                "B2": "Z",
-                "B4": "space",
-                "M1": "Ctrl+Z",
-                "M2": "Ctrl+Y",
-                "F2": "Ctrl+I",
-                "F3": "Ctrl+Shift+I",
-                "F4": "Ctrl+T",
-                "F5": "Ctrl+X",
-                "F6": "Ctrl+C",
-                "F7": "Ctrl+V",
-                "F8": "Ctrl+Shift+F",
-                "F9": "B",
-                "JogL": "Shift+%",
-                "JogR": "Shift+'",
-                "S-1": "Shift+%",
+                "F1": {
+                    "key": "Ctrl+N",
+                    "comment": "New Live Set"
+                },
+                "B1": {
+                    "key": "Ctrl+Shift+T",
+                    "comment": "Insert MIDI Track"
+                },
+                "B2": {
+                    "key": "Z",
+                    "comment": "Full Screen"
+                },
+                "B4": {
+                    "key": "space",
+                    "comment": "Stop/Start"
+                },
+                "M1": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "M2": {
+                    "key": "Ctrl+Y",
+                    "comment": "Redo"
+                },
+                "F2": {
+                    "key": "Ctrl+I",
+                    "comment": "Insert Scene"
+                },
+                "F3": {
+                    "key": "Ctrl+Shift+I",
+                    "comment": "Capture and Insert Scene"
+                },
+                "F4": {
+                    "key": "Ctrl+T",
+                    "comment": "Insert Audio Track"
+                },
+                "F5": {
+                    "key": "Ctrl+X",
+                    "comment": "Cut"
+                },
+                "F6": {
+                    "key": "Ctrl+C",
+                    "comment": "Copy"
+                },
+                "F7": {
+                    "key": "Ctrl+V",
+                    "comment": "Paste"
+                },
+                "F8": {
+                    "key": "Ctrl+Shift+F",
+                    "comment": "Follow"
+                },
+                "F9": {
+                    "key": "B",
+                    "comment": "Draw Mode"
+                },
+                "JogL": {
+                    "key": "Shift+%",
+                    "comment": "Jog Left"
+                },
+                "JogR": {
+                    "key": "Shift+'",
+                    "comment": "Jog Right"
+                },
+                "S-1": {
+                    "key": "Shift+%",
+                    "comment": "Shuttle Left"
+                },
                 "S-2": {
                     "key": "Shift+%",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Left"
                 },
                 "S-3": {
                     "key": "Shift+%",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Left"
                 },
                 "S-4": {
                     "key": "Shift+%",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Left"
                 },
                 "S-5": {
                     "key": "Shift+%",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Left"
                 },
                 "S-6": {
                     "key": "Shift+%",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Left"
                 },
                 "S-7": {
                     "key": "Shift+%",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Left"
                 },
-                "S1": "Shift+'",
+                "S1": {
+                    "key": "Shift+'",
+                    "comment": "Shuttle Right"
+                },
                 "S2": {
                     "key": "Shift+'",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Right"
                 },
                 "S3": {
                     "key": "Shift+'",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Right"
                 },
                 "S4": {
                     "key": "Shift+'",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Right"
                 },
                 "S5": {
                     "key": "Shift+'",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Right"
                 },
                 "S6": {
                     "key": "Shift+'",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Right"
                 },
                 "S7": {
                     "key": "Shift+'",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle Right"
                 }
             }
         }

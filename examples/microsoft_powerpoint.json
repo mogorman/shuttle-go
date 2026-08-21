@@ -8,13 +8,34 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+V",
-                "B2": "F5",
-                "F2": "Ctrl+C",
-                "F3": "Ctrl+Y",
-                "F4": "Ctrl+Z",
-                "F8": "Ctrl+D",
-                "F9": "Ctrl+M",
+                "F1": {
+                    "key": "Ctrl+V",
+                    "comment": "Paste cut or copied object"
+                },
+                "B2": {
+                    "key": "F5",
+                    "comment": "Run a presentation"
+                },
+                "F2": {
+                    "key": "Ctrl+C",
+                    "comment": "Copy selected object"
+                },
+                "F3": {
+                    "key": "Ctrl+Y",
+                    "comment": "Redo or repeat an action"
+                },
+                "F4": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo the last action"
+                },
+                "F8": {
+                    "key": "Ctrl+D",
+                    "comment": "Make a copy of the slide"
+                },
+                "F9": {
+                    "key": "Ctrl+M",
+                    "comment": "Insert a new slide"
+                },
                 "JogL": "Shift+&",
                 "JogR": "Shift+("
             }

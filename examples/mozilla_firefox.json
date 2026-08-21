@@ -8,91 +8,153 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+N",
-                "B1": "F11",
-                "B2": "F5",
-                "B4": "Ctrl+P",
-                "M1": "Alt+Shift+%",
-                "M2": "Alt+Shift+'",
-                "F2": "Ctrl+W",
-                "F3": "Ctrl+O",
-                "F4": "Alt+Shift+$",
-                "F5": "Alt+Shift+%",
-                "F6": "Ctrl+H",
-                "F7": "Ctrl+I",
-                "F8": "Ctrl+T",
-                "F9": "Ctrl+F",
-                "JogL": "Shift+%",
-                "JogR": "Shift+'",
+                "F1": {
+                    "key": "Ctrl+N",
+                    "comment": "Open a new window"
+                },
+                "B1": {
+                    "key": "F11",
+                    "comment": "Toggle between full-screen"
+                },
+                "B2": {
+                    "key": "F5",
+                    "comment": "Refresh the current Web page"
+                },
+                "B4": {
+                    "key": "Ctrl+P",
+                    "comment": "Print the current page/frame"
+                },
+                "M1": {
+                    "key": "Alt+Shift+%",
+                    "comment": "Go to the previous page"
+                },
+                "M2": {
+                    "key": "Alt+Shift+'",
+                    "comment": "Go to the next page"
+                },
+                "F2": {
+                    "key": "Ctrl+W",
+                    "comment": "Close the current window"
+                },
+                "F3": {
+                    "key": "Ctrl+O",
+                    "comment": "Open File"
+                },
+                "F4": {
+                    "key": "Alt+Shift+$",
+                    "comment": "Go to your Home page"
+                },
+                "F5": {
+                    "key": "Alt+Shift+%",
+                    "comment": "Go to the previous page"
+                },
+                "F6": {
+                    "key": "Ctrl+H",
+                    "comment": "Open the History bar"
+                },
+                "F7": {
+                    "key": "Ctrl+I",
+                    "comment": "Open the Favorites bar"
+                },
+                "F8": {
+                    "key": "Ctrl+T",
+                    "comment": "Open New Tab"
+                },
+                "F9": {
+                    "key": "Ctrl+F",
+                    "comment": "Find"
+                },
+                "JogL": {
+                    "key": "Shift+%",
+                    "comment": "Scroll Left"
+                },
+                "JogR": {
+                    "key": "Shift+'",
+                    "comment": "Scroll Right"
+                },
                 "S-1": {
                     "key": "Shift+&",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S-2": {
                     "key": "Shift+&",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S-3": {
                     "key": "Shift+&",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S-4": {
                     "key": "Shift+&",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S-5": {
                     "key": "Shift+&",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S-6": {
                     "key": "Shift+&",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S-7": {
                     "key": "Shift+&",
                     "repeat": 60,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up"
                 },
                 "S1": {
                     "key": "Shift+(",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 },
                 "S2": {
                     "key": "Shift+(",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 },
                 "S3": {
                     "key": "Shift+(",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 },
                 "S4": {
                     "key": "Shift+(",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 },
                 "S5": {
                     "key": "Shift+(",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 },
                 "S6": {
                     "key": "Shift+(",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 },
                 "S7": {
                     "key": "Shift+(",
                     "repeat": 60,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down"
                 }
             }
         }

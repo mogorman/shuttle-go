@@ -11,62 +11,99 @@
                 "B1": {
                     "key": "Shift+&",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Arrow Up"
                 },
                 "B3": {
                     "key": "Shift+(",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Arrow Down"
                 },
-                "B4": "Alt+I",
-                "M1": "Ctrl+Shift+Z",
-                "M2": "Ctrl+S",
-                "F2": "space",
-                "F4": "R",
-                "F5": "Ctrl+Z",
+                "B4": {
+                    "key": "Alt+I",
+                    "comment": "Insert"
+                },
+                "M1": {
+                    "key": "Ctrl+Shift+Z",
+                    "comment": "Edit|Redo"
+                },
+                "M2": {
+                    "key": "Ctrl+S",
+                    "comment": "Save"
+                },
+                "F2": {
+                    "key": "space",
+                    "comment": "PLAY/STOP"
+                },
+                "F4": {
+                    "key": "R",
+                    "comment": "RECORD"
+                },
+                "F5": {
+                    "key": "Ctrl+Z",
+                    "comment": "Edit|Undo"
+                },
                 "F6": {
                     "key": "Shift+%",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Arrow Left"
                 },
                 "F7": {
                     "key": "Shift+'",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Arrow Right"
                 },
-                "F8": "Ctrl+Shift+!",
-                "JogL": "Ctrl+Shift+!",
+                "F8": {
+                    "key": "Ctrl+Shift+!",
+                    "comment": "Go|Previous Measure"
+                },
+                "JogL": {
+                    "key": "Ctrl+Shift+!",
+                    "comment": "Jog By Measure Reverse"
+                },
                 "S-1": {
                     "key": "Ctrl+Shift+!",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll By Measure Reverse"
                 },
                 "S-2": {
                     "key": "Ctrl+Shift+!",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll By Measure Reverse"
                 },
                 "S-3": {
                     "key": "Ctrl+Shift+!",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll By Measure Reverse"
                 },
                 "S-4": {
                     "key": "Ctrl+Shift+!",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll By Measure Reverse"
                 },
                 "S-5": {
                     "key": "Ctrl+Shift+!",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll By Measure Reverse"
                 },
                 "S-6": {
                     "key": "Ctrl+Shift+!",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll By Measure Reverse"
                 },
-                "S-7": "Ctrl+Shift+!"
+                "S-7": {
+                    "key": "Ctrl+Shift+!",
+                    "comment": "Scroll By Measure Reverse"
+                }
             }
         }
     ]

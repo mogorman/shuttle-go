@@ -8,16 +8,46 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+Z",
-                "B1": "Alt+F11",
-                "B3": "Alt+F8",
-                "M1": "Ctrl+P",
-                "M2": "Ctrl+S",
-                "F2": "Ctrl+R",
-                "F3": "Shift+F3",
-                "F4": "Ctrl+1",
-                "F8": "Shift+space",
-                "F9": "Ctrl+space",
+                "F1": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo the last action"
+                },
+                "B1": {
+                    "key": "Alt+F11",
+                    "comment": "Display the Visual Basic Editor"
+                },
+                "B3": {
+                    "key": "Alt+F8",
+                    "comment": "Display the Macro dialog box"
+                },
+                "M1": {
+                    "key": "Ctrl+P",
+                    "comment": "Print"
+                },
+                "M2": {
+                    "key": "Ctrl+S",
+                    "comment": "Save"
+                },
+                "F2": {
+                    "key": "Ctrl+R",
+                    "comment": "Define a name"
+                },
+                "F3": {
+                    "key": "Shift+F3",
+                    "comment": "Paste a function into a formula"
+                },
+                "F4": {
+                    "key": "Ctrl+1",
+                    "comment": "Display the Format Cells dialog"
+                },
+                "F8": {
+                    "key": "Shift+space",
+                    "comment": "Select the entire row"
+                },
+                "F9": {
+                    "key": "Ctrl+space",
+                    "comment": "Select the entire column"
+                },
                 "S-1": "Shift+%",
                 "S-2": "Shift+%",
                 "S-3": {

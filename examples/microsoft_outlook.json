@@ -8,20 +8,62 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+F",
-                "B2": "Ctrl+Shift+B",
-                "B3": "Alt+F4",
-                "B4": "F7",
-                "M1": "Ctrl+Shift+G",
-                "M2": "Ctrl+Z",
-                "F2": "Ctrl+Shift+R",
-                "F3": "Ctrl+R",
-                "F4": "Ctrl+N",
-                "F5": "Ctrl+Y",
-                "F6": "Ctrl+X",
-                "F7": "Ctrl+V",
-                "F8": "Ctrl+C",
-                "F9": "Ctrl+Shift+F",
+                "F1": {
+                    "key": "Ctrl+F",
+                    "comment": "Forward"
+                },
+                "B2": {
+                    "key": "Ctrl+Shift+B",
+                    "comment": "Display the Address Book"
+                },
+                "B3": {
+                    "key": "Alt+F4",
+                    "comment": "Quit"
+                },
+                "B4": {
+                    "key": "F7",
+                    "comment": "Check spelling"
+                },
+                "M1": {
+                    "key": "Ctrl+Shift+G",
+                    "comment": "Flag for follow up"
+                },
+                "M2": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo/Redo"
+                },
+                "F2": {
+                    "key": "Ctrl+Shift+R",
+                    "comment": "Reply all to a mail message"
+                },
+                "F3": {
+                    "key": "Ctrl+R",
+                    "comment": "Reply to a mail message"
+                },
+                "F4": {
+                    "key": "Ctrl+N",
+                    "comment": "Open a new message"
+                },
+                "F5": {
+                    "key": "Ctrl+Y",
+                    "comment": "Go to folder / Redo"
+                },
+                "F6": {
+                    "key": "Ctrl+X",
+                    "comment": "Cut"
+                },
+                "F7": {
+                    "key": "Ctrl+V",
+                    "comment": "Paste"
+                },
+                "F8": {
+                    "key": "Ctrl+C",
+                    "comment": "Copy"
+                },
+                "F9": {
+                    "key": "Ctrl+Shift+F",
+                    "comment": "Use advanced Find"
+                },
                 "JogL": "Shift+!",
                 "S-1": "Shift+&",
                 "S-2": "Shift+&",

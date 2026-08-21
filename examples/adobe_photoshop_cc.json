@@ -8,53 +8,99 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+O",
-                "B1": "Ctrl+L",
-                "B2": "Ctrl+M",
-                "B3": "Ctrl+B",
-                "B4": "Ctrl+U",
-                "M1": "Ctrl+Shift+Z",
-                "M2": "Ctrl+Alt+Z",
-                "F2": "Ctrl+S",
-                "F3": "Ctrl+Shift+S",
-                "F4": "Ctrl+N",
-                "F6": "Ctrl+T",
-                "F7": "Ctrl+P",
-                "F8": "Ctrl+D",
+                "F1": {
+                    "key": "Ctrl+O",
+                    "comment": "File open"
+                },
+                "B1": {
+                    "key": "Ctrl+L",
+                    "comment": "Adjust levels"
+                },
+                "B2": {
+                    "key": "Ctrl+M",
+                    "comment": "Adjust curves"
+                },
+                "B3": {
+                    "key": "Ctrl+B",
+                    "comment": "Color balance"
+                },
+                "B4": {
+                    "key": "Ctrl+U",
+                    "comment": "Hue saturation"
+                },
+                "M1": {
+                    "key": "Ctrl+Shift+Z",
+                    "comment": "Step Forward"
+                },
+                "M2": {
+                    "key": "Ctrl+Alt+Z",
+                    "comment": "Step Backward"
+                },
+                "F2": {
+                    "key": "Ctrl+S",
+                    "comment": "File save"
+                },
+                "F3": {
+                    "key": "Ctrl+Shift+S",
+                    "comment": "Save copy as"
+                },
+                "F4": {
+                    "key": "Ctrl+N",
+                    "comment": "File new"
+                },
+                "F6": {
+                    "key": "Ctrl+T",
+                    "comment": "Free transform"
+                },
+                "F7": {
+                    "key": "Ctrl+P",
+                    "comment": "Print"
+                },
+                "F8": {
+                    "key": "Ctrl+D",
+                    "comment": "De-select"
+                },
                 "S-1": {
                     "key": "Shift+Shift+!",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-2": {
                     "key": "Shift+Shift+!",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-3": {
                     "key": "Shift+Shift+!",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-4": {
                     "key": "Shift+Shift+!",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-5": {
                     "key": "Shift+Shift+!",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-6": {
                     "key": "Shift+Shift+!",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 },
                 "S-7": {
                     "key": "Shift+Shift+!",
                     "repeat": 60,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll up"
                 }
             }
         }

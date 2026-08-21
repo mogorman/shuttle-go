@@ -8,20 +8,62 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+Alt+I",
-                "B1": "Ctrl+Alt+S",
-                "B2": "Ctrl+Shift+N",
-                "B3": "Alt+Shift+C",
-                "M1": "Ctrl+Z",
-                "M2": "Ctrl+S",
-                "F2": "Ctrl+Shift+E",
-                "F3": "Shift+F7",
-                "F4": "Shift+F3",
-                "F5": "Shift+S",
-                "F6": "Ctrl+F",
-                "F7": "Ctrl+X",
-                "F8": "Ctrl+V",
-                "F9": "Ctrl+C",
+                "F1": {
+                    "key": "Ctrl+Alt+I",
+                    "comment": "Switch in/out of Print Preview"
+                },
+                "B1": {
+                    "key": "Ctrl+Alt+S",
+                    "comment": "Split the document window"
+                },
+                "B2": {
+                    "key": "Ctrl+Shift+N",
+                    "comment": "Apply the Normal style"
+                },
+                "B3": {
+                    "key": "Alt+Shift+C",
+                    "comment": "Remove document windows split"
+                },
+                "M1": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "M2": {
+                    "key": "Ctrl+S",
+                    "comment": "Save"
+                },
+                "F2": {
+                    "key": "Ctrl+Shift+E",
+                    "comment": "Turn track changes on or off"
+                },
+                "F3": {
+                    "key": "Shift+F7",
+                    "comment": "Choose the Thesaurus command"
+                },
+                "F4": {
+                    "key": "Shift+F3",
+                    "comment": "Change the case of letters"
+                },
+                "F5": {
+                    "key": "Shift+S",
+                    "comment": "Repeat find"
+                },
+                "F6": {
+                    "key": "Ctrl+F",
+                    "comment": "Find text, formatting, ..."
+                },
+                "F7": {
+                    "key": "Ctrl+X",
+                    "comment": "Cut selected text or object"
+                },
+                "F8": {
+                    "key": "Ctrl+V",
+                    "comment": "Paste text or object"
+                },
+                "F9": {
+                    "key": "Ctrl+C",
+                    "comment": "Copy selected text or object"
+                },
                 "JogL": "Shift+%",
                 "JogR": "Shift+'",
                 "S-1": {

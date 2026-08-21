@@ -8,54 +8,103 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "B1": "V",
-                "B2": "H",
-                "B3": "W",
-                "B4": "Z",
-                "F2": "Ctrl+K",
-                "F3": "Ctrl+Shift+(",
-                "F4": "Ctrl+Shift+&",
-                "F5": "Shift+$",
-                "F6": "J",
-                "F7": "space",
-                "F8": "K",
-                "F9": "Shift+#",
-                "JogL": "Ctrl+Shift+%",
-                "JogR": "Ctrl+Shift+'",
+                "B1": {
+                    "key": "V",
+                    "comment": "Selection tool"
+                },
+                "B2": {
+                    "key": "H",
+                    "comment": "Hand tool"
+                },
+                "B3": {
+                    "key": "W",
+                    "comment": "Rotation tool"
+                },
+                "B4": {
+                    "key": "Z",
+                    "comment": "Zoom tool"
+                },
+                "F2": {
+                    "key": "Ctrl+K",
+                    "comment": "Composition Settings"
+                },
+                "F3": {
+                    "key": "Ctrl+Shift+(",
+                    "comment": "Select next layer back"
+                },
+                "F4": {
+                    "key": "Ctrl+Shift+&",
+                    "comment": "Select next layer forward"
+                },
+                "F5": {
+                    "key": "Shift+$",
+                    "comment": "Go to in point"
+                },
+                "F6": {
+                    "key": "J",
+                    "comment": "Go to previous keyframe"
+                },
+                "F7": {
+                    "key": "space",
+                    "comment": "Play"
+                },
+                "F8": {
+                    "key": "K",
+                    "comment": "Go to next keyframe"
+                },
+                "F9": {
+                    "key": "Shift+#",
+                    "comment": "Go to out point"
+                },
+                "JogL": {
+                    "key": "Ctrl+Shift+%",
+                    "comment": "Reverse frame by frame"
+                },
+                "JogR": {
+                    "key": "Ctrl+Shift+'",
+                    "comment": "Forward frame by frame"
+                },
                 "S-1": {
                     "key": "Shift+!",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse 2 frames per sec."
                 },
                 "S-2": {
                     "key": "Shift+!",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse  frames per sec."
                 },
                 "S-3": {
                     "key": "Shift+!",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse  frames per sec."
                 },
                 "S-4": {
                     "key": "Shift+!",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse  frames per sec."
                 },
                 "S-5": {
                     "key": "Shift+!",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Reverse  frames per sec."
                 },
                 "S-6": {
                     "key": "Shift+Shift+!",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
                 "S-7": {
                     "key": "Shift+Shift+!",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 }
             }
         }

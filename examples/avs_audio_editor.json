@@ -8,85 +8,154 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+S",
-                "B1": "Shift+Shift+%",
-                "B2": "Shift+Shift+'",
-                "B3": "Ctrl+Shift+%",
-                "B4": "Ctrl+Shift+'",
-                "M1": "Ctrl+Z",
-                "M2": "Ctrl+Shift+Z",
-                "F2": "Ctrl+T",
-                "F3": "Shift+.",
-                "F4": "W",
-                "F5": "Ctrl+M",
-                "F6": "Shift+$",
-                "F7": "space",
-                "F8": "Shift+#",
-                "F9": "Ctrl+K",
-                "JogL": "Shift+%",
-                "JogR": "Shift+'",
+                "F1": {
+                    "key": "Ctrl+S",
+                    "comment": "Save File"
+                },
+                "B1": {
+                    "key": "Shift+Shift+%",
+                    "comment": "Increase the left selection"
+                },
+                "B2": {
+                    "key": "Shift+Shift+'",
+                    "comment": "Increase the right selection"
+                },
+                "B3": {
+                    "key": "Ctrl+Shift+%",
+                    "comment": "Decrease the left selection"
+                },
+                "B4": {
+                    "key": "Ctrl+Shift+'",
+                    "comment": "Decrease the right selection"
+                },
+                "M1": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "M2": {
+                    "key": "Ctrl+Shift+Z",
+                    "comment": "Redo"
+                },
+                "F2": {
+                    "key": "Ctrl+T",
+                    "comment": "Trims to selection"
+                },
+                "F3": {
+                    "key": "Shift+.",
+                    "comment": "Deletes selection"
+                },
+                "F4": {
+                    "key": "W",
+                    "comment": "Add marker"
+                },
+                "F5": {
+                    "key": "Ctrl+M",
+                    "comment": "Zoom out"
+                },
+                "F6": {
+                    "key": "Shift+$",
+                    "comment": "Move cursor to the beginning"
+                },
+                "F7": {
+                    "key": "space",
+                    "comment": "Play/Pause"
+                },
+                "F8": {
+                    "key": "Shift+#",
+                    "comment": "Move cursor to the end"
+                },
+                "F9": {
+                    "key": "Ctrl+K",
+                    "comment": "Zoom in"
+                },
+                "JogL": {
+                    "key": "Shift+%",
+                    "comment": "Move cursor left"
+                },
+                "JogR": {
+                    "key": "Shift+'",
+                    "comment": "Move cursor right"
+                },
                 "S-1": {
                     "key": "Shift+%",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
                 "S-2": {
                     "key": "Shift+%",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
                 "S-3": {
                     "key": "Shift+%",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
                 "S-4": {
                     "key": "Shift+%",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
                 "S-5": {
                     "key": "Shift+%",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
                 "S-6": {
                     "key": "Shift+%",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Rewind"
                 },
-                "S-7": "Shift+%",
+                "S-7": {
+                    "key": "Shift+%",
+                    "comment": "Rewind"
+                },
                 "S1": {
                     "key": "Shift+'",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward"
                 },
                 "S2": {
                     "key": "Shift+'",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward"
                 },
                 "S3": {
                     "key": "Shift+'",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward"
                 },
                 "S4": {
                     "key": "Shift+'",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward"
                 },
                 "S5": {
                     "key": "Shift+'",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward"
                 },
                 "S6": {
                     "key": "Shift+'",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Forward"
                 },
-                "S7": "Shift+'"
+                "S7": {
+                    "key": "Shift+'",
+                    "comment": "Forward"
+                }
             }
         }
     ]

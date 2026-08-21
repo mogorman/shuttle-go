@@ -8,62 +8,121 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+N",
-                "B1": "Ctrl+T",
-                "B2": "Ctrl+Shift+2",
-                "B3": "Ctrl+Shift+F",
-                "B4": "Ctrl+L",
-                "M1": "Ctrl+J",
-                "M2": "Ctrl+B",
-                "F2": "Ctrl+O",
-                "F5": "Ctrl+Alt+Shift+%",
-                "F6": "Shift+%",
-                "F7": "space",
-                "F8": "Shift+'",
-                "F9": "Ctrl+Alt+Shift+'",
-                "JogL": "Ctrl+Shift+(",
-                "JogR": "Ctrl+Shift+&",
-                "S-1": "Shift+&",
+                "F1": {
+                    "key": "Ctrl+N",
+                    "comment": "New Playlist"
+                },
+                "B1": {
+                    "key": "Ctrl+T",
+                    "comment": "Turn Visuals On"
+                },
+                "B2": {
+                    "key": "Ctrl+Shift+2",
+                    "comment": "Equalizer"
+                },
+                "B3": {
+                    "key": "Ctrl+Shift+F",
+                    "comment": "Full Screen"
+                },
+                "B4": {
+                    "key": "Ctrl+L",
+                    "comment": "Show the currently playing song"
+                },
+                "M1": {
+                    "key": "Ctrl+J",
+                    "comment": "View Options"
+                },
+                "M2": {
+                    "key": "Ctrl+B",
+                    "comment": "Hide Menu Bar"
+                },
+                "F2": {
+                    "key": "Ctrl+O",
+                    "comment": "Add A File to Library"
+                },
+                "F5": {
+                    "key": "Ctrl+Alt+Shift+%",
+                    "comment": "Rewind"
+                },
+                "F6": {
+                    "key": "Shift+%",
+                    "comment": "Previous Song"
+                },
+                "F7": {
+                    "key": "space",
+                    "comment": "Play/Pause"
+                },
+                "F8": {
+                    "key": "Shift+'",
+                    "comment": "Next Song"
+                },
+                "F9": {
+                    "key": "Ctrl+Alt+Shift+'",
+                    "comment": "Fast Forward"
+                },
+                "JogL": {
+                    "key": "Ctrl+Shift+(",
+                    "comment": "Volume Down"
+                },
+                "JogR": {
+                    "key": "Ctrl+Shift+&",
+                    "comment": "Volume Up"
+                },
+                "S-1": {
+                    "key": "Shift+&",
+                    "comment": "Scroll Up"
+                },
                 "S-4": {
                     "key": "Shift+&",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up 2x"
                 },
                 "S-5": {
                     "key": "Shift+&",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up 5x"
                 },
                 "S-6": {
                     "key": "Shift+&",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up 10x"
                 },
                 "S-7": {
                     "key": "Shift+&",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Up 15x"
                 },
-                "S1": "Shift+(",
+                "S1": {
+                    "key": "Shift+(",
+                    "comment": "Scroll Down"
+                },
                 "S4": {
                     "key": "Shift+(",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down 2x"
                 },
                 "S5": {
                     "key": "Shift+(",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down 5x"
                 },
                 "S6": {
                     "key": "Shift+(",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down 10x"
                 },
                 "S7": {
                     "key": "Shift+(",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Scroll Down 15x"
                 }
             }
         }

@@ -7,83 +7,146 @@
             ],
             "slow_jog": 200,
             "bindings": {
-                "F1": "Ctrl+S",
-                "B1": "Shift+U",
-                "B2": "Ctrl+1",
-                "B3": "Shift+S",
-                "B4": "Ctrl+3",
-                "M1": "Ctrl+Y",
-                "M2": "Ctrl+Z",
-                "F2": "Ctrl+X",
-                "F3": "Ctrl+C",
-                "F4": "Ctrl+V",
-                "F5": "Shift+$",
-                "F7": "space",
-                "F9": "Shift+#",
-                "JogL": "Shift+%",
-                "JogR": "Shift+'",
+                "F1": {
+                    "key": "Ctrl+S",
+                    "comment": "Save Project"
+                },
+                "B1": {
+                    "key": "Shift+U",
+                    "comment": "Mute"
+                },
+                "B2": {
+                    "key": "Ctrl+1",
+                    "comment": "Zoom in"
+                },
+                "B3": {
+                    "key": "Shift+S",
+                    "comment": "Solo"
+                },
+                "B4": {
+                    "key": "Ctrl+3",
+                    "comment": "Zoom out"
+                },
+                "M1": {
+                    "key": "Ctrl+Y",
+                    "comment": "Redo"
+                },
+                "M2": {
+                    "key": "Ctrl+Z",
+                    "comment": "Undo"
+                },
+                "F2": {
+                    "key": "Ctrl+X",
+                    "comment": "Cut"
+                },
+                "F3": {
+                    "key": "Ctrl+C",
+                    "comment": "Copy"
+                },
+                "F4": {
+                    "key": "Ctrl+V",
+                    "comment": "Paste"
+                },
+                "F5": {
+                    "key": "Shift+$",
+                    "comment": "Skipr to start"
+                },
+                "F7": {
+                    "key": "space",
+                    "comment": "Play/Stop"
+                },
+                "F9": {
+                    "key": "Shift+#",
+                    "comment": "Skip to end"
+                },
+                "JogL": {
+                    "key": "Shift+%",
+                    "comment": "Jog reverse"
+                },
+                "JogR": {
+                    "key": "Shift+'",
+                    "comment": "Jog forward"
+                },
                 "S-1": {
                     "key": "Shift+%",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle reverse"
                 },
                 "S-2": {
                     "key": "Shift+%",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle reverse"
                 },
                 "S-3": {
                     "key": "Shift+%",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle reverse"
                 },
                 "S-4": {
                     "key": "Shift+%",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle reverse"
                 },
                 "S-5": {
                     "key": "Shift+%",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle reverse"
                 },
                 "S-6": {
                     "key": "Shift+%",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle reverse"
                 },
-                "S-7": "Shift+%",
+                "S-7": {
+                    "key": "Shift+%",
+                    "comment": "Shuttle reverse"
+                },
                 "S1": {
                     "key": "Shift+'",
                     "repeat": 2,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle forward"
                 },
                 "S2": {
                     "key": "Shift+'",
                     "repeat": 5,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle forward"
                 },
                 "S3": {
                     "key": "Shift+'",
                     "repeat": 10,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle forward"
                 },
                 "S4": {
                     "key": "Shift+'",
                     "repeat": 15,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle forward"
                 },
                 "S5": {
                     "key": "Shift+'",
                     "repeat": 30,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle forward"
                 },
                 "S6": {
                     "key": "Shift+'",
                     "repeat": 45,
-                    "delay_ms": 1000
+                    "delay_ms": 1000,
+                    "comment": "Shuttle forward"
                 },
-                "S7": "Shift+'"
+                "S7": {
+                    "key": "Shift+'",
+                    "comment": "Shuttle forward"
+                }
             }
         }
     ]

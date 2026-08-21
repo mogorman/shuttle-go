@@ -330,11 +330,11 @@ single app in an `apps` array, e.g. `examples/editshare_lightworks.json`:
                 "match_window_titles": [ "EditShare Lightworks", "Lightworks" ],
                 "slow_jog": 200,
                 "bindings": {
-                    "F1": "V",
-                    "M1": "Alt+Shift+K",
-                    "JogL": "Shift+&",
-                    "S0": "K",
-                    "S7": "Alt+Shift+4"
+                    "F1": { "key": "V", "comment": "Insert/Swap/Last Out/Full Scr" },
+                    "M1": { "key": "Alt+Shift+K", "comment": "Stop" },
+                    "JogL": { "key": "Shift+&", "comment": "Jog Rev/Zoom Out" },
+                    "S0": { "key": "K", "comment": "Stop" },
+                    "S7": { "key": "Alt+Shift+4", "comment": "1000%  Forward" }
                 }
             }
         ]
@@ -351,6 +351,21 @@ into `shuttle-go`'s JSON binding format. So a file like
 CC layout: the same Shuttle buttons mapped to the same editor shortcuts. Pick
 the file matching your application, drop it in place, and the bindings take
 effect immediately (see [Configuration reloading](#configuration-reloading)).
+
+### Regenerating the examples
+
+The examples are generated from Contour's bundled preset file
+(`contour_default_backup.json`) by [`port_contour.py`](port_contour.py). It maps
+each Contour control to a Shuttle key, translates the key (and its
+`Ctrl`/`Alt`/`Shift` modifiers) to a `shuttle-go` key, and — when a binding
+carries a Contour **comment** — emits the object form with a `"comment"` field
+so the note is preserved (see [Binding value forms](#binding-value-forms)). To
+regenerate all of them:
+
+    python3 port_contour.py
+
+This rewrites every file in `examples/`. Run it after changing the key map or
+the binding format, then review the diff before committing.
 
 ## Install in `udev` with:
 
