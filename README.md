@@ -282,10 +282,24 @@ This project ships a [Nix flake](flake.nix), so you can build and install
 a separate build step. The flake exposes:
 
 * `packages.shuttle-go` (also `packages.default`) — the `shuttle-go` binary,
-  plus a `shuttle-go.desktop` launcher in `share/applications/` so it appears
-  in the application menu,
+  plus a `shuttle-go.desktop` launcher in `share/applications/` (with the
+  `shuttle-go` icon in `share/icons/hicolor/`) so it appears in the application
+  menu,
 * `packages.shuttle-pro` — the Shuttle Pro GNOME extension,
 * `devShells.default` — a dev shell with `go`, `dbus`, and `libinput`.
+
+### Icon
+
+The application icon lives in `icons/hicolor/<size>/apps/shuttle-go.png` for
+each size (16–512). It is generated from the source image `shuttle_pro.png`
+with ImageMagick — trim to the content, resize, then center on a square
+canvas:
+
+    for s in 16 24 32 48 64 128 256 512; do
+        magick shuttle_pro.png -trim +repage -resize ${s}x${s} \
+            -gravity center -background none -extent ${s}x${s} -alpha remove \
+            icons/hicolor/${s}x${s}/apps/shuttle-go.png
+    done
 
 Build the binary:
 
