@@ -115,6 +115,30 @@ var keyboardKeys = map[string]int{
 	"Backslash":  43,
 	"\\":         43,
 	"Z":          44,
+
+	// Raw symbol keys. These are the shifted forms of the base keys above
+	// (e.g. "5" shifted is "%", "7" shifted is "&"), so their keycodes match
+	// the base key and a binding writes them as "Shift+<symbol>". The named
+	// aliases for these (Percent, Ampersand, ...) were removed in favor of the
+	// literal symbol, which is more readable in a config.
+	"!":          11, // 0
+	"@":          2,  // 1
+	"#":          3,  // 2
+	"$":          4,  // 3
+	"%":          5,  // 4
+	"^":          6,  // 5
+	"&":          7,  // 6
+	"*":          8,  // 7
+	"(":          9,  // 8
+	")":          10, // 9
+	"_":          12, // -
+	"+":          13, // =
+	"|":          43, // \
+	":":          39, // ;
+	"<":          51, // ,
+	">":          52, // .
+	"?":          53, // /
+	"~":          41, // `
 	"X":          45,
 	"C":          46,
 	"V":          47,
@@ -130,7 +154,6 @@ var keyboardKeys = map[string]int{
 	"RightShift": 54,
 	"RShift":     54,
 	"KPAsterisk": 55,
-	"*":          55,
 	"LeftAlt":    56,
 	"Alt":        56,
 	"Space":      57,
@@ -250,9 +273,7 @@ var keyboardKeys = map[string]int{
 	"ScrollUp":        177,
 	"ScrollDown":      178,
 	"KPLeftParen":     179,
-	"(":               179,
 	"KPRightParen":    180,
-	")":               180,
 	"New":             181, /*AcNew*/
 	"Redo":            182, /*AcRedo/Repeat*/
 	"F13":             183,
