@@ -15,7 +15,7 @@ var debugMode = flag.Bool("debug", false, "Show debug messages (like window titl
 var verboseMode = flag.Bool("verbose", false, "For each held key, print which key is held and the output it is sending (to debug key-repeat timing)")
 var logFile = flag.String("log-file", "", "Log to a file instead of stdout")
 var showVersion = flag.Bool("version", false, "Print the semantic version and exit")
-var testEmit = flag.String("test", "", "Emit a known key sequence and exit (e.g. 'test' emits a, b, c, d, e) for verifying uinput delivery")
+var testEmit = flag.String("test", "", "Emit a known key sequence and exit for verifying uinput delivery: 'test' taps a,b,c,d,e; 'hold' presses one key, holds it 3s, then releases it (to check the release event reaches the kernel)")
 var holdDevice = flag.Bool("hold", false, "Create the uinput device, report the grab state, and keep it alive until interrupted")
 
 // version is the semantic version, set at build time via
@@ -60,6 +60,31 @@ func main() {
 		fmt.Println("Now run `evtest` in another terminal, select the shuttle-go-virtual device, and press Enter to start reading.")
 		fmt.Println("Waiting 10s before emitting so you have time to select the device and start evtest...")
 		time.Sleep(10 * time.Second)
+
+		if *testEmit == "hold" {
+			// Diagnostic for "key appears to auto-repeat": emit ONE key, hold it
+			// down for 3s, then release it. In evtest you should see exactly two
+			// EV_KEY events for code 30: value 1 (down) and, ~3s later, value 0
+			// (up). If the value-0 event never appears, the release is being lost
+			// and the key is stuck down (which the OS then auto-repeats).
+			fmt.Println("Emitting a single 'a' (code 30): press, hold 3s, release.")
+			if err := uinput.KeyHold([]int{30}); err != nil {
+				fmt.Println("Error pressing test key:", err)
+				os.Exit(12)
+			}
+			fmt.Println("  pressed (EV_KEY 30 value 1). Holding for 3s...")
+			time.Sleep(3 * time.Second)
+			if err := uinput.KeyRelease([]int{30}); err != nil {
+				fmt.Println("Error releasing test key:", err)
+				os.Exit(12)
+			}
+			fmt.Println("  released (EV_KEY 30 value 0).")
+			fmt.Println("Holding the device for 10s more so evtest can keep reading...")
+			time.Sleep(10 * time.Second)
+			fmt.Println("Done. Did evtest show BOTH the value-1 and the later value-0 for code 30?")
+			return
+		}
+
 		codes := []int{30, 48, 46, 32, 18} // a, b, c, d, e
 		for i, c := range codes {
 			if err := uinput.KeyTap([]int{c}); err != nil {
