@@ -1,5 +1,6 @@
 result
 shuttle-go
+dist/
 vendor/
 contour_default_backup.json
 contour_davinci_filtered.json

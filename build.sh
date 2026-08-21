@@ -7,3 +7,7 @@ set -xe
 # file, so the two stay in sync.
 VERSION="$(head -n1 VERSION)"
 GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.version=${VERSION}" -o shuttle-go
+# Emit the desktop launcher next to the binary so the Nix build (which
+# packages the built tree) picks it up.
+mkdir -p dist
+cp shuttle-go.desktop dist/

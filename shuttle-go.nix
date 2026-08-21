@@ -39,6 +39,24 @@ buildGoModule rec {
   postInstall = ''
     wrapProgram $out/bin/shuttle-go \
       --prefix PATH ":" ${lib.makeBinPath runtimeDeps}
+
+    # Desktop launcher, so the app shows up in the GNOME/KDE application menu.
+    # build.sh copies the file into dist/; fall back to the source tree if the
+    # copy is absent (e.g. the tree was not built with build.sh first).
+    mkdir -p $out/share/applications
+    if [ -f $src/dist/shuttle-go.desktop ]; then
+      cp $src/dist/shuttle-go.desktop $out/share/applications/
+    else
+      cat > $out/share/applications/shuttle-go.desktop <<'EOF'
+    [Desktop Entry]
+    Name=Shuttle Go
+    Comment=Contour Design Shuttle Pro V2 driver
+    Exec=shuttle-go
+    Type=Application
+    Terminal=false
+    Categories=Utility;
+    EOF
+    fi
   '';
 
   meta = with lib; {

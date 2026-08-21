@@ -244,6 +244,8 @@ This project ships a [Nix flake](flake.nix), so you can build and install
 a separate build step. The flake exposes:
 
 * `packages.shuttle-go` (also `packages.default`) — the `shuttle-go` binary,
+  plus a `shuttle-go.desktop` launcher in `share/applications/` so it appears
+  in the application menu,
 * `packages.shuttle-pro` — the Shuttle Pro GNOME extension,
 * `devShells.default` — a dev shell with `go`, `dbus`, and `libinput`.
 
