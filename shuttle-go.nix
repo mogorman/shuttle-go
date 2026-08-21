@@ -47,15 +47,24 @@ buildGoModule rec {
     if [ -f $src/dist/shuttle-go.desktop ]; then
       cp $src/dist/shuttle-go.desktop $out/share/applications/
     else
-      cat > $out/share/applications/shuttle-go.desktop <<'EOF'
-    [Desktop Entry]
-    Name=Shuttle Go
-    Comment=Contour Design Shuttle Pro V2 driver
-    Exec=shuttle-go
-    Type=Application
-    Terminal=false
-    Categories=Utility;
-    EOF
+      cat > $out/share/applications/shuttle-go.desktop <<'DESKTOP'
+[Desktop Entry]
+Name=Shuttle Go
+Comment=Contour Design Shuttle Pro V2 driver
+Exec=shuttle-go
+Icon=shuttle-go
+Type=Application
+Terminal=false
+Categories=Utility;
+DESKTOP
+    fi
+
+    # Hicolor icon set (downscaled from the Shuttle Pro V2 product photo), so
+    # the launcher shows an icon in the application menu. The PNGs are
+    # committed under icons/ in the source tree.
+    if [ -f $src/icons/hicolor/128x128/apps/shuttle-go.png ]; then
+      mkdir -p $out/share/icons
+      cp -r $src/icons/hicolor $out/share/icons/
     fi
   '';
 
